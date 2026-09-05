@@ -3,25 +3,22 @@ import {
   BOUNDARY_ID,
   Circuit,
   createDefaultRegistry,
-  createGateDefinition,
   createPortDefinition,
   deserializeGateDefinition,
   evaluateGate,
   serializeGateDefinition,
 } from "../index";
+import { buildAndGate } from "./gates";
 
 /**
  * End-to-end walk through every layer in SPEC.md's layering diagram —
  * PortDefinition -> Component/Connection -> CircuitDefinition ->
  * GateDefinition -> GateRegistry -> evaluateCircuit -> serialization —
  * using only the public `../index` surface, with the textbook two-NAND
- * AND gate (SPEC.md §3) as the running example.
+ * AND gate (SPEC.md §3, built by the shared `./gates` library) as the
+ * running example.
  */
 describe("AND gate end-to-end", () => {
-  const A = createPortDefinition("A", "input");
-  const B = createPortDefinition("B", "input");
-  const Y = createPortDefinition("Y", "output");
-
   const TRUTH_TABLE: [boolean, boolean, boolean][] = [
     [false, false, false],
     [false, true, false],
@@ -29,34 +26,22 @@ describe("AND gate end-to-end", () => {
     [true, true, true],
   ];
 
-  /** AND(A, B) = NAND(NAND(A, B), NAND(A, B)) — see SPEC.md §3 for the boundary wiring. */
-  function buildAndGate(registry = createDefaultRegistry()) {
-    const circuit = new Circuit({ registry, inputs: [A, B], outputs: [Y] });
-
-    const nand1 = circuit.addComponent("NAND");
-    const nand2 = circuit.addComponent("NAND");
-
-    circuit.connect({ componentId: BOUNDARY_ID, portId: A.id }, { componentId: nand1, portId: "A" });
-    circuit.connect({ componentId: BOUNDARY_ID, portId: B.id }, { componentId: nand1, portId: "B" });
-    circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: nand2, portId: "A" });
-    circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: nand2, portId: "B" });
-    circuit.connect({ componentId: nand2, portId: "Y" }, { componentId: BOUNDARY_ID, portId: Y.id });
-
-    return createGateDefinition({ name: "AND", inputs: [A, B], outputs: [Y], circuit: circuit.toDefinition() });
-  }
-
   it("evaluates the full truth table through the registry", () => {
     const registry = createDefaultRegistry();
     const and = buildAndGate(registry);
+    const [a, b] = and.inputs;
+    const [y] = and.outputs;
 
-    for (const [a, b, expected] of TRUTH_TABLE) {
-      expect(evaluateGate(and, registry, { [A.id]: a, [B.id]: b })[Y.id]).toBe(expected);
+    for (const [av, bv, expected] of TRUTH_TABLE) {
+      expect(evaluateGate(and, registry, { [a.id]: av, [b.id]: bv })[y.id]).toBe(expected);
     }
   });
 
   it("works as a component nested inside a larger circuit", () => {
     const registry = createDefaultRegistry();
     const and = buildAndGate(registry);
+    const [andA, andB] = and.inputs;
+    const [andY] = and.outputs;
 
     // AND3(a, b, c) = AND(AND(a, b), c), composed from two AND gate instances.
     const a3 = createPortDefinition("A", "input");
@@ -68,11 +53,11 @@ describe("AND gate end-to-end", () => {
     const and1 = outer.addComponent(and);
     const and2 = outer.addComponent(and);
 
-    outer.connect({ componentId: BOUNDARY_ID, portId: a3.id }, { componentId: and1, portId: A.id });
-    outer.connect({ componentId: BOUNDARY_ID, portId: b3.id }, { componentId: and1, portId: B.id });
-    outer.connect({ componentId: and1, portId: Y.id }, { componentId: and2, portId: A.id });
-    outer.connect({ componentId: BOUNDARY_ID, portId: c3.id }, { componentId: and2, portId: B.id });
-    outer.connect({ componentId: and2, portId: Y.id }, { componentId: BOUNDARY_ID, portId: y3.id });
+    outer.connect({ componentId: BOUNDARY_ID, portId: a3.id }, { componentId: and1, portId: andA.id });
+    outer.connect({ componentId: BOUNDARY_ID, portId: b3.id }, { componentId: and1, portId: andB.id });
+    outer.connect({ componentId: and1, portId: andY.id }, { componentId: and2, portId: andA.id });
+    outer.connect({ componentId: BOUNDARY_ID, portId: c3.id }, { componentId: and2, portId: andB.id });
+    outer.connect({ componentId: and2, portId: andY.id }, { componentId: BOUNDARY_ID, portId: y3.id });
 
     const allTrue = outer.evaluate({ boundaryInputs: { [a3.id]: true, [b3.id]: true, [c3.id]: true } });
     expect(allTrue.boundaryOutputs[y3.id]).toBe(true);
@@ -82,7 +67,7 @@ describe("AND gate end-to-end", () => {
   });
 
   it("survives a serialize/deserialize round-trip and still evaluates correctly", () => {
-    const and = buildAndGate();
+    const and = buildAndGate(createDefaultRegistry());
 
     // Round-trip through actual JSON text, as it would cross a real persistence boundary.
     const json = JSON.parse(JSON.stringify(serializeGateDefinition(and)));

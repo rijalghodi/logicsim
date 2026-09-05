@@ -10,123 +10,15 @@ import {
   serializeGateDefinition,
 } from "../index";
 import type { GateDefinition, GateRegistry } from "../index";
+import { buildAndGate, buildHalfAdderGate, buildNotGate, buildOrGate, buildXorGate } from "./gates";
 
 /**
  * End-to-end walk through custom-gate composition several layers deep:
  * NAND -> {NOT, AND, XOR} -> {OR, HALF_ADDER} -> FULL_ADDER, then a 2-bit
- * ripple-carry adder built from two FULL_ADDERs. Every gate below is
- * itself built the same way the AND gate is in andGate.e2e.test.ts — via
- * `Circuit` + the `BOUNDARY_ID` convention from SPEC.md §3.
+ * ripple-carry adder built from two FULL_ADDERs. NOT/AND/XOR/OR/HALF_ADDER
+ * come from the shared `./gates` library; FULL_ADDER and the 2-bit adder
+ * are specific to this test.
  */
-
-function buildNotGate(registry: GateRegistry): GateDefinition {
-  const A = createPortDefinition("A", "input");
-  const Y = createPortDefinition("Y", "output");
-  const circuit = new Circuit({ registry, inputs: [A], outputs: [Y] });
-
-  const nand1 = circuit.addComponent("NAND");
-  circuit.connect({ componentId: BOUNDARY_ID, portId: A.id }, { componentId: nand1, portId: "A" });
-  circuit.connect({ componentId: BOUNDARY_ID, portId: A.id }, { componentId: nand1, portId: "B" });
-  circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: BOUNDARY_ID, portId: Y.id });
-
-  return createGateDefinition({ name: "NOT", inputs: [A], outputs: [Y], circuit: circuit.toDefinition() });
-}
-
-/** AND(A, B) = NAND(NAND(A, B), NAND(A, B)) — see andGate.e2e.test.ts. */
-function buildAndGate(registry: GateRegistry): GateDefinition {
-  const A = createPortDefinition("A", "input");
-  const B = createPortDefinition("B", "input");
-  const Y = createPortDefinition("Y", "output");
-  const circuit = new Circuit({ registry, inputs: [A, B], outputs: [Y] });
-
-  const nand1 = circuit.addComponent("NAND");
-  const nand2 = circuit.addComponent("NAND");
-  circuit.connect({ componentId: BOUNDARY_ID, portId: A.id }, { componentId: nand1, portId: "A" });
-  circuit.connect({ componentId: BOUNDARY_ID, portId: B.id }, { componentId: nand1, portId: "B" });
-  circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: nand2, portId: "A" });
-  circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: nand2, portId: "B" });
-  circuit.connect({ componentId: nand2, portId: "Y" }, { componentId: BOUNDARY_ID, portId: Y.id });
-
-  return createGateDefinition({ name: "AND", inputs: [A, B], outputs: [Y], circuit: circuit.toDefinition() });
-}
-
-/** Standard 4-NAND XOR: NAND(NAND(A, NAND(A,B)), NAND(B, NAND(A,B))). */
-function buildXorGate(registry: GateRegistry): GateDefinition {
-  const A = createPortDefinition("A", "input");
-  const B = createPortDefinition("B", "input");
-  const Y = createPortDefinition("Y", "output");
-  const circuit = new Circuit({ registry, inputs: [A, B], outputs: [Y] });
-
-  const n1 = circuit.addComponent("NAND");
-  const n2 = circuit.addComponent("NAND");
-  const n3 = circuit.addComponent("NAND");
-  const n4 = circuit.addComponent("NAND");
-
-  circuit.connect({ componentId: BOUNDARY_ID, portId: A.id }, { componentId: n1, portId: "A" });
-  circuit.connect({ componentId: BOUNDARY_ID, portId: B.id }, { componentId: n1, portId: "B" });
-  circuit.connect({ componentId: BOUNDARY_ID, portId: A.id }, { componentId: n2, portId: "A" });
-  circuit.connect({ componentId: n1, portId: "Y" }, { componentId: n2, portId: "B" });
-  circuit.connect({ componentId: BOUNDARY_ID, portId: B.id }, { componentId: n3, portId: "A" });
-  circuit.connect({ componentId: n1, portId: "Y" }, { componentId: n3, portId: "B" });
-  circuit.connect({ componentId: n2, portId: "Y" }, { componentId: n4, portId: "A" });
-  circuit.connect({ componentId: n3, portId: "Y" }, { componentId: n4, portId: "B" });
-  circuit.connect({ componentId: n4, portId: "Y" }, { componentId: BOUNDARY_ID, portId: Y.id });
-
-  return createGateDefinition({ name: "XOR", inputs: [A, B], outputs: [Y], circuit: circuit.toDefinition() });
-}
-
-/** OR(A, B) = NAND(NOT(A), NOT(B)) — De Morgan's, nesting the NOT gate as a component. */
-function buildOrGate(registry: GateRegistry, not: GateDefinition): GateDefinition {
-  const A = createPortDefinition("A", "input");
-  const B = createPortDefinition("B", "input");
-  const Y = createPortDefinition("Y", "output");
-  const circuit = new Circuit({ registry, inputs: [A, B], outputs: [Y] });
-
-  const [notIn] = not.inputs;
-  const [notOut] = not.outputs;
-  const notA = circuit.addComponent(not);
-  const notB = circuit.addComponent(not);
-  const nand1 = circuit.addComponent("NAND");
-
-  circuit.connect({ componentId: BOUNDARY_ID, portId: A.id }, { componentId: notA, portId: notIn.id });
-  circuit.connect({ componentId: BOUNDARY_ID, portId: B.id }, { componentId: notB, portId: notIn.id });
-  circuit.connect({ componentId: notA, portId: notOut.id }, { componentId: nand1, portId: "A" });
-  circuit.connect({ componentId: notB, portId: notOut.id }, { componentId: nand1, portId: "B" });
-  circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: BOUNDARY_ID, portId: Y.id });
-
-  return createGateDefinition({ name: "OR", inputs: [A, B], outputs: [Y], circuit: circuit.toDefinition() });
-}
-
-/** HalfAdder(A, B): Sum = XOR(A, B), Carry = AND(A, B). */
-function buildHalfAdderGate(registry: GateRegistry, xor: GateDefinition, and: GateDefinition): GateDefinition {
-  const A = createPortDefinition("A", "input");
-  const B = createPortDefinition("B", "input");
-  const Sum = createPortDefinition("Sum", "output");
-  const Carry = createPortDefinition("Carry", "output");
-  const circuit = new Circuit({ registry, inputs: [A, B], outputs: [Sum, Carry] });
-
-  const [xorA, xorB] = xor.inputs;
-  const [xorY] = xor.outputs;
-  const [andA, andB] = and.inputs;
-  const [andY] = and.outputs;
-
-  const xorC = circuit.addComponent(xor);
-  const andC = circuit.addComponent(and);
-
-  circuit.connect({ componentId: BOUNDARY_ID, portId: A.id }, { componentId: xorC, portId: xorA.id });
-  circuit.connect({ componentId: BOUNDARY_ID, portId: B.id }, { componentId: xorC, portId: xorB.id });
-  circuit.connect({ componentId: BOUNDARY_ID, portId: A.id }, { componentId: andC, portId: andA.id });
-  circuit.connect({ componentId: BOUNDARY_ID, portId: B.id }, { componentId: andC, portId: andB.id });
-  circuit.connect({ componentId: xorC, portId: xorY.id }, { componentId: BOUNDARY_ID, portId: Sum.id });
-  circuit.connect({ componentId: andC, portId: andY.id }, { componentId: BOUNDARY_ID, portId: Carry.id });
-
-  return createGateDefinition({
-    name: "HALF_ADDER",
-    inputs: [A, B],
-    outputs: [Sum, Carry],
-    circuit: circuit.toDefinition(),
-  });
-}
 
 /**
  * FullAdder(A, B, Cin): chains two half adders and ORs their carries —
