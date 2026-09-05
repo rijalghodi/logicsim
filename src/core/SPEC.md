@@ -46,21 +46,60 @@ custom gate never requires touching the evaluator.
 
 ## 3. The boundary convention
 
-A `GateDefinition`'s internal `CircuitDefinition` needs some way to refer
-to the gate's own external inputs/outputs from inside its wiring. Rather
-than inventing a second port-addressing scheme, the internal circuit
-treats its own interface as a virtual component with id `BOUNDARY_ID`
-(`circuit/Connection.ts`). A `Connection` from `BOUNDARY_ID`/`<input port>`
-supplies a value into the circuit; a `Connection` to `BOUNDARY_ID`/`<output
-port>` reads a value out of it.
+**The problem.** A `GateDefinition` for, say, a custom `AND` gate has two
+input ports (`A`, `B`) and one output port (`Y`) — that's its interface to
+the outside world. Internally, `AND` is built from two `NAND`s, and that
+internal wiring needs to connect *something* to `A`, `B`, and `Y`. But
+`A`/`B`/`Y` aren't ports on any component inside the circuit — they're the
+circuit's own edges. `BOUNDARY_ID` (`circuit/Connection.ts`) is a fake
+component id that stands in for "the gate's own interface," so the
+internal wiring can address `A`/`B`/`Y` with the exact same
+`{ componentId, portId }` shape used for every real component.
 
-This inverts each port's direction from the internal wiring's point of
-view: an external **input** behaves like a **source** internally (it
-_produces_ a value, like an output), and an external **output** behaves
-like a **sink** internally (it _consumes_ a value, like an input).
-`validateConnection`'s `resolveEndpoint` performs exactly this inversion
-when the referenced component is `BOUNDARY_ID`. This is the trickiest part
-of the model; get confused by it, re-read this section before "fixing" it.
+**Concrete example** — the textbook two-NAND `AND` gate
+(`AND(A,B) = NAND(NAND(A,B), NAND(A,B))`), as built in
+`createGateDefinition.test.ts`:
+
+```
+  BOUNDARY_ID.A ─────────────────► nand1.A
+  BOUNDARY_ID.B ─────────────────► nand1.B
+
+  nand1.Y ────────┬──────────────► nand2.A
+                  └──────────────► nand2.B
+
+  nand2.Y ───────────────────────► BOUNDARY_ID.Y
+```
+
+Every arrow is a `Connection`, and `validateConnection`'s `ruleDirection`
+requires every arrow to run from something typed **output** to something
+typed **input** (`validateConnection.ts`). That rule is what forces the
+inversion:
+
+- `BOUNDARY_ID.A` is the *source* of an arrow (it feeds `nand1.A`), so for
+  this check it must count as an **output** — even though `A` is declared
+  an **input** port on the `AND` gate's own `PortDefinition`.
+- `BOUNDARY_ID.Y` is the *destination* of an arrow (it receives `nand2.Y`),
+  so it must count as an **input** — even though `Y` is declared an
+  **output** port externally.
+
+So: **from outside the gate**, `A`/`B` are inputs you feed values into and
+`Y` is an output you read a value from — completely ordinary. **From
+inside the internal wiring**, that's flipped: the gate's own inputs behave
+like sources (things that hand a value in, i.e. outputs), and the gate's
+own outputs behave like sinks (things that consume a value, i.e. inputs).
+
+**What actually changes in code, and what doesn't.** A `PortDefinition`'s
+`direction` field is never mutated — `A` stays `"input"` forever, that's
+its real, external identity. The inversion lives entirely in one place:
+`resolveEndpoint` in `validateConnection.ts`, which — only when
+`ref.componentId === BOUNDARY_ID` — reports the *opposite* of the port's
+declared direction (`direction: isGateInput ? "output" : "input"`) purely
+so `ruleDirection` sees a valid output→input arrow. Nothing about the
+`PortDefinition` itself, or how the gate looks from outside, changes.
+
+This is the trickiest part of the model; if a connection or validation
+change here doesn't work the way you expect, re-read this section before
+"fixing" it.
 
 A plain `Circuit` built with no `inputs`/`outputs` (see the NAND-chain
 tests) simply has no boundary, and any connection naming `BOUNDARY_ID` is
@@ -104,11 +143,11 @@ it over ticks instead of rejecting it outright.
 ## 6. Floating inputs
 
 An input port with no driving connection (and no override, for a raw test
-circuit) evaluates as `0`, rather than throwing. This matches the
+circuit) evaluates as `false`, rather than throwing. This matches the
 "floating input" behavior of `componentInputOverrides`/`boundaryInputs`
 defaults in `evaluateCircuit` and keeps partially-wired circuits evaluable
 during editing rather than erroring on every intermediate state. Revisit
-this if the UI needs to distinguish "explicitly 0" from "unconnected."
+this if the UI needs to distinguish "explicitly false" from "unconnected."
 
 ## 7. Serialization format
 
