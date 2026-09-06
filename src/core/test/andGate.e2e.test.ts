@@ -15,7 +15,7 @@ import { buildAndGate } from "./gates";
  * PortDefinition -> Component/Connection -> CircuitDefinition ->
  * GateDefinition -> GateRegistry -> evaluateCircuit -> serialization —
  * using only the public `../index` surface, with the textbook two-NAND
- * AND gate (SPEC.md §3, built by the shared `./gates` library) as the
+ * AND gate (SPEC.md §4, built by the shared `./gates` library) as the
  * running example.
  */
 describe("AND gate end-to-end", () => {

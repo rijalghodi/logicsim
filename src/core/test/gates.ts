@@ -4,7 +4,7 @@ import type { GateDefinition, GateRegistry } from "../index";
 /**
  * A small library of gates built purely from NAND, shared across the e2e
  * test suite. Each builder follows the same pattern: wire a `Circuit`
- * using the `BOUNDARY_ID` convention (SPEC.md §3), then wrap it into a
+ * using the `BOUNDARY_ID` convention (SPEC.md §4), then wrap it into a
  * named `GateDefinition` with `createGateDefinition`. Not a test file
  * itself — no assertions live here.
  */

@@ -167,7 +167,7 @@ describe("Full adder end-to-end", () => {
     const registry = createDefaultRegistry();
     const { not, and, xor, or, halfAdder, fullAdder } = buildFullAdderStack(registry);
 
-    // SPEC.md §7: serialization captures one gate at a time, not its
+    // SPEC.md §8: serialization captures one gate at a time, not its
     // dependency tree — restoring FULL_ADDER for real requires separately
     // saving and re-registering every custom gate it (transitively) uses.
     const dependencies = [not, and, xor, or, halfAdder];
