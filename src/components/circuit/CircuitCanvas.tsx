@@ -18,6 +18,8 @@ export interface CircuitCanvasProps {
   readonly circuit: CircuitDefinition;
   readonly registry: ChipRegistry;
   readonly savedChips?: SavedChip[];
+  readonly currentChipName?: string | null;
+  readonly isDirty?: boolean;
   readonly layout: Layout;
   /** This circuit's own inputs/outputs, when it's being viewed as a chip's internals (see SPEC.md §4). */
   readonly boundary?: BoundaryPorts;
@@ -47,6 +49,8 @@ export function CircuitCanvas({
   circuit,
   registry,
   savedChips = [],
+  currentChipName,
+  isDirty,
   layout,
   boundary,
   boundaryLayout,
@@ -271,6 +275,24 @@ export function CircuitCanvas({
           onRemove={() => onRemoveComponent(contextMenu.componentId)}
         />
       )}
+
+      {/* Title / dirty state indicator */}
+      <div
+        style={{
+          position: "absolute",
+          top: 8,
+          left: "50%",
+          transform: "translateX(-50%)",
+          fontSize: "14px",
+          fontWeight: 600,
+          color: "var(--fg-secondary)",
+          pointerEvents: "none",
+          letterSpacing: "0.5px",
+        }}
+      >
+        {isDirty && <span style={{ color: "var(--warning)", marginRight: "6px" }}>&bull;</span>}
+        {currentChipName ?? "Untitled"}
+      </div>
     </div>
   );
 }

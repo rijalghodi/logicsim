@@ -45,9 +45,7 @@ export function SaveChipModal({ isOpen, initialName = "", onSave, onCancel }: Sa
     <Modal isOpen={isOpen} onClose={onCancel}>
       <ModalHeader>
         <ModalTitle>Save Chip</ModalTitle>
-        <ModalDescription>
-          Enter a name and color for your custom chip. This will be available in the dock.
-        </ModalDescription>
+        <ModalDescription>Enter a name and color for your custom chip.</ModalDescription>
       </ModalHeader>
 
       <ModalBody onSubmit={handleSubmit}>

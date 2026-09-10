@@ -302,6 +302,8 @@ function App() {
         circuit={circuit}
         registry={registry}
         savedChips={savedChips}
+        currentChipName={currentChipName}
+        isDirty={isDirty}
         layout={layout}
         boundary={boundary}
         boundaryLayout={boundaryLayout}
