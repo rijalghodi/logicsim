@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Circle, Group } from "react-konva";
 import type Konva from "konva";
 import { PORT_RADIUS } from "./geometry";
-import { WIRE_ACTIVE_COLOR } from "./WireLine";
+import { WIRE_ACTIVE_COLOR, PORT_COLOR } from "./colors";
 
 interface PortPinProps {
   readonly x: number;
@@ -12,8 +12,6 @@ interface PortPinProps {
   readonly onPortClick?: () => void;
   readonly onHoverChange?: (isHovered: boolean) => void;
 }
-
-const PORT_COLOR = "hsl(0, 0%, 4%)";
 
 export function PortPin({ x, y, active, isWiringActive, onPortClick, onHoverChange }: PortPinProps) {
   const [isHovered, setIsHovered] = useState(false);

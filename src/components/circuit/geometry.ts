@@ -13,6 +13,10 @@ export interface Position {
 /** Component id -> its top-left corner on the canvas. Positions, not the circuit's own data (see SPEC.md's note on `Circuit`). */
 export type Layout = Record<string, Position>;
 
+/** Boundary Port */
+export const BIT_CIRCLE_RADIUS = 15;
+
+/** Component */
 export const NODE_WIDTH = 80;
 export const MIN_NODE_HEIGHT = 40;
 export const PORT_ROW_HEIGHT = 20;

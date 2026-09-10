@@ -10,8 +10,7 @@ import type { Layout, Position } from "./geometry";
 import { getComponentInputValue, getPortValue, resolvePortPosition } from "./portResolution";
 import type { CircuitViewContext } from "./portResolution";
 import { WireLine } from "./WireLine";
-
-const CANVAS_BACKGROUND = "hsl(0, 0%, 18%)";
+import { CANVAS_BACKGROUND } from "./colors";
 
 export interface CircuitCanvasProps {
   readonly circuit: CircuitDefinition;

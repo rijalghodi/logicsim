@@ -11,10 +11,7 @@ import {
 import type { Position } from "./geometry";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
-
-const BOX_FILL = "hsla(88, 78%, 33%, 1.00)";
-const BOX_STROKE = "hsl(0, 0%, 30%)";
-const LABEL_COLOR = "hsl(0, 0%, 90%)";
+import { BOX_FILL, BOX_STROKE, LABEL_COLOR } from "./colors";
 
 interface ComponentNodeProps {
   readonly position: Position;

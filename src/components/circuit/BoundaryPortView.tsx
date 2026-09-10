@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Circle, Group, Line, Rect } from "react-konva";
 import type Konva from "konva";
-import { PORT_RADIUS, getPortLabelWidth, PORT_LABEL_HEIGHT } from "./geometry";
+import { PORT_RADIUS, getPortLabelWidth, PORT_LABEL_HEIGHT, BIT_CIRCLE_RADIUS } from "./geometry";
 import type { Position } from "./geometry";
-import { WIRE_ACTIVE_COLOR, WIRE_INACTIVE_COLOR } from "./WireLine";
+import { WIRE_ACTIVE_COLOR, WIRE_INACTIVE_COLOR } from "./colors";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
 
@@ -28,22 +28,19 @@ interface BoundaryPortViewProps {
   readonly bounds?: { minY: number; maxY: number };
 }
 
-const CONTROLLER_WIDTH = 10;
-const CONTROLLER_HEIGHT = 32;
-const BIT_CIRCLE_RADIUS = 15;
+import {
+  CONTROLLER_FILL,
+  CONTROLLER_FILL_HOVER,
+  CONTROLLER_STROKE,
+  CONTROLLER_STROKE_HOVER,
+  BIT_FILL,
+  BIT_FILL_HOVER,
+  BIT_STROKE,
+  BIT_STROKE_HOVER,
+  BIT_STROKE_ACTIVE,
+} from "./colors";
 
-// Colors
-const CONTROLLER_FILL = "hsl(0, 0%, 0%)";
-const CONTROLLER_FILL_HOVER = "hsl(0, 0%, 10%)";
-const CONTROLLER_STROKE = "hsl(0, 0%, 20%)";
-const CONTROLLER_STROKE_HOVER = "hsl(0, 0%, 30%)";
-
-const BIT_FILL = "hsla(56, 15%, 21%, 1.00)";
-const BIT_FILL_HOVER = "hsla(56, 15%, 32%, 1.00)";
-
-const BIT_STROKE = "hsl(0, 0%, 6%)";
-const BIT_STROKE_HOVER = "hsl(53, 98%, 10%)";
-const BIT_STROKE_ACTIVE = "hsl(53, 98%, 77%)";
+const CONTROLLER_WIDTH = 12;
 
 /**
  * A circuit's boundary port laid out with separated components:
@@ -75,7 +72,7 @@ export function BoundaryPortView({
 
   // 1. Position Controller (touches screen edge)
   const controllerX = isLeft ? edgeX : edgeX - CONTROLLER_WIDTH;
-  const controllerY = -CONTROLLER_HEIGHT / 2;
+  const controllerY = -BIT_CIRCLE_RADIUS;
 
   // 2. Bit input/output circle (between edge controller and wire connection pin)
   const bitCircleX = isLeft ? edgeX + 32 : edgeX - 32;
@@ -123,7 +120,7 @@ export function BoundaryPortView({
           x={controllerX}
           y={controllerY}
           width={CONTROLLER_WIDTH}
-          height={CONTROLLER_HEIGHT}
+          height={BIT_CIRCLE_RADIUS * 2}
           fill={controllerHovered ? CONTROLLER_FILL_HOVER : CONTROLLER_FILL}
         />
         {/* Grip ridges */}

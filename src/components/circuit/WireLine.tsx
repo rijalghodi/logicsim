@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { Line } from "react-konva";
 import type { Position } from "./geometry";
-
-export const WIRE_ACTIVE_COLOR = "hsl(53, 98%, 77%)";
-export const WIRE_INACTIVE_COLOR = "hsl(0, 0%, 4%)";
-export const WIRE_DELETE_HOVER_COLOR = "hsl(0, 84%, 60%)";
+import { WIRE_ACTIVE_COLOR, WIRE_INACTIVE_COLOR, WIRE_DELETE_HOVER_COLOR } from "./colors";
 
 interface WireLineProps {
   readonly from: Position;
