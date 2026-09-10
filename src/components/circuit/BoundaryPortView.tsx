@@ -112,12 +112,7 @@ export function BoundaryPortView({
         {[-6, 0, 6].map((offset) => (
           <Line
             key={offset}
-            points={[
-              controllerX + 2,
-              offset,
-              controllerX + CONTROLLER_WIDTH - 2,
-              offset,
-            ]}
+            points={[controllerX + 2, offset, controllerX + CONTROLLER_WIDTH - 2, offset]}
             stroke={controllerHovered ? "#d4d4d8" : "#71717a"}
             strokeWidth={1.5}
             lineCap="round"
@@ -155,29 +150,10 @@ export function BoundaryPortView({
           shadowBlur={active ? 10 : 4}
           shadowOpacity={active ? 0.8 : 0.4}
         />
-        {/* Bit value (1 or 0) */}
-        <Text
-          x={bitCircleX - BIT_CIRCLE_RADIUS}
-          y={-BIT_CIRCLE_RADIUS}
-          width={BIT_CIRCLE_RADIUS * 2}
-          height={BIT_CIRCLE_RADIUS * 2}
-          text={active ? "1" : "0"}
-          fontSize={14}
-          fontStyle="bold"
-          fill={active ? "#121214" : "#a1a1aa"}
-          align="center"
-          verticalAlign="middle"
-          listening={false}
-        />
       </Group>
 
       {/* 3. CONNECTING LINE BETWEEN BIT CIRCLE AND WIRE CONNECTION PIN */}
-      <Line
-        points={[lineFromX, 0, lineToX, 0]}
-        stroke={wireColor}
-        strokeWidth={2.5}
-        listening={false}
-      />
+      <Line points={[lineFromX, 0, lineToX, 0]} stroke={wireColor} strokeWidth={2.5} listening={false} />
 
       {/* 4. WIRE CONNECTION PIN (where circuit wires attach) */}
       <Group
