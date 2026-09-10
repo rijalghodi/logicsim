@@ -161,9 +161,6 @@ export function BoundaryPortView({
           fill={active ? WIRE_ACTIVE_COLOR : bitHovered && onToggle ? BIT_FILL_HOVER : BIT_FILL}
           stroke={active ? BIT_STROKE_ACTIVE : bitHovered && onToggle ? BIT_STROKE_HOVER : BIT_STROKE}
           strokeWidth={2}
-          shadowColor={active ? WIRE_ACTIVE_COLOR : undefined}
-          shadowBlur={active ? 6 : 0}
-          shadowOpacity={active ? 0.8 : 0}
         />
       </Group>
 

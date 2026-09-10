@@ -65,7 +65,7 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
                 onSave();
               }}
             >
-              <span>Save CHIP</span>
+              <span>SAVE CHIP</span>
               <span className="dropdown-item-shortcut">Ctrl+S</span>
             </button>
           </div>

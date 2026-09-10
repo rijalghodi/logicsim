@@ -12,8 +12,9 @@ import type { Position } from "./geometry";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
 import { BOX_FILL, BOX_STROKE, LABEL_COLOR } from "./colors";
+import type Konva from "konva";
 
-interface ComponentNodeProps {
+interface ChipProps {
   readonly position: Position;
   readonly label: string;
   readonly inputs: readonly PortDefinition[];
@@ -21,6 +22,10 @@ interface ComponentNodeProps {
   readonly getPortValue: (portId: string, direction: "input" | "output") => boolean;
   /** Fired with the component's new position while/after dragging. */
   readonly onMove?: (position: Position) => void;
+  /** Whether the context menu for this chip is open */
+  readonly isContextMenuOpen?: boolean;
+  /** Fired when right clicking the chip */
+  readonly onContextMenu?: (x: number, y: number) => void;
   /** Fired when clicking a port to start or finish a wire connection. */
   readonly onPortClick?: (portId: string, direction: "input" | "output", portPosition: Position) => void;
   /** Whether a wire is currently being drawn across the canvas. */
@@ -28,31 +33,48 @@ interface ComponentNodeProps {
 }
 
 /** One gate instance: a box with its name centered, input pins on the left edge, output pins on the right. */
-export function ComponentNode({
+export function Chip({
   position,
   label,
   inputs,
   outputs,
   getPortValue,
   onMove,
+  isContextMenuOpen,
+  onContextMenu,
   onPortClick,
   isWiringActive,
-}: ComponentNodeProps) {
+}: ChipProps) {
   const [hoveredPortId, setHoveredPortId] = useState<string | null>(null);
 
   const maxPortCount = Math.max(inputs.length, outputs.length);
   const box = getComponentBox({ x: 0, y: 0 }, maxPortCount);
   const draggable = Boolean(onMove);
 
+  const handleContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    e.evt.preventDefault();
+    e.cancelBubble = true;
+    if (onContextMenu) {
+      const stage = e.target.getStage();
+      const pointerPos = stage?.getPointerPosition();
+      if (pointerPos) {
+        onContextMenu(pointerPos.x, pointerPos.y);
+      } else {
+        onContextMenu(position.x + box.width + 16, position.y);
+      }
+    }
+  };
+
   return (
     <Group>
-      {/* Draggable gate body: box and label */}
+      {/* Draggable body group */}
       <Group
         x={position.x}
         y={position.y}
-        draggable={draggable}
-        onDragMove={(e) => onMove?.({ x: e.target.x(), y: e.target.y() })}
-        onDragEnd={(e) => onMove?.({ x: e.target.x(), y: e.target.y() })}
+        draggable={draggable && !isContextMenuOpen}
+        onDragMove={(e) => onMove?.(e.target.position())}
+        onDragEnd={(e) => onMove?.(e.target.position())}
+        onContextMenu={handleContextMenu}
         onMouseEnter={(e) => {
           const stage = e.target.getStage();
           if (stage && draggable) stage.container().style.cursor = "grab";
@@ -62,6 +84,20 @@ export function ComponentNode({
           if (stage) stage.container().style.cursor = "default";
         }}
       >
+        {/* Halo Effect behind the component when context menu is open */}
+        {isContextMenuOpen && (
+          <Rect
+            x={-6}
+            y={-6}
+            width={box.width + 12}
+            height={box.height + 12}
+            cornerRadius={8}
+            stroke="hsl(0, 0%, 43%)"
+            dash={[3, 3]}
+            strokeWidth={1}
+            listening={false}
+          />
+        )}
         <Rect
           x={0}
           y={0}

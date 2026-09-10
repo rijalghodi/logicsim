@@ -4,7 +4,8 @@ import type Konva from "konva";
 import { BOUNDARY_ID, evaluateCircuit } from "../../core";
 import type { Bit, BoundaryPorts, CircuitDefinition, GateRegistry, PortRef } from "../../core";
 import { BoundaryPortView } from "./BoundaryPortView";
-import { ComponentNode } from "./ComponentNode";
+import { Chip } from "./Chip";
+import { ChipContextMenu } from "../ui/ChipContextMenu";
 import { getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
 import type { Layout, Position } from "./geometry";
 import { getComponentInputValue, getPortValue, resolvePortPosition } from "./portResolution";
@@ -27,6 +28,8 @@ export interface CircuitCanvasProps {
   readonly onMoveBoundaryPort?: (portId: string, y: number) => void;
   /** Omit to make components fixed (non-draggable). */
   readonly onMoveComponent?: (componentId: string, position: Position) => void;
+  /** Triggered when a component should be removed. */
+  readonly onRemoveComponent?: (componentId: string) => void;
   /** Triggered when a gate is dragged from the bottom toolbar and dropped onto the canvas. */
   readonly onDropGate?: (gateType: string, position: Position) => void;
   /** Triggered when a wire is connected from source to destination. */
@@ -48,6 +51,7 @@ export function CircuitCanvas({
   onToggleBoundaryInput,
   onMoveBoundaryPort,
   onMoveComponent,
+  onRemoveComponent,
   onDropGate,
   onConnectWire,
   onDisconnectWire,
@@ -56,6 +60,7 @@ export function CircuitCanvas({
 }: CircuitCanvasProps) {
   const [wiringDraft, setWiringDraft] = useState<{ from: PortRef; fromPos: Position } | null>(null);
   const [mousePos, setMousePos] = useState<Position | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ componentId: string; x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const simulation = useMemo(
@@ -189,7 +194,7 @@ export function CircuitCanvas({
             const position = layout[component.id] ?? { x: 0, y: 0 };
 
             return (
-              <ComponentNode
+              <Chip
                 key={component.id}
                 position={position}
                 label={label}
@@ -201,6 +206,8 @@ export function CircuitCanvas({
                     : Boolean(getComponentInputValue(component.id, portId, ctx))
                 }
                 onMove={onMoveComponent ? (next) => onMoveComponent(component.id, next) : undefined}
+                isContextMenuOpen={contextMenu?.componentId === component.id}
+                onContextMenu={(x, y) => setContextMenu({ componentId: component.id, x, y })}
                 onPortClick={(portId, _direction, portPos) =>
                   handlePortInteraction({ componentId: component.id, portId }, portPos)
                 }
@@ -251,6 +258,14 @@ export function CircuitCanvas({
           })}
         </Layer>
       </Stage>
+
+      {contextMenu && onRemoveComponent && (
+        <ChipContextMenu
+          position={{ x: contextMenu.x, y: contextMenu.y }}
+          onClose={() => setContextMenu(null)}
+          onRemove={() => onRemoveComponent(contextMenu.componentId)}
+        />
+      )}
     </div>
   );
 }

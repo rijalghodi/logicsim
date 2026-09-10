@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import type { Layout, Position } from "./components/circuit/geometry";
-import { Dock } from "./components/toolbar/Dock";
-import { SaveGateModal } from "./components/modals/SaveGateModal";
-import { UnsavedChangesModal } from "./components/modals/UnsavedChangesModal";
+import { Dock } from "./components/ui/Dock";
+import { SaveGateModal } from "./components/ui/SaveGateModal";
+import { UnsavedChangesModal } from "./components/ui/UnsavedChangesModal";
 import {
   createDefaultRegistry,
   createGateDefinition,
@@ -209,6 +209,17 @@ function App() {
     setIsDirty(true);
   }, []);
 
+  const handleRemoveComponent = useCallback((componentId: string) => {
+    setCircuit((prev) => ({
+      ...prev,
+      components: prev.components.filter((c) => c.id !== componentId),
+      connections: prev.connections.filter(
+        (c) => c.from.componentId !== componentId && c.to.componentId !== componentId,
+      ),
+    }));
+    setIsDirty(true);
+  }, []);
+
   // Keyboard shortcuts (Ctrl+S / Ctrl+N)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -237,6 +248,7 @@ function App() {
         onToggleBoundaryInput={handleToggleBoundaryInput}
         onMoveComponent={handleMoveComponent}
         onMoveBoundaryPort={handleMoveBoundaryPort}
+        onRemoveComponent={handleRemoveComponent}
         onDropGate={handleDropGate}
         onConnectWire={handleConnectWire}
         onDisconnectWire={handleDisconnectWire}
