@@ -17,10 +17,10 @@ export const NODE_WIDTH = 120;
 export const MIN_NODE_HEIGHT = 60;
 export const PORT_ROW_HEIGHT = 20;
 export const PORT_RADIUS = 6;
-export const BOUNDARY_PORT_RADIUS = 8;
-export const BOUNDARY_MARGIN = 56;
+export const BOUNDARY_PORT_RADIUS = 12;
+export const BOUNDARY_MARGIN = 24;
 export const BOUNDARY_LABEL_WIDTH = 100;
-export const BOUNDARY_LABEL_OFFSET_Y = 18;
+export const BOUNDARY_LABEL_OFFSET_Y = 26;
 
 /** Taller boxes for gates with more ports, so pins on a busy side don't crowd together. */
 export function getNodeHeight(maxPortCount: number): number {
