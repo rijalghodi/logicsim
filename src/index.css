@@ -1,17 +1,16 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&display=swap");
+/*@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");*/
 
 :root {
-  --bg-main: #3a3a46;
-  --panel-bg: rgba(24, 24, 27, 0.85);
-  --panel-border: rgba(255, 255, 255, 0.1);
-  --accent-gold: #e9d24f;
-  --accent-gold-glow: rgba(233, 210, 79, 0.35);
-  --text-primary: #f4f4f5;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --btn-hover: rgba(255, 255, 255, 0.08);
-  --btn-active: rgba(255, 255, 255, 0.12);
-  --radius-dock: 16px;
+  --bg-0: hsl(0, 0%, 7%);
+  --bg-1: hsl(0, 0%, 10%);
+  --bg-2: hsl(0, 0%, 16%);
+  --bg-3: hsl(0, 0%, 20%);
+  --primary: hsl(51, 78%, 61%);
+  --border: hsl(0, 0%, 20%);
+  --fg: hsl(0, 0%, 96%);
+  --fg-secondary: hsl(0, 0%, 65%);
+  --fg-muted: hsl(0, 0%, 50%);
   --radius-btn: 6px;
   --radius-modal: 14px;
 }
@@ -20,18 +19,23 @@
   box-sizing: border-box;
 }
 
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Ubuntu Sans Mono", monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-main);
-  color: var(--text-primary);
+  background-color: var(--bg-0);
+  color: var(--fg);
   user-select: none;
+}
+
+input {
+  font-family: inherit;
 }
 
 /* ==========================================================================
@@ -44,61 +48,45 @@ body, html {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   padding: 6px 10px;
-  background: var(--panel-bg);
+  background: var(--bg-1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
   z-index: 1000;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.dock-divider {
-  width: 1px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.12);
-  margin: 0 4px;
-}
-
-.dock-btn {
+.dock-btn-menu {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   height: 32px;
   padding: 0 12px;
-  background: transparent;
-  border: 1px solid transparent;
+  background: var(--bg-2);
+  border: none;
   border-radius: var(--radius-btn);
-  color: var(--text-primary);
+  color: var(--primary);
   font-family: inherit;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 
-.dock-btn:hover {
-  background: var(--btn-hover);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-.dock-btn:active {
-  background: var(--btn-active);
-  transform: scale(0.98);
-}
-
-.dock-btn-menu {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.08);
-  font-weight: 600;
-}
-
 .dock-btn-menu:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.16);
+  background: var(--bg-3);
+}
+
+.dock-btn-menu:active {
+  background: var(--bg-4);
 }
 
 /* Gate chip inside toolbar */
@@ -107,38 +95,27 @@ body, html {
   align-items: center;
   gap: 8px;
   height: 32px;
-  padding: 0 12px;
-  background: #202024;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0 6px;
+  background: var(--bg-2);
   border-radius: var(--radius-btn);
-  color: var(--text-primary);
-  font-family: "JetBrains Mono", monospace;
+  border: none;
+  color: var(--fg);
   font-size: 14px;
   font-weight: 600;
+  font-family: inherit;
   cursor: grab;
   transition: all 0.15s ease;
   position: relative;
 }
 
 .gate-chip:hover {
-  background: #2a2a30;
-  border-color: var(--accent-gold);
-  box-shadow: 0 0 12px var(--accent-gold-glow);
+  background: var(--bg-3);
+  transform: translateY(-1px);
 }
 
 .gate-chip:active {
   cursor: grabbing;
   transform: scale(0.96);
-}
-
-.gate-chip-tag {
-  font-size: 10px;
-  padding: 1px 5px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-secondary);
-  font-family: "Inter", sans-serif;
-  font-weight: 500;
 }
 
 /* ==========================================================================
@@ -152,7 +129,7 @@ body, html {
   background: rgba(28, 28, 32, 0.95);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--panel-border);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 6px;
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.7);
@@ -183,7 +160,7 @@ body, html {
   border: none;
   background: transparent;
   border-radius: 6px;
-  color: var(--text-primary);
+  color: var(--fg);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -199,8 +176,7 @@ body, html {
 
 .dropdown-item-shortcut {
   font-size: 11px;
-  color: var(--text-muted);
-  font-family: "JetBrains Mono", monospace;
+  color: var(--fg-muted);
 }
 
 /* ==========================================================================
@@ -220,8 +196,12 @@ body, html {
 }
 
 @keyframes backdropFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-card {
@@ -231,7 +211,9 @@ body, html {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-modal);
   padding: 24px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
   animation: modalPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -250,13 +232,13 @@ body, html {
   margin: 0 0 8px 0;
   font-size: 18px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--fg);
 }
 
 .modal-description {
   margin: 0 0 20px 0;
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--fg-secondary);
   line-height: 1.5;
 }
 
@@ -267,8 +249,7 @@ body, html {
   background: #141417;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  color: var(--text-primary);
-  font-family: "JetBrains Mono", monospace;
+  color: var(--fg);
   font-size: 14px;
   font-weight: 500;
   outline: none;
@@ -277,8 +258,7 @@ body, html {
 }
 
 .modal-input:focus {
-  border-color: var(--accent-gold);
-  box-shadow: 0 0 0 2px var(--accent-gold-glow);
+  border-color: var(--primary);
 }
 
 .modal-actions {
@@ -291,7 +271,7 @@ body, html {
 .btn-primary {
   height: 38px;
   padding: 0 18px;
-  background: var(--accent-gold);
+  background: var(--primary);
   border: none;
   border-radius: var(--radius-btn);
   color: #121214;
@@ -303,9 +283,7 @@ body, html {
 }
 
 .btn-primary:hover {
-  background: #f4de5a;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--accent-gold-glow);
+  background: hsl(from var(--primary) h s l / 50%);
 }
 
 .btn-secondary {
@@ -314,7 +292,7 @@ body, html {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-btn);
-  color: var(--text-primary);
+  color: var(--fg);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;

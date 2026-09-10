@@ -41,12 +41,7 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
           onClick={() => setMenuOpen((prev) => !prev)}
           title="Circuit & Gate Actions"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-          Menu
+          MENU
         </button>
 
         {menuOpen && (
@@ -77,8 +72,6 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
         )}
       </div>
 
-      <div className="dock-divider" />
-
       {/* NAND Primitive Chip */}
       <button
         type="button"
@@ -89,7 +82,6 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
         title="NAND Gate: Drag to canvas or click to add"
       >
         <span>NAND</span>
-        {/* <span className="gate-chip-tag">2 in · 1 out</span> */}
       </button>
 
       {/* User-created Custom Gates */}
@@ -104,9 +96,6 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
           title={`${gate.name}: Drag to canvas or click to add`}
         >
           <span>{gate.name}</span>
-          {/* <span className="gate-chip-tag">
-            {gate.inputs.length} in · {gate.outputs.length} out
-          </span> */}
         </button>
       ))}
     </div>

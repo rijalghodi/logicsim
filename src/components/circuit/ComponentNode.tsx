@@ -78,7 +78,9 @@ export function ComponentNode({
           height={box.height}
           text={label}
           fontSize={12}
+          fontFamily="monospace"
           fontStyle="bold"
+          fontVariant="uppercase"
           fill={LABEL_COLOR}
           align="center"
           verticalAlign="middle"
@@ -194,6 +196,7 @@ export function ComponentNode({
                   text={port.name}
                   fontSize={11}
                   fontStyle="bold"
+                  fontFamily="monospace"
                   fill="#f4f4f5"
                   align="center"
                   verticalAlign="middle"
@@ -297,6 +300,7 @@ export function ComponentNode({
                   text={port.name}
                   fontSize={11}
                   fontStyle="bold"
+                  fontFamily="monospace"
                   fill="#f4f4f5"
                   align="center"
                   verticalAlign="middle"

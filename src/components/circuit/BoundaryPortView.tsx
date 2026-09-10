@@ -23,7 +23,7 @@ interface BoundaryPortViewProps {
 }
 
 const CONTROLLER_WIDTH = 10;
-const CONTROLLER_HEIGHT = 38;
+const CONTROLLER_HEIGHT = 32;
 const BIT_CIRCLE_RADIUS = 15;
 
 /**
@@ -70,7 +70,7 @@ export function BoundaryPortView({
 
   // 5. Label badge
   const labelText = isLeft ? `in ${name}` : `out ${name}`;
-  const badgeWidth = Math.max(42, labelText.length * 7.5 + 16);
+  const badgeWidth = Math.max(32, labelText.length * 7.5 + 4);
   const badgeHeight = 22;
   const badgeX = isLeft ? position.x + 14 : position.x - 14 - badgeWidth;
   const badgeY = -badgeHeight / 2;

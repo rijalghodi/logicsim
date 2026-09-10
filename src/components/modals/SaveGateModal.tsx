@@ -14,6 +14,7 @@ export function SaveGateModal({ isOpen, initialName = "", onSave, onCancel }: Sa
 
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(initialName);
       setError(null);
       setTimeout(() => inputRef.current?.focus(), 50);
@@ -64,7 +65,9 @@ export function SaveGateModal({ isOpen, initialName = "", onSave, onCancel }: Sa
             }}
           />
 
-          {error && <div style={{ color: "#f87171", fontSize: "12px", marginTop: "-12px", marginBottom: "16px" }}>{error}</div>}
+          {error && (
+            <div style={{ color: "#f87171", fontSize: "12px", marginTop: "-12px", marginBottom: "16px" }}>{error}</div>
+          )}
 
           <div className="modal-actions">
             <button type="button" className="btn-secondary" onClick={onCancel}>

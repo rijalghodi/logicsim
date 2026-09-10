@@ -36,8 +36,6 @@ export interface CircuitCanvasProps {
   readonly height: number;
 }
 
-const CANVAS_BACKGROUND = "#141417";
-
 /** Renders one flat level of a circuit: its own components, wires, and boundary ports, all live. */
 export function CircuitCanvas({
   circuit,
@@ -166,7 +164,7 @@ export function CircuitCanvas({
             y={0}
             width={width}
             height={height}
-            fill={CANVAS_BACKGROUND}
+            // fill={CANVAS_BACKGROUND}
             listening={true}
           />
 
