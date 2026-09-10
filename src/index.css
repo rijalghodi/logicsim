@@ -5,8 +5,13 @@
   --bg-1: hsl(0, 0%, 17%);
   --bg-2: hsl(0, 0%, 25%);
   --bg-3: hsl(0, 0%, 34%);
-  --primary: hsl(51, 78%, 61%);
-  --danger: hsl(0, 80%, 66%);
+  --primary: hsl(51, 75%, 60%);
+  --danger: hsl(8, 99%, 69%);
+  --danger-fg: hsl(0, 0%, 0%);
+  --success: hsl(97, 75%, 60%);
+  --success-fg: hsl(0, 0%, 0%);
+  --warning: hsl(40, 75%, 60%);
+  --warning-fg: hsl(0, 0%, 0%);
   --border: hsl(0, 0%, 26%);
   --fg: hsl(0, 0%, 96%);
   --fg-secondary: hsl(0, 0%, 65%);
@@ -244,7 +249,7 @@ input {
 .modal-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .modal-input {
@@ -255,10 +260,11 @@ input {
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   color: var(--fg);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   outline: none;
   transition: all 0.15s ease;
+  text-transform: uppercase;
 }
 
 .modal-input:focus {
@@ -336,20 +342,20 @@ input {
 /* ==========================================================================
    Wire Feedback Toast
    ========================================================================== */
-.wire-toast {
+.toast {
   position: fixed;
   top: 24px;
   left: 50%;
   transform: translateX(-50%);
   padding: 8px 16px;
-  background: var(--danger);
+  background: var(--bg-1); /* fallback */
   backdrop-filter: blur(12px);
   border-radius: 8px;
   color: var(--fg);
   font-size: 13px;
   font-weight: 500;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  z-index: 1500;
+  z-index: 2500;
   animation: toastPop 0.2s ease-out;
 }
 
@@ -362,6 +368,16 @@ input {
     opacity: 1;
     transform: translate(-50%, 0);
   }
+}
+
+.toast-success {
+  background: var(--success);
+  color: var(--success-fg);
+}
+
+.toast-error {
+  background: var(--danger);
+  color: var(--danger-fg);
 }
 
 /* ==========================================================================

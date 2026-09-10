@@ -4,6 +4,7 @@ import type { Layout, Position } from "./components/circuit/geometry";
 import { Dock } from "./components/ui/Dock";
 import { SaveGateModal } from "./components/ui/SaveGateModal";
 import { UnsavedChangesModal } from "./components/ui/UnsavedChangesModal";
+import { Toast, toast } from "./components/ui/Toast";
 import {
   createDefaultRegistry,
   createGateDefinition,
@@ -15,13 +16,12 @@ import type { Bit, CircuitDefinition, GateDefinition, PortDefinition, PortRef } 
 import { loadSavedGates, saveCustomGate } from "./storage/gateStorage";
 
 function createBlankCircuit() {
-  const A = createPortDefinition("A", "input");
-  const B = createPortDefinition("B", "input");
-  const Y = createPortDefinition("Y", "output");
+  const IN = createPortDefinition("IN", "input");
+  const OUT = createPortDefinition("OUT", "output");
   return {
     circuit: { components: [], connections: [] } as CircuitDefinition,
     layout: {} as Layout,
-    boundary: { inputs: [A, B], outputs: [Y] },
+    boundary: { inputs: [IN], outputs: [OUT] },
     boundaryLayout: {} as Record<string, number>,
   };
 }
@@ -42,7 +42,6 @@ function App() {
 
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -57,12 +56,6 @@ function App() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const showToast = useCallback((msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage((curr) => (curr === msg ? null : curr));
-    }, 3500);
-  }, []);
 
   const handleToggleBoundaryInput = useCallback((portId: string) => {
     setBoundaryInputs((prev) => ({ ...prev, [portId]: !prev[portId] }));
@@ -115,9 +108,9 @@ function App() {
       setCurrentGateName(name);
       setIsDirty(false);
       setShowSaveModal(false);
-      showToast(`Gate "${name}" saved to library!`);
+      toast.success(`Chip "${name}" saved to library!`);
     },
-    [boundary, circuit, registry, showToast],
+    [boundary, circuit, registry],
   );
 
   const handleDiscardAndNew = useCallback(() => {
@@ -180,7 +173,7 @@ function App() {
       });
 
       if (issues.length > 0) {
-        showToast(issues[0].message);
+        toast.error(issues[0].message);
         return;
       }
 
@@ -190,7 +183,7 @@ function App() {
       }));
       setIsDirty(true);
     },
-    [circuit, registry, boundary, showToast],
+    [circuit, registry, boundary],
   );
 
   const handleDisconnectWire = useCallback((from: PortRef, to: PortRef) => {
@@ -260,7 +253,7 @@ function App() {
       <Dock savedGates={savedGates} onNew={handleNewClick} onSave={handleSaveClick} onAddGate={handleAddGateCenter} />
 
       {/* Toast Notification */}
-      {toastMessage && <div className="wire-toast">{toastMessage}</div>}
+      <Toast />
 
       {/* Save Chip Modal */}
       <SaveGateModal
