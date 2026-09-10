@@ -77,15 +77,14 @@ export function ComponentNode({
           width={box.width}
           height={box.height}
           text={label}
-          fontSize={12}
-          fontFamily="Ubuntu Sans Mono"
+          fontSize={14}
+          fontFamily="JetBrains Mono"
           fontStyle="bold"
-          fontVariant="uppercase"
           fill={LABEL_COLOR}
           align="center"
           verticalAlign="middle"
           wrap="word"
-          padding={6}
+          // padding={6}
           listening={false}
         />
       </Group>

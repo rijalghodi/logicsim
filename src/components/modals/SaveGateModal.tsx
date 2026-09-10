@@ -46,12 +46,7 @@ export function SaveGateModal({ isOpen, initialName = "", onSave, onCancel }: Sa
   return (
     <div className="modal-backdrop" onClick={onCancel} onKeyDown={handleKeyDown}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <h3 className="modal-title">Save Custom Gate</h3>
-        <p className="modal-description">
-          Package the current circuit as a reusable custom gate. It will be stored in your library and ready to place in
-          other circuits.
-        </p>
-
+        <h3 className="modal-title">Save Gate</h3>
         <form onSubmit={handleSubmit}>
           <input
             ref={inputRef}

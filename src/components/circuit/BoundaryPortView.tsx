@@ -8,8 +8,10 @@ import { WIRE_ACTIVE_COLOR, WIRE_INACTIVE_COLOR } from "./WireLine";
 interface BoundaryPortViewProps {
   /** The position of the wire connection pin (where circuit wires attach). */
   readonly position: Position;
-  /** The screen edge x this port touches: 0 for left input, canvas width for right output. */
+  /** The screen edge x this port touches. */
   readonly edgeX: number;
+  /** Whether this port is on the left or right side of the box. */
+  readonly side: "left" | "right";
   readonly name: string;
   readonly active: boolean;
   /** Present only for boundary inputs — an output is read-only, driven by the circuit. */
@@ -20,6 +22,8 @@ interface BoundaryPortViewProps {
   readonly onPortClick?: (position: Position) => void;
   /** Whether a wire draft is currently in progress. */
   readonly isWiringActive?: boolean;
+  /** Constrain vertical dragging within min/max bounds. */
+  readonly bounds?: { minY: number; maxY: number };
 }
 
 const CONTROLLER_WIDTH = 10;
@@ -39,12 +43,14 @@ export function BoundaryPortView({
   onMove,
   onPortClick,
   isWiringActive,
+  side,
+  bounds,
 }: BoundaryPortViewProps) {
   const [controllerHovered, setControllerHovered] = useState(false);
   const [bitHovered, setBitHovered] = useState(false);
   const [pinHovered, setPinHovered] = useState(false);
 
-  const isLeft = edgeX === 0;
+  const isLeft = side === "left";
   const draggable = Boolean(onMove);
 
   const wireColor = active ? WIRE_ACTIVE_COLOR : WIRE_INACTIVE_COLOR;
@@ -56,11 +62,11 @@ export function BoundaryPortView({
   };
 
   // 1. Position Controller (touches screen edge)
-  const controllerX = isLeft ? 0 : edgeX - CONTROLLER_WIDTH;
+  const controllerX = isLeft ? edgeX : edgeX - CONTROLLER_WIDTH;
   const controllerY = -CONTROLLER_HEIGHT / 2;
 
   // 2. Bit input/output circle (between edge controller and wire connection pin)
-  const bitCircleX = isLeft ? 32 : edgeX - 32;
+  const bitCircleX = isLeft ? edgeX + 32 : edgeX - 32;
 
   // 3. Connecting wire lead between Bit circle and Wire connection pin
   const lineFromX = isLeft ? bitCircleX + BIT_CIRCLE_RADIUS : position.x + PORT_RADIUS;
@@ -80,7 +86,13 @@ export function BoundaryPortView({
       x={0}
       y={position.y}
       draggable={draggable}
-      dragBoundFunc={(pos) => ({ x: 0, y: pos.y })}
+      dragBoundFunc={(pos) => {
+        let y = pos.y;
+        if (bounds) {
+          y = Math.max(bounds.minY, Math.min(bounds.maxY, y));
+        }
+        return { x: 0, y };
+      }}
       onDragMove={(e) => onMove?.(e.target.y())}
       onDragEnd={(e) => onMove?.(e.target.y())}
     >

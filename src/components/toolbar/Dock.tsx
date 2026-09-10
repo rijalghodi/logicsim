@@ -54,7 +54,7 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
                 onNew();
               }}
             >
-              <span>New Circuit</span>
+              <span>NEW CHIP</span>
               <span className="dropdown-item-shortcut">Ctrl+N</span>
             </button>
             <button
@@ -65,7 +65,7 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
                 onSave();
               }}
             >
-              <span>Save as Gate</span>
+              <span>Save CHIP</span>
               <span className="dropdown-item-shortcut">Ctrl+S</span>
             </button>
           </div>

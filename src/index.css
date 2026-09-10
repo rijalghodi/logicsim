@@ -1,5 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&display=swap");
-/*@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");*/
+/*@import url("https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&display=swap");*/
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 
 :root {
   --bg-0: hsl(0, 0%, 7%);
@@ -26,10 +26,10 @@ html {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: "Ubuntu Sans Mono", monospace;
+  font-family: "JetBrains Mono", monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-0);
+  background-color: var(--bg-1);
   color: var(--fg);
   user-select: none;
 }
@@ -46,21 +46,14 @@ input {
   bottom: 0;
   left: 0;
   width: 100%;
+  height: 40px;
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 6px 10px;
-  background: var(--bg-1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  box-shadow:
-    0 16px 36px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
+  background: var(--bg-0);
+  border: none;
   z-index: 1000;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
 }
 
 .dock-btn-menu {

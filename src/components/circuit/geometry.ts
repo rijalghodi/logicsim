@@ -13,8 +13,8 @@ export interface Position {
 /** Component id -> its top-left corner on the canvas. Positions, not the circuit's own data (see SPEC.md's note on `Circuit`). */
 export type Layout = Record<string, Position>;
 
-export const NODE_WIDTH = 120;
-export const MIN_NODE_HEIGHT = 60;
+export const NODE_WIDTH = 80;
+export const MIN_NODE_HEIGHT = 40;
 export const PORT_ROW_HEIGHT = 20;
 export const PORT_RADIUS = 8;
 export const BOUNDARY_PORT_RADIUS = 8;
@@ -24,7 +24,7 @@ export const BOUNDARY_LABEL_OFFSET_Y = 26;
 
 /** Taller boxes for gates with more ports, so pins on a busy side don't crowd together. */
 export function getNodeHeight(maxPortCount: number): number {
-  return Math.max(MIN_NODE_HEIGHT, (maxPortCount + 1) * PORT_ROW_HEIGHT);
+  return Math.max(MIN_NODE_HEIGHT, (maxPortCount + 0.5) * PORT_ROW_HEIGHT);
 }
 
 export function getComponentBox(
@@ -52,7 +52,6 @@ export function getComponentPortPosition(
   return { x, y };
 }
 
-/** A circuit's own boundary ports sit at the very edges of the canvas: inputs on the left, outputs on the right. */
 export function getBoundaryPortPosition(
   side: "left" | "right",
   index: number,
@@ -60,7 +59,10 @@ export function getBoundaryPortPosition(
   canvasWidth: number,
   canvasHeight: number,
 ): Position {
-  const y = spacedOffset(index, count, canvasHeight);
-  const x = side === "left" ? BOUNDARY_MARGIN : canvasWidth - BOUNDARY_MARGIN;
+  const PADDING_TOP = 16;
+  const PADDING_BOTTOM = 56; // 40px dock + 16px padding
+  const span = canvasHeight - PADDING_TOP - PADDING_BOTTOM;
+  const y = PADDING_TOP + spacedOffset(index, count, span);
+  const x = side === "left" ? 16 + BOUNDARY_MARGIN : canvasWidth - 16 - BOUNDARY_MARGIN;
   return { x, y };
 }

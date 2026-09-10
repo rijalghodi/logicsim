@@ -168,6 +168,19 @@ export function CircuitCanvas({
             listening={true}
           />
 
+          {/* Outer Boundary Box */}
+          <Rect
+            x={16}
+            y={16}
+            width={width - 32}
+            height={height - 72}
+            fill="transparent"
+            stroke="hsl(0, 0%, 30%)"
+            strokeWidth={1}
+            cornerRadius={8}
+            listening={false}
+          />
+
           {/* Existing wires */}
           {circuit.connections.map((connection) => {
             const key = `${connection.from.componentId}:${connection.from.portId}->${connection.to.componentId}:${connection.to.portId}`;
@@ -224,13 +237,15 @@ export function CircuitCanvas({
               <BoundaryPortView
                 key={port.id}
                 position={position}
-                edgeX={0}
+                edgeX={16}
+                side="left"
                 name={port.name}
                 active={Boolean(boundaryInputs[port.id])}
                 onToggle={onToggleBoundaryInput ? () => onToggleBoundaryInput(port.id) : undefined}
                 onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}
                 onPortClick={(p) => handlePortInteraction({ componentId: BOUNDARY_ID, portId: port.id }, p)}
                 isWiringActive={Boolean(wiringDraft)}
+                bounds={{ minY: 16, maxY: height - 56 }}
               />
             );
           })}
@@ -243,12 +258,14 @@ export function CircuitCanvas({
               <BoundaryPortView
                 key={port.id}
                 position={position}
-                edgeX={width}
+                edgeX={width - 16}
+                side="right"
                 name={port.name}
                 active={Boolean(simulation.boundaryOutputs[port.id])}
                 onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}
                 onPortClick={(p) => handlePortInteraction({ componentId: BOUNDARY_ID, portId: port.id }, p)}
                 isWiringActive={Boolean(wiringDraft)}
+                bounds={{ minY: 16, maxY: height - 56 }}
               />
             );
           })}
