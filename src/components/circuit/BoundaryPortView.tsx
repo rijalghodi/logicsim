@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { Circle, Group, Line, Text } from "react-konva";
 import type Konva from "konva";
 import { BOUNDARY_LABEL_OFFSET_Y, BOUNDARY_LABEL_WIDTH, BOUNDARY_PORT_RADIUS } from "./geometry";
@@ -35,35 +34,24 @@ export function BoundaryPortView({ position, edgeX, name, active, onToggle, onMo
     if (stage) stage.container().style.cursor = cursor;
   };
 
-  // See ComponentNode's comment: Konva's drag offset is measured from the
-  // gesture's start, so the base must be a fixed snapshot, not the
-  // continuously-updating `position` prop.
-  const dragStartY = useRef(position.y);
-
   return (
     <Group
       x={0}
-      y={0}
+      y={position.y}
       draggable={draggable}
       dragBoundFunc={(pos) => ({ x: 0, y: pos.y })}
-      onDragStart={() => {
-        dragStartY.current = position.y;
-      }}
-      onDragMove={(e) => onMove?.(dragStartY.current + e.target.y())}
-      onDragEnd={(e) => {
-        onMove?.(dragStartY.current + e.target.y());
-        e.target.position({ x: 0, y: 0 });
-      }}
+      onDragMove={(e) => onMove?.(e.target.y())}
+      onDragEnd={(e) => onMove?.(e.target.y())}
       onClick={onToggle}
       onTap={onToggle}
       onMouseEnter={(e) => setCursor(e, draggable ? (onToggle ? "pointer" : "ns-resize") : "default")}
       onMouseLeave={(e) => setCursor(e, "default")}
     >
-      <Line points={[edgeX, position.y, position.x, position.y]} stroke={color} strokeWidth={2} listening={false} />
-      <Circle x={position.x} y={position.y} radius={BOUNDARY_PORT_RADIUS} fill={color} />
+      <Line points={[edgeX, 0, position.x, 0]} stroke={color} strokeWidth={2} listening={false} />
+      <Circle x={position.x} y={0} radius={BOUNDARY_PORT_RADIUS} fill={color} />
       <Text
         x={position.x - BOUNDARY_LABEL_WIDTH / 2}
-        y={position.y - BOUNDARY_LABEL_OFFSET_Y}
+        y={-BOUNDARY_LABEL_OFFSET_Y}
         width={BOUNDARY_LABEL_WIDTH}
         text={name}
         fontSize={13}

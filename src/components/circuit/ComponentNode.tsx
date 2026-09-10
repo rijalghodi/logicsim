@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { Arc, Group, Rect, Text } from "react-konva";
 import type { PortDefinition } from "../../core";
 import { getComponentBox, getComponentPortPosition, PORT_RADIUS } from "./geometry";
@@ -22,28 +21,16 @@ interface ComponentNodeProps {
 /** One gate instance: a box with its name centered, input pins on the left edge, output pins on the right. */
 export function ComponentNode({ position, label, inputs, outputs, getPortValue, onMove }: ComponentNodeProps) {
   const maxPortCount = Math.max(inputs.length, outputs.length);
-  const box = getComponentBox(position, maxPortCount);
+  const box = getComponentBox({ x: 0, y: 0 }, maxPortCount);
   const draggable = Boolean(onMove);
-
-  // Konva measures drag offset from the position when the gesture *started*,
-  // not frame-to-frame — so the base to add it to must be snapshotted once
-  // at drag start, never the continuously-updating `position` prop (adding
-  // a since-gesture-start delta to an already-updated base compounds it).
-  const dragStart = useRef(position);
 
   return (
     <Group
-      x={0}
-      y={0}
+      x={position.x}
+      y={position.y}
       draggable={draggable}
-      onDragStart={() => {
-        dragStart.current = position;
-      }}
-      onDragMove={(e) => onMove?.({ x: dragStart.current.x + e.target.x(), y: dragStart.current.y + e.target.y() })}
-      onDragEnd={(e) => {
-        onMove?.({ x: dragStart.current.x + e.target.x(), y: dragStart.current.y + e.target.y() });
-        e.target.position({ x: 0, y: 0 });
-      }}
+      onDragMove={(e) => onMove?.({ x: e.target.x(), y: e.target.y() })}
+      onDragEnd={(e) => onMove?.({ x: e.target.x(), y: e.target.y() })}
       onMouseEnter={(e) => {
         const stage = e.target.getStage();
         if (stage && draggable) stage.container().style.cursor = "grab";
@@ -54,8 +41,8 @@ export function ComponentNode({ position, label, inputs, outputs, getPortValue, 
       }}
     >
       <Rect
-        x={box.x}
-        y={box.y}
+        x={0}
+        y={0}
         width={box.width}
         height={box.height}
         fill={BOX_FILL}
@@ -64,8 +51,8 @@ export function ComponentNode({ position, label, inputs, outputs, getPortValue, 
         cornerRadius={6}
       />
       <Text
-        x={box.x}
-        y={box.y}
+        x={0}
+        y={0}
         width={box.width}
         height={box.height}
         text={label}
@@ -79,7 +66,7 @@ export function ComponentNode({ position, label, inputs, outputs, getPortValue, 
         listening={false}
       />
       {inputs.map((port, index) => {
-        const p = getComponentPortPosition(position, "input", index, inputs.length, maxPortCount);
+        const p = getComponentPortPosition({ x: 0, y: 0 }, "input", index, inputs.length, maxPortCount);
         const active = getPortValue(port.id, "input");
         return (
           <Arc
@@ -95,7 +82,7 @@ export function ComponentNode({ position, label, inputs, outputs, getPortValue, 
         );
       })}
       {outputs.map((port, index) => {
-        const p = getComponentPortPosition(position, "output", index, outputs.length, maxPortCount);
+        const p = getComponentPortPosition({ x: 0, y: 0 }, "output", index, outputs.length, maxPortCount);
         const active = getPortValue(port.id, "output");
         return (
           <Arc
