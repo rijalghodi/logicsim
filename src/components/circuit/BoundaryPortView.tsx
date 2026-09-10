@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Circle, Group, Line, Rect, Text } from "react-konva";
+import { Circle, Group, Line, Rect } from "react-konva";
 import type Konva from "konva";
-import { PORT_RADIUS } from "./geometry";
+import { PORT_RADIUS, getPortLabelWidth, PORT_LABEL_HEIGHT } from "./geometry";
 import type { Position } from "./geometry";
 import { WIRE_ACTIVE_COLOR, WIRE_INACTIVE_COLOR } from "./WireLine";
+import { PortLabel } from "./PortLabel";
 
 interface BoundaryPortViewProps {
   /** The position of the wire connection pin (where circuit wires attach). */
@@ -76,8 +77,8 @@ export function BoundaryPortView({
 
   // 5. Label badge
   const labelText = isLeft ? `in ${name}` : `out ${name}`;
-  const badgeWidth = Math.max(32, labelText.length * 7.5 + 4);
-  const badgeHeight = 22;
+  const badgeWidth = getPortLabelWidth(labelText);
+  const badgeHeight = PORT_LABEL_HEIGHT;
   const badgeX = isLeft ? position.x + 14 : position.x - 14 - badgeWidth;
   const badgeY = -badgeHeight / 2;
 
@@ -219,42 +220,15 @@ export function BoundaryPortView({
           y={0}
           radius={pinHovered ? PORT_RADIUS + 1.5 : PORT_RADIUS}
           fill={pinHovered ? pinHoverColor : wireColor}
-          stroke="#ffffff"
           strokeWidth={1.5}
-          shadowColor={active ? WIRE_ACTIVE_COLOR : "#a1a1aa"}
+          shadowColor={active ? WIRE_ACTIVE_COLOR : "hsl(0, 0%, 30%)"}
           shadowBlur={pinHovered ? 8 : active ? 4 : 0}
           shadowOpacity={0.9}
         />
       </Group>
 
       {/* 5. LABEL BADGE */}
-      <Group listening={false}>
-        <Rect
-          x={badgeX}
-          y={badgeY}
-          width={badgeWidth}
-          height={badgeHeight}
-          fill="#27272a"
-          stroke="#52525b"
-          strokeWidth={1}
-          cornerRadius={6}
-          shadowColor="#000"
-          shadowBlur={6}
-          shadowOpacity={0.5}
-        />
-        <Text
-          x={badgeX}
-          y={badgeY}
-          width={badgeWidth}
-          height={badgeHeight}
-          text={labelText}
-          fontSize={12}
-          fontStyle="bold"
-          fill="#f4f4f5"
-          align="center"
-          verticalAlign="middle"
-        />
-      </Group>
+      {pinHovered && <PortLabel x={badgeX} y={badgeY} text={labelText} />}
     </Group>
   );
 }

@@ -1,9 +1,8 @@
-/*@import url("https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&display=swap");*/
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 
 :root {
   --bg-0: hsl(0, 0%, 7%);
-  --bg-1: hsl(0, 0%, 12%);
+  --bg-1: hsl(0, 0%, 14%);
   --bg-2: hsl(0, 0%, 20%);
   --bg-3: hsl(0, 0%, 26%);
   --primary: hsl(51, 78%, 61%);

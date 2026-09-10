@@ -168,19 +168,6 @@ export function CircuitCanvas({
             listening={true}
           />
 
-          {/* Outer Boundary Box */}
-          <Rect
-            x={16}
-            y={16}
-            width={width - 32}
-            height={height - 72}
-            fill="transparent"
-            stroke="hsl(0, 0%, 30%)"
-            strokeWidth={1}
-            cornerRadius={8}
-            listening={false}
-          />
-
           {/* Existing wires */}
           {circuit.connections.map((connection) => {
             const key = `${connection.from.componentId}:${connection.from.portId}->${connection.to.componentId}:${connection.to.portId}`;

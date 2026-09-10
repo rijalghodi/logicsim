@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Arc, Circle, Group, Rect, Text } from "react-konva";
 import type { PortDefinition } from "../../core";
-import { getComponentBox, getComponentPortPosition, PORT_RADIUS } from "./geometry";
+import {
+  getComponentBox,
+  getComponentPortPosition,
+  PORT_RADIUS,
+  getPortLabelWidth,
+  PORT_LABEL_HEIGHT,
+} from "./geometry";
 import type { Position } from "./geometry";
 import { WIRE_ACTIVE_COLOR, WIRE_INACTIVE_COLOR } from "./WireLine";
+import { PortLabel } from "./PortLabel";
 
 const BOX_FILL = "#27272a";
 const BOX_STROKE = "#71717a";
@@ -84,7 +91,7 @@ export function ComponentNode({
           align="center"
           verticalAlign="middle"
           wrap="word"
-          // padding={6}
+          padding={6}
           listening={false}
         />
       </Group>
@@ -102,8 +109,8 @@ export function ComponentNode({
             ? WIRE_ACTIVE_COLOR
             : WIRE_INACTIVE_COLOR;
 
-        const badgeWidth = Math.max(22, port.name.length * 7 + 14);
-        const badgeHeight = 18;
+        const badgeWidth = getPortLabelWidth(port.name);
+        const badgeHeight = PORT_LABEL_HEIGHT;
         const badgeX = Math.max(4, p.x - badgeWidth - 8);
         const badgeY = p.y - badgeHeight / 2;
 
@@ -150,7 +157,7 @@ export function ComponentNode({
               <Circle
                 x={p.x}
                 y={p.y}
-                radius={PORT_RADIUS + 4}
+                radius={PORT_RADIUS}
                 fill={active ? "rgba(233, 210, 79, 0.25)" : "rgba(161, 161, 170, 0.25)"}
                 listening={false}
               />
@@ -172,36 +179,7 @@ export function ComponentNode({
             />
 
             {/* Port label shown on hover */}
-            {isHovered && (
-              <Group x={badgeX} y={badgeY} listening={false}>
-                <Rect
-                  x={0}
-                  y={0}
-                  width={badgeWidth}
-                  height={badgeHeight}
-                  fill="#18181b"
-                  stroke="#71717a"
-                  strokeWidth={1}
-                  cornerRadius={4}
-                  shadowColor="#000"
-                  shadowBlur={6}
-                  shadowOpacity={0.5}
-                />
-                <Text
-                  x={0}
-                  y={0}
-                  width={badgeWidth}
-                  height={badgeHeight}
-                  text={port.name}
-                  fontSize={11}
-                  fontStyle="bold"
-                  fontFamily="monospace"
-                  fill="#f4f4f5"
-                  align="center"
-                  verticalAlign="middle"
-                />
-              </Group>
-            )}
+            {isHovered && <PortLabel x={badgeX} y={badgeY} text={port.name} />}
           </Group>
         );
       })}
@@ -219,8 +197,7 @@ export function ComponentNode({
             ? WIRE_ACTIVE_COLOR
             : WIRE_INACTIVE_COLOR;
 
-        const badgeWidth = Math.max(22, port.name.length * 7 + 14);
-        const badgeHeight = 18;
+        const badgeHeight = PORT_LABEL_HEIGHT;
         const badgeX = p.x + 8;
         const badgeY = p.y - badgeHeight / 2;
 
@@ -254,7 +231,7 @@ export function ComponentNode({
               <Circle
                 x={p.x}
                 y={p.y}
-                radius={PORT_RADIUS + 4}
+                radius={PORT_RADIUS}
                 fill={active ? "rgba(233, 210, 79, 0.25)" : "rgba(161, 161, 170, 0.25)"}
                 listening={false}
               />
@@ -276,36 +253,7 @@ export function ComponentNode({
             />
 
             {/* Port label shown on hover */}
-            {isHovered && (
-              <Group x={badgeX} y={badgeY} listening={false}>
-                <Rect
-                  x={0}
-                  y={0}
-                  width={badgeWidth}
-                  height={badgeHeight}
-                  fill="#18181b"
-                  stroke="#71717a"
-                  strokeWidth={1}
-                  cornerRadius={4}
-                  shadowColor="#000"
-                  shadowBlur={6}
-                  shadowOpacity={0.5}
-                />
-                <Text
-                  x={0}
-                  y={0}
-                  width={badgeWidth}
-                  height={badgeHeight}
-                  text={port.name}
-                  fontSize={11}
-                  fontStyle="bold"
-                  fontFamily="monospace"
-                  fill="#f4f4f5"
-                  align="center"
-                  verticalAlign="middle"
-                />
-              </Group>
-            )}
+            {isHovered && <PortLabel x={badgeX} y={badgeY} text={port.name} />}
           </Group>
         );
       })}
