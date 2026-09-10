@@ -1,5 +1,5 @@
 // Canvas Background
-export const CANVAS_BACKGROUND = "hsl(0, 0%, 14%)";
+export const CANVAS_BACKGROUND = "hsl(0, 0%, 17%)";
 
 // Wire Colors
 export const WIRE_ACTIVE_COLOR = "hsl(53, 98%, 77%)";
