@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import type { Layout, Position } from "./components/circuit/geometry";
 import { Dock } from "./components/ui/Dock";
-import { SaveGateModal } from "./components/ui/SaveGateModal";
+import { SaveChipModal } from "./components/ui/SaveGateModal";
 import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
 import { Toast, toast } from "./components/ui/Toast";
 import {
@@ -296,7 +296,7 @@ function App() {
       <Toast />
 
       {/* Save Chip Modal */}
-      <SaveGateModal
+      <SaveChipModal
         isOpen={showSaveModal}
         initialName={currentGateName ?? ""}
         onSave={handleConfirmSave}

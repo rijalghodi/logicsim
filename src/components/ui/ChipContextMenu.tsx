@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import "./ChipContextMenu.css";
 
 interface ChipContextMenuProps {
   readonly position: { x: number; y: number };

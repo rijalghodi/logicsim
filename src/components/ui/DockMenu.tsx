@@ -13,7 +13,7 @@ interface DockMenuProps {
 
 export function DockMenu({ onNew, onSave }: DockMenuProps) {
   return (
-    <DropdownMenu triggerType="left">
+    <DropdownMenu>
       <DropdownMenuTrigger>
         <button type="button" className="dock-btn dock-btn-menu" title="Circuit & Gate Actions">
           MENU

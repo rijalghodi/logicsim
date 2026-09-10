@@ -23,12 +23,12 @@ export function DockChipMenu({ gate, onAddGate, onDragStart, onOpen, onRename }:
         <span>{gate.name}</span>
       </button>
 
-      <DropdownMenu triggerType="left">
+      <DropdownMenu>
         <DropdownMenuTrigger>
           <button type="button" className="gate-chip-menu-btn" aria-label="Chip Options">
             <svg
-              width="18"
-              height="18"
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

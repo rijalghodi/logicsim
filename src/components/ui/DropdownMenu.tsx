@@ -1,26 +1,20 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
+import "./DropdownMenu.css";
 
 type DropdownMenuContextType = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  triggerType: "left" | "right";
 };
 
 const DropdownMenuContext = createContext<DropdownMenuContextType | null>(null);
 
-export function DropdownMenu({
-  children,
-  triggerType = "left",
-}: {
-  children: ReactNode;
-  triggerType?: "left" | "right";
-}) {
+export function DropdownMenu({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <DropdownMenuContext.Provider value={{ isOpen, setIsOpen, triggerType }}>
-      <div style={{ position: "relative", display: "inline-block", height: "100%" }}>{children}</div>
+    <DropdownMenuContext.Provider value={{ isOpen, setIsOpen }}>
+      <div style={{ position: "relative", display: "inline-block" }}>{children}</div>
     </DropdownMenuContext.Provider>
   );
 }
@@ -30,33 +24,19 @@ export function DropdownMenuTrigger({
 }: {
   children: React.ReactElement<{
     onClick?: (e: React.MouseEvent) => void;
-    onContextMenu?: (e: React.MouseEvent) => void;
   }>;
 }) {
   const ctx = useContext(DropdownMenuContext);
   if (!ctx) throw new Error("DropdownMenuTrigger must be inside DropdownMenu");
 
   const handleClick = () => {
-    if (ctx.triggerType === "left") {
-      ctx.setIsOpen(!ctx.isOpen);
-    }
-  };
-
-  const handleContextMenu = (e: React.MouseEvent) => {
-    if (ctx.triggerType === "right") {
-      e.preventDefault();
-      ctx.setIsOpen(!ctx.isOpen);
-    }
+    ctx.setIsOpen(!ctx.isOpen);
   };
 
   return React.cloneElement(children, {
     onClick: (e: React.MouseEvent) => {
       handleClick();
       children.props.onClick?.(e);
-    },
-    onContextMenu: (e: React.MouseEvent) => {
-      handleContextMenu(e);
-      children.props.onContextMenu?.(e);
     },
   });
 }

@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "./Toast";
+import "./Modal.css";
 
-interface SaveGateModalProps {
+interface SaveChipModalProps {
   readonly isOpen: boolean;
   readonly initialName?: string;
   readonly onSave: (name: string) => void;
   readonly onCancel: () => void;
 }
 
-export function SaveGateModal({ isOpen, initialName = "", onSave, onCancel }: SaveGateModalProps) {
+export function SaveChipModal({ isOpen, initialName = "", onSave, onCancel }: SaveChipModalProps) {
   const [name, setName] = useState(initialName);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -44,7 +45,7 @@ export function SaveGateModal({ isOpen, initialName = "", onSave, onCancel }: Sa
 
   return (
     <div className="modal-backdrop" onClick={onCancel} onKeyDown={handleKeyDown}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <form onSubmit={handleSubmit} className="modal-body">
           <input
             ref={inputRef}

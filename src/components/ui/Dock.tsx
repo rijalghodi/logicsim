@@ -1,4 +1,5 @@
 import { DockMenu } from "./DockMenu";
+import "./Dock.css";
 import { DockChipMenu } from "./DockChipMenu";
 import type { GateDefinition } from "../../core";
 
