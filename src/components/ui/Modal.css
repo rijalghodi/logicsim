@@ -90,7 +90,7 @@
 }
 
 .modal-input:focus {
-  border-color: var(--primary);
+  border-color: hsl(from var(--primary) h s l / 50%);
 }
 
 .modal-actions {

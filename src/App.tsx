@@ -12,8 +12,9 @@ import {
   createPortDefinition,
   validateConnection,
 } from "./core";
-import type { Bit, CircuitDefinition, ChipDefinition, PortDefinition, PortRef } from "./core";
+import type { Bit, CircuitDefinition, PortDefinition, PortRef } from "./core";
 import { loadSavedChips, saveCustomChip } from "./storage/chipStorage";
+import type { SavedChip } from "./storage/chipStorage";
 
 function createBlankCircuit() {
   const IN = createPortDefinition("IN", "input");
@@ -30,7 +31,7 @@ function App() {
   const registry = useMemo(() => createDefaultRegistry(), []);
   const initial = useMemo(() => createBlankCircuit(), []);
 
-  const [savedChips, setSavedChips] = useState<ChipDefinition[]>(() => loadSavedChips(registry));
+  const [savedChips, setSavedChips] = useState<SavedChip[]>(() => loadSavedChips(registry));
   const [circuit, setCircuit] = useState<CircuitDefinition>(initial.circuit);
   const [layout, setLayout] = useState<Layout>(initial.layout);
   const [boundary, setBoundary] = useState<{ inputs: PortDefinition[]; outputs: PortDefinition[] }>(initial.boundary);
@@ -96,22 +97,29 @@ function App() {
   }, []);
 
   const handleConfirmSave = useCallback(
-    (name: string) => {
-      const chip = createChipDefinition({
+    (name: string, color: string) => {
+      const chipDef = createChipDefinition({
         name,
         inputs: boundary.inputs,
         outputs: boundary.outputs,
         circuit,
       });
 
-      saveCustomChip(chip, registry);
+      const savedChip: SavedChip = {
+        ...chipDef,
+        color,
+        layout,
+        boundaryLayout,
+      };
+
+      saveCustomChip(savedChip, registry);
       setSavedChips(loadSavedChips(registry));
       setCurrentChipName(name);
       setIsDirty(false);
       setShowSaveModal(false);
       toast.success(`Chip "${name}" saved to library!`);
     },
-    [boundary, circuit, registry],
+    [boundary, circuit, registry, layout, boundaryLayout],
   );
 
   const loadChipToCanvas = useCallback(
@@ -121,8 +129,8 @@ function App() {
 
       setCircuit(chipDef.circuit);
       setBoundary({ inputs: [...chipDef.inputs], outputs: [...chipDef.outputs] });
-      setLayout({});
-      setBoundaryLayout({});
+      setLayout(chipDef.layout || {});
+      setBoundaryLayout(chipDef.boundaryLayout || {});
       setCurrentChipName(chipDef.name);
       setIsDirty(false);
       setPendingChipToOpen(null);
@@ -267,6 +275,7 @@ function App() {
       <CircuitCanvas
         circuit={circuit}
         registry={registry}
+        savedChips={savedChips}
         layout={layout}
         boundary={boundary}
         boundaryLayout={boundaryLayout}

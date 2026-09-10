@@ -11,12 +11,13 @@ import {
 import type { Position } from "./geometry";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
-import { BOX_FILL, BOX_STROKE, LABEL_COLOR } from "./colors";
+import { CHIP_FILL, getBorderColor, getContrastColor } from "./colors";
 import type Konva from "konva";
 
 interface ChipProps {
   readonly position: Position;
   readonly label: string;
+  readonly color?: string;
   readonly inputs: readonly PortDefinition[];
   readonly outputs: readonly PortDefinition[];
   readonly getPortValue: (portId: string, direction: "input" | "output") => boolean;
@@ -36,6 +37,7 @@ interface ChipProps {
 export function Chip({
   position,
   label,
+  color,
   inputs,
   outputs,
   getPortValue,
@@ -103,8 +105,8 @@ export function Chip({
           y={0}
           width={box.width}
           height={box.height}
-          fill={BOX_FILL}
-          stroke={BOX_STROKE}
+          fill={color ?? CHIP_FILL}
+          stroke={getBorderColor(color ?? CHIP_FILL)}
           strokeWidth={1.5}
           cornerRadius={6}
         />
@@ -117,7 +119,7 @@ export function Chip({
           fontSize={16}
           fontFamily="JetBrains Mono"
           fontStyle="bold"
-          fill={LABEL_COLOR}
+          fill={getContrastColor(color ?? CHIP_FILL)}
           align="center"
           verticalAlign="middle"
           wrap="word"

@@ -3,6 +3,7 @@ import { Layer, Rect, Stage } from "react-konva";
 import type Konva from "konva";
 import { BOUNDARY_ID, evaluateCircuit } from "../../core";
 import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } from "../../core";
+import type { SavedChip } from "../../storage/chipStorage";
 import { BoundaryPort } from "./BoundaryPort";
 import { Chip } from "./Chip";
 import { ChipContextMenu } from "../ui/ChipContextMenu";
@@ -16,6 +17,7 @@ import { CANVAS_BACKGROUND } from "./colors";
 export interface CircuitCanvasProps {
   readonly circuit: CircuitDefinition;
   readonly registry: ChipRegistry;
+  readonly savedChips?: SavedChip[];
   readonly layout: Layout;
   /** This circuit's own inputs/outputs, when it's being viewed as a chip's internals (see SPEC.md §4). */
   readonly boundary?: BoundaryPorts;
@@ -44,6 +46,7 @@ export interface CircuitCanvasProps {
 export function CircuitCanvas({
   circuit,
   registry,
+  savedChips = [],
   layout,
   boundary,
   boundaryLayout,
@@ -192,12 +195,14 @@ export function CircuitCanvas({
             const inputs = resolved.kind === "primitive" ? resolved.inputs : resolved.definition.inputs;
             const outputs = resolved.kind === "primitive" ? resolved.outputs : resolved.definition.outputs;
             const position = layout[component.id] ?? { x: 0, y: 0 };
+            const customChipColor = savedChips.find((c) => c.id === component.type)?.color;
 
             return (
               <Chip
                 key={component.id}
                 position={position}
                 label={label}
+                color={customChipColor}
                 inputs={inputs}
                 outputs={outputs}
                 getPortValue={(portId, direction) =>
