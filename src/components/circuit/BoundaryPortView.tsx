@@ -5,6 +5,7 @@ import { PORT_RADIUS, getPortLabelWidth, PORT_LABEL_HEIGHT } from "./geometry";
 import type { Position } from "./geometry";
 import { WIRE_ACTIVE_COLOR, WIRE_INACTIVE_COLOR } from "./WireLine";
 import { PortLabel } from "./PortLabel";
+import { PortPin } from "./PortPin";
 
 interface BoundaryPortViewProps {
   /** The position of the wire connection pin (where circuit wires attach). */
@@ -31,6 +32,19 @@ const CONTROLLER_WIDTH = 10;
 const CONTROLLER_HEIGHT = 32;
 const BIT_CIRCLE_RADIUS = 15;
 
+// Colors
+const CONTROLLER_FILL = "hsl(0, 0%, 0%)";
+const CONTROLLER_FILL_HOVER = "hsl(0, 0%, 10%)";
+const CONTROLLER_STROKE = "hsl(0, 0%, 20%)";
+const CONTROLLER_STROKE_HOVER = "hsl(0, 0%, 30%)";
+
+const BIT_FILL = "hsla(56, 15%, 21%, 1.00)";
+const BIT_FILL_HOVER = "hsla(56, 15%, 32%, 1.00)";
+
+const BIT_STROKE = "hsl(0, 0%, 6%)";
+const BIT_STROKE_HOVER = "hsl(53, 98%, 10%)";
+const BIT_STROKE_ACTIVE = "hsl(53, 98%, 77%)";
+
 /**
  * A circuit's boundary port laid out with separated components:
  * [Position (y) Controller touching edge] — [Bit input/output circle] — [Line] — [Wire connection pin] — [Label]
@@ -49,13 +63,10 @@ export function BoundaryPortView({
 }: BoundaryPortViewProps) {
   const [controllerHovered, setControllerHovered] = useState(false);
   const [bitHovered, setBitHovered] = useState(false);
-  const [pinHovered, setPinHovered] = useState(false);
+  const [pinHovered, setPinHovered] = useState(false); // Used to conditionally show PortLabel
 
   const isLeft = side === "left";
   const draggable = Boolean(onMove);
-
-  const wireColor = active ? WIRE_ACTIVE_COLOR : WIRE_INACTIVE_COLOR;
-  const pinHoverColor = active ? "#fef08a" : "#a1a1aa";
 
   const setCursor = (e: Konva.KonvaEventObject<MouseEvent>, cursor: string) => {
     const stage = e.target.getStage();
@@ -113,20 +124,14 @@ export function BoundaryPortView({
           y={controllerY}
           width={CONTROLLER_WIDTH}
           height={CONTROLLER_HEIGHT}
-          fill={controllerHovered ? "#3f3f46" : "#27272a"}
-          stroke={controllerHovered ? "#a1a1aa" : "#52525b"}
-          strokeWidth={1}
-          cornerRadius={isLeft ? [0, 4, 4, 0] : [4, 0, 0, 4]}
-          shadowColor="#000"
-          shadowBlur={4}
-          shadowOpacity={0.4}
+          fill={controllerHovered ? CONTROLLER_FILL_HOVER : CONTROLLER_FILL}
         />
         {/* Grip ridges */}
         {[-6, 0, 6].map((offset) => (
           <Line
             key={offset}
             points={[controllerX + 2, offset, controllerX + CONTROLLER_WIDTH - 2, offset]}
-            stroke={controllerHovered ? "#d4d4d8" : "#71717a"}
+            stroke={controllerHovered ? CONTROLLER_STROKE_HOVER : CONTROLLER_STROKE}
             strokeWidth={1.5}
             lineCap="round"
           />
@@ -156,76 +161,27 @@ export function BoundaryPortView({
           x={bitCircleX}
           y={0}
           radius={BIT_CIRCLE_RADIUS}
-          fill={active ? WIRE_ACTIVE_COLOR : bitHovered && onToggle ? "#2e2e34" : "#202024"}
-          stroke={active ? "#fef08a" : bitHovered && onToggle ? "#a1a1aa" : "#52525b"}
+          fill={active ? WIRE_ACTIVE_COLOR : bitHovered && onToggle ? BIT_FILL_HOVER : BIT_FILL}
+          stroke={active ? BIT_STROKE_ACTIVE : bitHovered && onToggle ? BIT_STROKE_HOVER : BIT_STROKE}
           strokeWidth={2}
-          shadowColor={active ? WIRE_ACTIVE_COLOR : "#000"}
-          shadowBlur={active ? 10 : 4}
-          shadowOpacity={active ? 0.8 : 0.4}
+          shadowColor={active ? WIRE_ACTIVE_COLOR : undefined}
+          shadowBlur={active ? 6 : 0}
+          shadowOpacity={active ? 0.8 : 0}
         />
       </Group>
 
       {/* 3. CONNECTING LINE BETWEEN BIT CIRCLE AND WIRE CONNECTION PIN */}
-      <Line points={[lineFromX, 0, lineToX, 0]} stroke={wireColor} strokeWidth={2.5} listening={false} />
+      <Line points={[lineFromX, 0, lineToX, 0]} stroke={WIRE_INACTIVE_COLOR} strokeWidth={2.5} listening={false} />
 
       {/* 4. WIRE CONNECTION PIN (where circuit wires attach) */}
-      <Group
-        onClick={(e) => {
-          e.cancelBubble = true;
-          onPortClick?.(position);
-        }}
-        onTap={(e) => {
-          e.cancelBubble = true;
-          onPortClick?.(position);
-        }}
-        onMouseEnter={(e) => {
-          setPinHovered(true);
-          setCursor(e, "pointer");
-        }}
-        onMouseLeave={(e) => {
-          setPinHovered(false);
-          setCursor(e, "default");
-        }}
-      >
-        {/* Expanded hit target */}
-        <Circle x={position.x} y={0} radius={PORT_RADIUS + 8} fill="transparent" />
-
-        {/* Target indicator ring during active wiring */}
-        {isWiringActive && (
-          <Circle
-            x={position.x}
-            y={0}
-            radius={PORT_RADIUS + 6}
-            stroke={WIRE_ACTIVE_COLOR}
-            strokeWidth={1.5}
-            dash={[3, 3]}
-            listening={false}
-          />
-        )}
-
-        {/* Hover halo */}
-        {pinHovered && (
-          <Circle
-            x={position.x}
-            y={0}
-            radius={PORT_RADIUS + 4}
-            fill={active ? "rgba(233, 210, 79, 0.25)" : "rgba(161, 161, 170, 0.25)"}
-            listening={false}
-          />
-        )}
-
-        {/* Pin circle */}
-        <Circle
-          x={position.x}
-          y={0}
-          radius={pinHovered ? PORT_RADIUS + 1.5 : PORT_RADIUS}
-          fill={pinHovered ? pinHoverColor : wireColor}
-          strokeWidth={1.5}
-          shadowColor={active ? WIRE_ACTIVE_COLOR : "hsl(0, 0%, 30%)"}
-          shadowBlur={pinHovered ? 8 : active ? 4 : 0}
-          shadowOpacity={0.9}
-        />
-      </Group>
+      <PortPin
+        x={position.x}
+        y={0}
+        active={active}
+        isWiringActive={isWiringActive}
+        onPortClick={() => onPortClick?.(position)}
+        onHoverChange={setPinHovered}
+      />
 
       {/* 5. LABEL BADGE */}
       {pinHovered && <PortLabel x={badgeX} y={badgeY} text={labelText} />}

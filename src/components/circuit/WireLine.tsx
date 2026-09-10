@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Line } from "react-konva";
 import type { Position } from "./geometry";
 
-export const WIRE_ACTIVE_COLOR = "#E9D24F";
-export const WIRE_INACTIVE_COLOR = "#52525b";
-export const WIRE_DELETE_HOVER_COLOR = "#ef4444";
+export const WIRE_ACTIVE_COLOR = "hsl(53, 98%, 77%)";
+export const WIRE_INACTIVE_COLOR = "hsl(0, 0%, 4%)";
+export const WIRE_DELETE_HOVER_COLOR = "hsl(0, 84%, 60%)";
 
 interface WireLineProps {
   readonly from: Position;
@@ -18,11 +18,8 @@ interface WireLineProps {
 export function WireLine({ from, to, active, isDraft, onDelete }: WireLineProps) {
   const [hovered, setHovered] = useState(false);
 
-  const strokeColor = hovered && onDelete
-    ? WIRE_DELETE_HOVER_COLOR
-    : active || isDraft
-      ? WIRE_ACTIVE_COLOR
-      : WIRE_INACTIVE_COLOR;
+  const strokeColor =
+    hovered && onDelete ? WIRE_DELETE_HOVER_COLOR : active || isDraft ? WIRE_ACTIVE_COLOR : WIRE_INACTIVE_COLOR;
 
   return (
     <Line
@@ -30,7 +27,7 @@ export function WireLine({ from, to, active, isDraft, onDelete }: WireLineProps)
       stroke={strokeColor}
       strokeWidth={hovered && onDelete ? 3.5 : active || isDraft ? 2.5 : 2}
       dash={isDraft ? [6, 4] : undefined}
-      shadowColor={hovered && onDelete ? "#ef4444" : WIRE_ACTIVE_COLOR}
+      shadowColor={hovered && onDelete ? WIRE_DELETE_HOVER_COLOR : WIRE_ACTIVE_COLOR}
       shadowBlur={active || isDraft || (hovered && onDelete) ? 8 : 0}
       shadowOpacity={0.9}
       lineCap="round"

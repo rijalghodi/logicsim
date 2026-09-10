@@ -11,6 +11,8 @@ import { getComponentInputValue, getPortValue, resolvePortPosition } from "./por
 import type { CircuitViewContext } from "./portResolution";
 import { WireLine } from "./WireLine";
 
+const CANVAS_BACKGROUND = "hsl(0, 0%, 18%)";
+
 export interface CircuitCanvasProps {
   readonly circuit: CircuitDefinition;
   readonly registry: GateRegistry;
@@ -158,15 +160,7 @@ export function CircuitCanvas({
         onTap={handleStageClick}
       >
         <Layer>
-          <Rect
-            name="canvas-bg"
-            x={0}
-            y={0}
-            width={width}
-            height={height}
-            // fill={CANVAS_BACKGROUND}
-            listening={true}
-          />
+          <Rect name="canvas-bg" x={0} y={0} width={width} height={height} fill={CANVAS_BACKGROUND} listening={true} />
 
           {/* Existing wires */}
           {circuit.connections.map((connection) => {

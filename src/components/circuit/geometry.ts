@@ -29,7 +29,7 @@ export function getPortLabelWidth(text: string): number {
 
 /** Taller boxes for gates with more ports, so pins on a busy side don't crowd together. */
 export function getNodeHeight(maxPortCount: number): number {
-  return Math.max(MIN_NODE_HEIGHT, (maxPortCount + 0.5) * PORT_ROW_HEIGHT);
+  return Math.max(MIN_NODE_HEIGHT, (maxPortCount + 1) * PORT_ROW_HEIGHT);
 }
 
 export function getComponentBox(

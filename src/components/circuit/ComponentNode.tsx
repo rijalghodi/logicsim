@@ -1,23 +1,20 @@
 import { useState } from "react";
-import { Arc, Circle, Group, Rect, Text } from "react-konva";
+import { Group, Rect, Text } from "react-konva";
 import type { PortDefinition } from "../../core";
 import {
   getComponentBox,
   getComponentPortPosition,
-  PORT_RADIUS,
   getPortLabelWidth,
   PORT_LABEL_HEIGHT,
+  PORT_RADIUS,
 } from "./geometry";
 import type { Position } from "./geometry";
-import { WIRE_ACTIVE_COLOR, WIRE_INACTIVE_COLOR } from "./WireLine";
 import { PortLabel } from "./PortLabel";
+import { PortPin } from "./PortPin";
 
-const BOX_FILL = "#27272a";
-const BOX_STROKE = "#71717a";
-const LABEL_COLOR = "#f4f4f5";
-
-const PORT_HOVER_ACTIVE_COLOR = "#fef08a";
-const PORT_HOVER_INACTIVE_COLOR = "#a1a1aa";
+const BOX_FILL = "hsla(88, 78%, 33%, 1.00)";
+const BOX_STROKE = "hsl(0, 0%, 30%)";
+const LABEL_COLOR = "hsl(0, 0%, 90%)";
 
 interface ComponentNodeProps {
   readonly position: Position;
@@ -101,81 +98,21 @@ export function ComponentNode({
         const p = getComponentPortPosition(position, "input", index, inputs.length, maxPortCount);
         const active = getPortValue(port.id, "input");
         const isHovered = hoveredPortId === port.id;
-        const color = isHovered
-          ? active
-            ? PORT_HOVER_ACTIVE_COLOR
-            : PORT_HOVER_INACTIVE_COLOR
-          : active
-            ? WIRE_ACTIVE_COLOR
-            : WIRE_INACTIVE_COLOR;
 
         const badgeWidth = getPortLabelWidth(port.name);
         const badgeHeight = PORT_LABEL_HEIGHT;
-        const badgeX = Math.max(4, p.x - badgeWidth - 8);
+        const badgeX = Math.max(4, p.x - badgeWidth - PORT_RADIUS - 4);
         const badgeY = p.y - badgeHeight / 2;
 
         return (
-          <Group
-            key={port.id}
-            onClick={(e) => {
-              e.cancelBubble = true;
-              onPortClick?.(port.id, "input", p);
-            }}
-            onTap={(e) => {
-              e.cancelBubble = true;
-              onPortClick?.(port.id, "input", p);
-            }}
-            onMouseEnter={(e) => {
-              setHoveredPortId(port.id);
-              const stage = e.target.getStage();
-              if (stage) stage.container().style.cursor = "pointer";
-            }}
-            onMouseLeave={(e) => {
-              setHoveredPortId((curr) => (curr === port.id ? null : curr));
-              const stage = e.target.getStage();
-              if (stage) stage.container().style.cursor = "default";
-            }}
-          >
-            {/* Expanded hit target for effortless clicking and hovering */}
-            <Circle x={p.x} y={p.y} radius={PORT_RADIUS + 8} fill="transparent" />
-
-            {/* Target indicator ring during active wiring */}
-            {isWiringActive && (
-              <Circle
-                x={p.x}
-                y={p.y}
-                radius={PORT_RADIUS + 5}
-                stroke={WIRE_ACTIVE_COLOR}
-                strokeWidth={1.5}
-                dash={[3, 3]}
-                listening={false}
-              />
-            )}
-
-            {/* Subtle glow/halo when hovered */}
-            {isHovered && (
-              <Circle
-                x={p.x}
-                y={p.y}
-                radius={PORT_RADIUS}
-                fill={active ? "rgba(233, 210, 79, 0.25)" : "rgba(161, 161, 170, 0.25)"}
-                listening={false}
-              />
-            )}
-
-            {/* Port pin shape */}
-            <Arc
+          <Group key={port.id}>
+            <PortPin
               x={p.x}
               y={p.y}
-              innerRadius={0}
-              outerRadius={isHovered ? PORT_RADIUS + 1.5 : PORT_RADIUS}
-              angle={180}
-              rotation={90}
-              fill={color}
-              shadowColor={active ? WIRE_ACTIVE_COLOR : "#a1a1aa"}
-              shadowBlur={isHovered ? 8 : active ? 4 : 0}
-              shadowOpacity={0.9}
-              listening={false}
+              active={active}
+              isWiringActive={isWiringActive}
+              onPortClick={() => onPortClick?.(port.id, "input", p)}
+              onHoverChange={(hovered) => setHoveredPortId(hovered ? port.id : null)}
             />
 
             {/* Port label shown on hover */}
@@ -189,67 +126,20 @@ export function ComponentNode({
         const p = getComponentPortPosition(position, "output", index, outputs.length, maxPortCount);
         const active = getPortValue(port.id, "output");
         const isHovered = hoveredPortId === port.id;
-        const color = isHovered
-          ? active
-            ? PORT_HOVER_ACTIVE_COLOR
-            : PORT_HOVER_INACTIVE_COLOR
-          : active
-            ? WIRE_ACTIVE_COLOR
-            : WIRE_INACTIVE_COLOR;
 
         const badgeHeight = PORT_LABEL_HEIGHT;
-        const badgeX = p.x + 8;
+        const badgeX = p.x + PORT_RADIUS + 4;
         const badgeY = p.y - badgeHeight / 2;
 
         return (
-          <Group
-            key={port.id}
-            onClick={(e) => {
-              e.cancelBubble = true;
-              onPortClick?.(port.id, "output", p);
-            }}
-            onTap={(e) => {
-              e.cancelBubble = true;
-              onPortClick?.(port.id, "output", p);
-            }}
-            onMouseEnter={(e) => {
-              setHoveredPortId(port.id);
-              const stage = e.target.getStage();
-              if (stage) stage.container().style.cursor = "pointer";
-            }}
-            onMouseLeave={(e) => {
-              setHoveredPortId((curr) => (curr === port.id ? null : curr));
-              const stage = e.target.getStage();
-              if (stage) stage.container().style.cursor = "default";
-            }}
-          >
-            {/* Expanded hit target for effortless clicking and hovering */}
-            <Circle x={p.x} y={p.y} radius={PORT_RADIUS + 8} fill="transparent" />
-
-            {/* Subtle glow/halo when hovered */}
-            {isHovered && (
-              <Circle
-                x={p.x}
-                y={p.y}
-                radius={PORT_RADIUS}
-                fill={active ? "rgba(233, 210, 79, 0.25)" : "rgba(161, 161, 170, 0.25)"}
-                listening={false}
-              />
-            )}
-
-            {/* Port pin shape */}
-            <Arc
+          <Group key={port.id}>
+            <PortPin
               x={p.x}
               y={p.y}
-              innerRadius={0}
-              outerRadius={isHovered ? PORT_RADIUS + 1.5 : PORT_RADIUS}
-              angle={180}
-              rotation={-90}
-              fill={color}
-              shadowColor={active ? WIRE_ACTIVE_COLOR : "#a1a1aa"}
-              shadowBlur={isHovered ? 8 : active ? 4 : 0}
-              shadowOpacity={0.9}
-              listening={false}
+              active={active}
+              isWiringActive={isWiringActive}
+              onPortClick={() => onPortClick?.(port.id, "output", p)}
+              onHoverChange={(hovered) => setHoveredPortId(hovered ? port.id : null)}
             />
 
             {/* Port label shown on hover */}
