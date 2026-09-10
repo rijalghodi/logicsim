@@ -9,9 +9,18 @@ interface DockChipMenuProps {
   readonly onDragStart: (e: React.DragEvent, chipId: string) => void;
   readonly onOpen: () => void;
   readonly onRename: () => void;
+  readonly onDelete: () => void;
 }
 
-export function DockChipMenu({ chip, isDisabled, onAddChip, onDragStart, onOpen, onRename }: DockChipMenuProps) {
+export function DockChipMenu({
+  chip,
+  isDisabled,
+  onAddChip,
+  onDragStart,
+  onOpen,
+  onRename,
+  onDelete,
+}: DockChipMenuProps) {
   return (
     <div className="dock-chip dock-chip-composite">
       <button
@@ -41,6 +50,9 @@ export function DockChipMenu({ chip, isDisabled, onAddChip, onDragStart, onOpen,
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onRename}>
             <span>RENAME</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onDelete} isDanger>
+            <span>DELETE CHIP</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -1,11 +1,11 @@
 /* ==========================================================================
    Menu Dropdown
    ========================================================================== */
-.menu-dropdown {
+.dropdown {
   position: absolute;
   bottom: calc(100% + 12px);
   left: 0;
-  min-width: 170px;
+  min-width: 164px;
   background: rgba(28, 28, 32, 0.95);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);

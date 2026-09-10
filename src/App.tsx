@@ -4,6 +4,7 @@ import type { Layout, Position } from "./components/circuit/geometry";
 import { Dock } from "./components/ui/Dock";
 import { SaveChipModal } from "./components/ui/SaveChipModal";
 import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
+import { DeleteChipModal } from "./components/ui/DeleteChipModal";
 import { Toast, toast } from "./components/ui/Toast";
 import {
   createDefaultRegistry,
@@ -13,7 +14,7 @@ import {
   validateConnection,
 } from "./core";
 import type { Bit, CircuitDefinition, PortDefinition, PortRef } from "./core";
-import { loadSavedChips, saveCustomChip } from "./storage/chipStorage";
+import { loadSavedChips, saveCustomChip, deleteCustomChip } from "./storage/chipStorage";
 import type { SavedChip } from "./storage/chipStorage";
 
 function createBlankCircuit() {
@@ -45,6 +46,7 @@ function App() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [pendingChipToOpen, setPendingChipToOpen] = useState<string | null>(null);
+  const [deletingChipId, setDeletingChipId] = useState<string | null>(null);
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -157,6 +159,33 @@ function App() {
       }
     },
     [isDirty, circuit, loadChipToCanvas],
+  );
+
+  const handleDeleteChipClick = useCallback((chipId: string) => {
+    setDeletingChipId(chipId);
+  }, []);
+
+  const handleConfirmDelete = useCallback(
+    (chipsToDelete: SavedChip[]) => {
+      // 1. Delete from storage and unregister from registry
+      for (const c of chipsToDelete) {
+        deleteCustomChip(c.id);
+        registry.unregisterChip(c.id);
+      }
+
+      // 2. Refresh local state
+      setSavedChips(loadSavedChips(registry));
+      setDeletingChipId(null);
+
+      // 3. If current canvas is one of the deleted chips, reset it to blank
+      if (currentChipId && chipsToDelete.some((c) => c.id === currentChipId)) {
+        resetToBlank();
+        toast.info("Active chip was deleted. Canvas reset to blank.");
+      } else {
+        toast.success(`Deleted ${chipsToDelete.length} chip(s)`);
+      }
+    },
+    [currentChipId, registry, resetToBlank],
   );
 
   const handleDiscardChanges = useCallback(() => {
@@ -328,6 +357,7 @@ function App() {
         onAddChip={handleAddChipCenter}
         onOpenChip={handleOpenChipClick}
         onRenameChip={() => toast.info("Rename coming soon!")}
+        onDeleteChip={handleDeleteChipClick}
       />
 
       {/* Toast Notification */}
@@ -353,6 +383,15 @@ function App() {
           setShowUnsavedModal(false);
           setPendingChipToOpen(null);
         }}
+      />
+
+      {/* Delete Chip Confirmation Modal */}
+      <DeleteChipModal
+        chipId={deletingChipId}
+        savedChips={savedChips}
+        registry={registry}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeletingChipId(null)}
       />
     </div>
   );

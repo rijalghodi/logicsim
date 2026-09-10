@@ -63,13 +63,21 @@ export function DropdownMenuContent({ children }: { children: ReactNode }) {
   if (!ctx?.isOpen) return null;
 
   return (
-    <div ref={menuRef} className="menu-dropdown">
+    <div ref={menuRef} className="dropdown">
       {children}
     </div>
   );
 }
 
-export function DropdownMenuItem({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
+export function DropdownMenuItem({
+  children,
+  onClick,
+  isDanger,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  isDanger?: boolean;
+}) {
   const ctx = useContext(DropdownMenuContext);
   return (
     <button
@@ -79,6 +87,7 @@ export function DropdownMenuItem({ children, onClick }: { children: ReactNode; o
         ctx?.setIsOpen(false);
         onClick?.();
       }}
+      style={isDanger ? { color: "var(--danger)" } : {}}
     >
       {children}
     </button>

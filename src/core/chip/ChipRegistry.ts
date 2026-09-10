@@ -47,6 +47,10 @@ export class ChipRegistry {
     return this.chips.has(id);
   }
 
+  unregisterChip(id: string): void {
+    this.chips.delete(id);
+  }
+
   resolve(type: string): ResolvedChipType {
     const primitive = this.primitives.get(type);
     if (primitive) return primitive;

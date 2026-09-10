@@ -11,6 +11,7 @@ interface DockProps {
   readonly onAddChip?: (chipType: string) => void;
   readonly onOpenChip?: (chipId: string) => void;
   readonly onRenameChip?: (chipId: string) => void;
+  readonly onDeleteChip?: (chipId: string) => void;
 }
 
 export function Dock({
@@ -21,6 +22,7 @@ export function Dock({
   onAddChip,
   onOpenChip,
   onRenameChip,
+  onDeleteChip,
 }: DockProps) {
   const handleDragStart = (e: React.DragEvent, chipType: string) => {
     e.dataTransfer.setData("application/logicsim-chip", chipType);
@@ -79,6 +81,7 @@ export function Dock({
             onDragStart={handleDragStart}
             onOpen={() => onOpenChip?.(chip.id)}
             onRename={() => onRenameChip?.(chip.id)}
+            onDelete={() => onDeleteChip?.(chip.id)}
           />
         );
       })}
