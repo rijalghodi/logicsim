@@ -3,7 +3,7 @@ import { Layer, Rect, Stage } from "react-konva";
 import type Konva from "konva";
 import { BOUNDARY_ID, evaluateCircuit } from "../../core";
 import type { Bit, BoundaryPorts, CircuitDefinition, GateRegistry, PortRef } from "../../core";
-import { BoundaryPortView } from "./BoundaryPortView";
+import { BoundaryPort } from "./BoundaryPort";
 import { Chip } from "./Chip";
 import { ChipContextMenu } from "../ui/ChipContextMenu";
 import { getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
@@ -17,7 +17,7 @@ export interface CircuitCanvasProps {
   readonly circuit: CircuitDefinition;
   readonly registry: GateRegistry;
   readonly layout: Layout;
-  /** This circuit's own inputs/outputs, when it's being viewed as a gate's internals (see SPEC.md §4). */
+  /** This circuit's own inputs/outputs, when it's being viewed as a chip's internals (see SPEC.md §4). */
   readonly boundary?: BoundaryPorts;
   /** Per-boundary-port-id y override, from dragging — falls back to even spacing when absent. */
   readonly boundaryLayout?: Readonly<Record<string, number>>;
@@ -221,7 +221,7 @@ export function CircuitCanvas({
             const base = getBoundaryPortPosition("left", index, boundary.inputs.length, width, height);
             const position = { x: base.x, y: boundaryLayout?.[port.id] ?? base.y };
             return (
-              <BoundaryPortView
+              <BoundaryPort
                 key={port.id}
                 position={position}
                 edgeX={16}
@@ -242,7 +242,7 @@ export function CircuitCanvas({
             const base = getBoundaryPortPosition("right", index, boundary.outputs.length, width, height);
             const position = { x: base.x, y: boundaryLayout?.[port.id] ?? base.y };
             return (
-              <BoundaryPortView
+              <BoundaryPort
                 key={port.id}
                 position={position}
                 edgeX={width - 16}

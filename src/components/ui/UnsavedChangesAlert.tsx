@@ -1,3 +1,5 @@
+import { Modal, ModalHeader, ModalTitle, ModalDescription, ModalBody, ModalActions } from "./Modal";
+
 interface UnsavedChangesAlertProps {
   readonly isOpen: boolean;
   readonly onSave: () => void;
@@ -9,23 +11,17 @@ export function UnsavedChangesAlert({ isOpen, onSave, onDiscard, onCancel }: Uns
   if (!isOpen) return null;
 
   return (
-    <div
-      className="modal-backdrop"
-      onClick={onCancel}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") onCancel();
-      }}
-    >
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h3 className="modal-title">Unsaved Changes</h3>
-          <p className="modal-description">
-            The current circuit has unsaved changes. Do you want to save this circuit as a gate before opening a new ci,
-            or discard changes?
-          </p>
-        </div>
+    <Modal isOpen={isOpen} onClose={onCancel}>
+      <ModalHeader>
+        <ModalTitle>Unsaved Changes</ModalTitle>
+        <ModalDescription>
+          The current circuit has unsaved changes. Do you want to save this circuit as a chip before opening a new one,
+          or discard changes?
+        </ModalDescription>
+      </ModalHeader>
 
-        <div className="modal-actions">
+      <ModalBody>
+        <ModalActions>
           <button type="button" className="btn-secondary" onClick={onCancel}>
             Cancel
           </button>
@@ -35,8 +31,8 @@ export function UnsavedChangesAlert({ isOpen, onSave, onDiscard, onCancel }: Uns
           <button type="button" className="btn-primary" onClick={onSave}>
             Save
           </button>
-        </div>
-      </div>
-    </div>
+        </ModalActions>
+      </ModalBody>
+    </Modal>
   );
 }

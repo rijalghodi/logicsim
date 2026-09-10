@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "./Toast";
-import "./Modal.css";
+import { Modal, ModalHeader, ModalTitle, ModalDescription, ModalBody, ModalActions } from "./Modal";
 
 interface SaveChipModalProps {
   readonly isOpen: boolean;
@@ -37,37 +37,34 @@ export function SaveChipModal({ isOpen, initialName = "", onSave, onCancel }: Sa
     onSave(trimmed);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      onCancel();
-    }
-  };
-
   return (
-    <div className="modal-backdrop" onClick={onCancel} onKeyDown={handleKeyDown}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <form onSubmit={handleSubmit} className="modal-body">
-          <input
-            ref={inputRef}
-            type="text"
-            className="modal-input"
-            placeholder="CHIP NAME (e.g. AND, XOR)"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value.toUpperCase());
-            }}
-          />
+    <Modal isOpen={isOpen} onClose={onCancel}>
+      <ModalHeader>
+        <ModalTitle>Save Chip</ModalTitle>
+        <ModalDescription>Enter a name for your custom chip. This will be available in the dock.</ModalDescription>
+      </ModalHeader>
 
-          <div className="modal-actions">
-            <button type="button" className="btn-secondary" onClick={onCancel}>
-              CANCEL
-            </button>
-            <button type="submit" className="btn-primary">
-              SAVE CHIP
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+      <ModalBody onSubmit={handleSubmit}>
+        <input
+          ref={inputRef}
+          type="text"
+          className="modal-input"
+          placeholder="CHIP NAME (e.g. AND, XOR)"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value.toUpperCase());
+          }}
+        />
+
+        <ModalActions>
+          <button type="button" className="btn-secondary" onClick={onCancel}>
+            CANCEL
+          </button>
+          <button type="submit" className="btn-primary">
+            SAVE CHIP
+          </button>
+        </ModalActions>
+      </ModalBody>
+    </Modal>
   );
 }

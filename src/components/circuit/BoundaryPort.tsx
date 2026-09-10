@@ -7,7 +7,7 @@ import { WIRE_ACTIVE_COLOR, WIRE_INACTIVE_COLOR } from "./colors";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
 
-interface BoundaryPortViewProps {
+interface BoundaryPortProps {
   /** The position of the wire connection pin (where circuit wires attach). */
   readonly position: Position;
   /** The screen edge x this port touches. */
@@ -46,7 +46,7 @@ const CONTROLLER_WIDTH = 12;
  * A circuit's boundary port laid out with separated components:
  * [Position (y) Controller touching edge] — [Bit input/output circle] — [Line] — [Wire connection pin] — [Label]
  */
-export function BoundaryPortView({
+export function BoundaryPort({
   position,
   edgeX,
   name,
@@ -57,7 +57,7 @@ export function BoundaryPortView({
   isWiringActive,
   side,
   bounds,
-}: BoundaryPortViewProps) {
+}: BoundaryPortProps) {
   const [controllerHovered, setControllerHovered] = useState(false);
   const [bitHovered, setBitHovered] = useState(false);
   const [pinHovered, setPinHovered] = useState(false); // Used to conditionally show PortLabel
