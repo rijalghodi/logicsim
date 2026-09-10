@@ -92,7 +92,8 @@ input {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  text-align: center;
+  gap: 0px;
   height: 32px;
   padding: 0 6px;
   min-width: 40px;
@@ -110,12 +111,81 @@ input {
 
 .gate-chip:hover {
   background: var(--bg-3);
-  transform: translateY(-1px);
 }
 
 .gate-chip:active {
   cursor: grabbing;
   transform: scale(0.96);
+}
+
+.gate-chip-composite {
+  padding: 0;
+  cursor: default;
+  align-items: stretch;
+}
+
+.gate-chip-composite:active {
+  transform: none; /* Let the inner button handle the scale or just disable it for the wrapper to prevent menu scale */
+}
+
+.gate-chip-main {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  cursor: grab;
+  height: 100%;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  border-radius: var(--radius-btn);
+}
+
+.gate-chip-composite:hover .gate-chip-main {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.gate-chip-main:active {
+  cursor: grabbing;
+}
+
+.gate-chip-main:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.gate-chip-menu-btn {
+  background: transparent;
+  border: none;
+  border-left: 1px solid transparent;
+  color: var(--fg-secondary);
+  height: 100%;
+  width: 0;
+  opacity: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-out;
+  cursor: pointer;
+  overflow: hidden;
+  border-top-right-radius: var(--radius-btn);
+  border-bottom-right-radius: var(--radius-btn);
+}
+
+.gate-chip-composite:hover .gate-chip-menu-btn {
+  width: 18px;
+  opacity: 1;
+  border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+.gate-chip-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--fg);
 }
 
 /* ==========================================================================

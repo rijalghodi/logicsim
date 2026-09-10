@@ -59,18 +59,14 @@ export function Dock({ savedGates, onNew, onSave, onAddGate, onOpenGate, onRenam
 
       {/* User-created Custom Gates */}
       {savedGates.map((gate) => (
-        <DockChipMenu key={gate.id} onOpen={() => onOpenGate?.(gate.id)} onRename={() => onRenameGate?.(gate.id)}>
-          <button
-            type="button"
-            className="gate-chip"
-            draggable
-            onDragStart={(e) => handleDragStart(e, gate.id)}
-            onClick={() => onAddGate?.(gate.id)}
-            title={`${gate.name}: Drag to canvas or click to add`}
-          >
-            <span>{gate.name}</span>
-          </button>
-        </DockChipMenu>
+        <DockChipMenu
+          key={gate.id}
+          gate={gate}
+          onAddGate={onAddGate}
+          onDragStart={handleDragStart}
+          onOpen={() => onOpenGate?.(gate.id)}
+          onRename={() => onRenameGate?.(gate.id)}
+        />
       ))}
     </div>
   );

@@ -20,7 +20,7 @@ export function DropdownMenu({
 
   return (
     <DropdownMenuContext.Provider value={{ isOpen, setIsOpen, triggerType }}>
-      <div style={{ position: "relative", display: "inline-block" }}>{children}</div>
+      <div style={{ position: "relative", display: "inline-block", height: "100%" }}>{children}</div>
     </DropdownMenuContext.Provider>
   );
 }
