@@ -5,6 +5,7 @@ import type { ChipDefinition } from "../../core";
 
 interface DockProps {
   readonly savedChips: readonly ChipDefinition[];
+  readonly disabledChipIds?: Set<string>;
   readonly onNew: () => void;
   readonly onSave: () => void;
   readonly onAddChip?: (chipType: string) => void;
@@ -12,7 +13,7 @@ interface DockProps {
   readonly onRenameChip?: (chipId: string) => void;
 }
 
-export function Dock({ savedChips, onNew, onSave, onAddChip, onOpenChip, onRenameChip }: DockProps) {
+export function Dock({ savedChips, disabledChipIds = new Set(), onNew, onSave, onAddChip, onOpenChip, onRenameChip }: DockProps) {
   const handleDragStart = (e: React.DragEvent, chipType: string) => {
     e.dataTransfer.setData("application/logicsim-chip", chipType);
     e.dataTransfer.effectAllowed = "copy";
@@ -59,16 +60,20 @@ export function Dock({ savedChips, onNew, onSave, onAddChip, onOpenChip, onRenam
       </button>
 
       {/* User-created Custom Chips */}
-      {savedChips.map((chip) => (
-        <DockChipMenu
-          key={chip.id}
-          chip={chip}
-          onAddChip={onAddChip}
-          onDragStart={handleDragStart}
-          onOpen={() => onOpenChip?.(chip.id)}
-          onRename={() => onRenameChip?.(chip.id)}
-        />
-      ))}
+      {savedChips.map((chip) => {
+        const isDisabled = disabledChipIds.has(chip.id);
+        return (
+          <DockChipMenu
+            key={chip.id}
+            chip={chip}
+            isDisabled={isDisabled}
+            onAddChip={onAddChip}
+            onDragStart={handleDragStart}
+            onOpen={() => onOpenChip?.(chip.id)}
+            onRename={() => onRenameChip?.(chip.id)}
+          />
+        );
+      })}
     </div>
   );
 }

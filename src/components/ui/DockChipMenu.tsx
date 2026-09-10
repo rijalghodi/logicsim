@@ -3,22 +3,27 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 
 interface DockChipMenuProps {
   readonly chip: ChipDefinition;
+  readonly isDisabled?: boolean;
   readonly onAddChip?: (chipId: string) => void;
   readonly onDragStart: (e: React.DragEvent, chipId: string) => void;
   readonly onOpen: () => void;
   readonly onRename: () => void;
 }
 
-export function DockChipMenu({ chip, onAddChip, onDragStart, onOpen, onRename }: DockChipMenuProps) {
+export function DockChipMenu({ chip, isDisabled, onAddChip, onDragStart, onOpen, onRename }: DockChipMenuProps) {
   return (
     <div className="chip-chip chip-chip-composite">
       <button
         type="button"
         className="chip-chip-main"
-        draggable
+        disabled={isDisabled}
+        draggable={!isDisabled}
+        style={{ opacity: isDisabled ? 0.5 : 1, cursor: isDisabled ? "not-allowed" : "pointer" }}
         onDragStart={(e) => onDragStart(e, chip.id)}
-        onClick={() => onAddChip?.(chip.id)}
-        title={`${chip.name}: Drag to canvas or click to add`}
+        onClick={() => !isDisabled && onAddChip?.(chip.id)}
+        title={
+          isDisabled ? "Cannot add chip: circular dependency detected" : `${chip.name}: Drag to canvas or click to add`
+        }
       >
         <span>{chip.name}</span>
       </button>

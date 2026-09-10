@@ -63,4 +63,24 @@ export class ChipRegistry {
       ? { inputs: resolved.inputs, outputs: resolved.outputs }
       : { inputs: resolved.definition.inputs, outputs: resolved.definition.outputs };
   }
+
+  /**
+   * Checks if `sourceType` recursively depends on `targetType`.
+   * Useful to prevent circular dependencies when adding chips to a circuit.
+   */
+  dependsOn(sourceType: string, targetType: string, visited = new Set<string>()): boolean {
+    if (sourceType === targetType) return true;
+    if (visited.has(sourceType)) return false;
+    visited.add(sourceType);
+
+    const source = this.chips.get(sourceType);
+    if (!source) return false; // Primitives don't depend on anything
+
+    for (const comp of source.circuit.components) {
+      if (this.dependsOn(comp.type, targetType, visited)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

@@ -58,7 +58,7 @@ export function SaveChipModal({ isOpen, initialName = "", onSave, onCancel }: Sa
             ref={colorInputRef}
             value={color}
             onChange={(e) => setColor(e.target.value)}
-            style={{ width: 0, height: 0, position: "absolute" }}
+            style={{ width: 0, height: 0, opacity: 0, position: "absolute" }}
           />
           {/* Custom color picker button */}
           <button

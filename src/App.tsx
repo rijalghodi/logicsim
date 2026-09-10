@@ -40,6 +40,7 @@ function App() {
 
   const [isDirty, setIsDirty] = useState(false);
   const [currentChipName, setCurrentChipName] = useState<string | null>(null);
+  const [currentChipId, setCurrentChipId] = useState<string | null>(null);
 
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
@@ -80,6 +81,7 @@ function App() {
     setBoundaryLayout(blank.boundaryLayout);
     setBoundaryInputs({});
     setCurrentChipName(null);
+    setCurrentChipId(null);
     setIsDirty(false);
   }, []);
 
@@ -99,6 +101,7 @@ function App() {
   const handleConfirmSave = useCallback(
     (name: string, color: string) => {
       const chipDef = createChipDefinition({
+        id: currentChipId ?? undefined,
         name,
         inputs: boundary.inputs,
         outputs: boundary.outputs,
@@ -112,14 +115,19 @@ function App() {
         boundaryLayout,
       };
 
-      saveCustomChip(savedChip, registry);
-      setSavedChips(loadSavedChips(registry));
-      setCurrentChipName(name);
-      setIsDirty(false);
-      setShowSaveModal(false);
-      toast.success(`Chip "${name}" saved to library!`);
+      try {
+        saveCustomChip(savedChip, registry);
+        setSavedChips(loadSavedChips(registry));
+        setCurrentChipName(name);
+        setCurrentChipId(chipDef.id);
+        setIsDirty(false);
+        setShowSaveModal(false);
+        toast.success(`Chip "${name}" saved to library!`);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : String(err));
+      }
     },
-    [boundary, circuit, registry, layout, boundaryLayout],
+    [boundary, circuit, registry, layout, boundaryLayout, currentChipId],
   );
 
   const loadChipToCanvas = useCallback(
@@ -132,6 +140,7 @@ function App() {
       setLayout(chipDef.layout || {});
       setBoundaryLayout(chipDef.boundaryLayout || {});
       setCurrentChipName(chipDef.name);
+      setCurrentChipId(chipDef.id);
       setIsDirty(false);
       setPendingChipToOpen(null);
     },
@@ -179,6 +188,11 @@ function App() {
         return;
       }
 
+      if (currentChipId && registry.dependsOn(chipType, currentChipId)) {
+        toast.error("Cannot add chip: circular dependency detected");
+        return;
+      }
+
       const newId = createId("c");
       setCircuit((prev) => ({
         ...prev,
@@ -190,7 +204,7 @@ function App() {
       }));
       setIsDirty(true);
     },
-    [boundary.inputs.length, boundary.outputs.length],
+    [boundary.inputs.length, boundary.outputs.length, currentChipId, registry],
   );
 
   const handleAddChipCenter = useCallback(
@@ -269,6 +283,18 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleSaveClick, handleNewClick]);
 
+  const disabledChipIds = useMemo(() => {
+    const disabled = new Set<string>();
+    if (currentChipId) {
+      for (const chip of savedChips) {
+        if (registry.dependsOn(chip.id, currentChipId)) {
+          disabled.add(chip.id);
+        }
+      }
+    }
+    return disabled;
+  }, [currentChipId, savedChips, registry]);
+
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
       {/* Circuit Canvas */}
@@ -294,6 +320,7 @@ function App() {
       {/* Floating Bottom Toolbar */}
       <Dock
         savedChips={savedChips}
+        disabledChipIds={disabledChipIds}
         onNew={handleNewClick}
         onSave={handleSaveClick}
         onAddChip={handleAddChipCenter}

@@ -32,7 +32,7 @@ export function loadSavedChips(registry: ChipRegistry): SavedChip[] {
         if (!registry.hasChip(chip.id)) {
           registry.registerChip(chip);
         }
-        
+
         chips.push({
           ...chip,
           color: item.ui?.color ?? CHIP_FILL,
@@ -55,35 +55,43 @@ export function loadSavedChips(registry: ChipRegistry): SavedChip[] {
  * in localStorage, and ensures it is registered in the ChipRegistry.
  */
 export function saveCustomChip(savedChip: SavedChip, registry: ChipRegistry): void {
+  const existingChips = loadSavedChips(registry);
+  const duplicate = existingChips.find((c) => c.name === savedChip.name && c.id !== savedChip.id);
+
+  if (duplicate) {
+    throw new Error(`A chip named "${savedChip.name}" already exists.`);
+  }
+
   try {
     if (!registry.hasChip(savedChip.id)) {
       registry.registerChip(savedChip);
     }
 
-    const existingChips = loadSavedChips(registry);
-    
     // Core definition serialization
     const serializedCore = serializeChipDefinition(savedChip);
 
     const filtered = existingChips.filter((g) => g.id !== savedChip.id);
-    
+
     const serializeFull = (chip: SavedChip) => ({
       core: serializeChipDefinition(chip),
       ui: {
         color: chip.color,
         layout: chip.layout,
-        boundaryLayout: chip.boundaryLayout
-      }
+        boundaryLayout: chip.boundaryLayout,
+      },
     });
 
-    const updated = [...filtered.map(serializeFull), {
-      core: serializedCore,
-      ui: {
-        color: savedChip.color,
-        layout: savedChip.layout,
-        boundaryLayout: savedChip.boundaryLayout
-      }
-    }];
+    const updated = [
+      ...filtered.map(serializeFull),
+      {
+        core: serializedCore,
+        ui: {
+          color: savedChip.color,
+          layout: savedChip.layout,
+          boundaryLayout: savedChip.boundaryLayout,
+        },
+      },
+    ];
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (err) {
@@ -102,7 +110,10 @@ export function deleteCustomChip(chipId: string): void {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return;
 
-    const updated = parsed.filter((item: { id?: string }) => item.id !== chipId);
+    const updated = parsed.filter((item: { id?: string; core?: { id?: string }; ui?: unknown }) => {
+      const coreId = item.ui ? item.core?.id : item.id;
+      return coreId !== chipId;
+    });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (err) {
     console.error("Failed to delete chip from localStorage:", err);
