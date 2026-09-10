@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import type { GateDefinition } from "../../core";
 
-interface BottomToolbarProps {
+interface DockProps {
   readonly savedGates: readonly GateDefinition[];
   readonly onNew: () => void;
   readonly onSave: () => void;
   readonly onAddGate?: (gateType: string) => void;
 }
 
-export function BottomToolbar({ savedGates, onNew, onSave, onAddGate }: BottomToolbarProps) {
+export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -32,7 +32,7 @@ export function BottomToolbar({ savedGates, onNew, onSave, onAddGate }: BottomTo
   };
 
   return (
-    <div className="bottom-dock-container">
+    <div className="dock-container">
       {/* Menu dropdown trigger */}
       <div style={{ position: "relative" }} ref={menuRef}>
         <button

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import { createDemoCircuit } from "./components/circuit/demoCircuit";
 import type { Layout, Position } from "./components/circuit/geometry";
-import { BottomToolbar } from "./components/toolbar/BottomToolbar";
+import { Dock } from "./components/toolbar/Dock";
 import { SaveGateModal } from "./components/modals/SaveGateModal";
 import { UnsavedChangesModal } from "./components/modals/UnsavedChangesModal";
 import {
@@ -225,7 +225,7 @@ function App() {
       />
 
       {/* Floating Bottom Toolbar */}
-      <BottomToolbar
+      <Dock
         savedGates={savedGates}
         onNew={handleNewClick}
         onSave={handleSaveClick}
