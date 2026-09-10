@@ -20,10 +20,23 @@ interface ComponentNodeProps {
   readonly getPortValue: (portId: string, direction: "input" | "output") => boolean;
   /** Fired with the component's new position while/after dragging. */
   readonly onMove?: (position: Position) => void;
+  /** Fired when clicking a port to start or finish a wire connection. */
+  readonly onPortClick?: (portId: string, direction: "input" | "output", portPosition: Position) => void;
+  /** Whether a wire is currently being drawn across the canvas. */
+  readonly isWiringActive?: boolean;
 }
 
 /** One gate instance: a box with its name centered, input pins on the left edge, output pins on the right. */
-export function ComponentNode({ position, label, inputs, outputs, getPortValue, onMove }: ComponentNodeProps) {
+export function ComponentNode({
+  position,
+  label,
+  inputs,
+  outputs,
+  getPortValue,
+  onMove,
+  onPortClick,
+  isWiringActive,
+}: ComponentNodeProps) {
   const [hoveredPortId, setHoveredPortId] = useState<string | null>(null);
 
   const maxPortCount = Math.max(inputs.length, outputs.length);
@@ -96,6 +109,14 @@ export function ComponentNode({ position, label, inputs, outputs, getPortValue, 
         return (
           <Group
             key={port.id}
+            onClick={(e) => {
+              e.cancelBubble = true;
+              onPortClick?.(port.id, "input", p);
+            }}
+            onTap={(e) => {
+              e.cancelBubble = true;
+              onPortClick?.(port.id, "input", p);
+            }}
             onMouseEnter={(e) => {
               setHoveredPortId(port.id);
               const stage = e.target.getStage();
@@ -107,8 +128,21 @@ export function ComponentNode({ position, label, inputs, outputs, getPortValue, 
               if (stage) stage.container().style.cursor = "default";
             }}
           >
-            {/* Expanded hit target for effortless hovering */}
-            <Circle x={p.x} y={p.y} radius={PORT_RADIUS + 6} fill="transparent" />
+            {/* Expanded hit target for effortless clicking and hovering */}
+            <Circle x={p.x} y={p.y} radius={PORT_RADIUS + 8} fill="transparent" />
+
+            {/* Target indicator ring during active wiring */}
+            {isWiringActive && (
+              <Circle
+                x={p.x}
+                y={p.y}
+                radius={PORT_RADIUS + 5}
+                stroke={WIRE_ACTIVE_COLOR}
+                strokeWidth={1.5}
+                dash={[3, 3]}
+                listening={false}
+              />
+            )}
 
             {/* Subtle glow/halo when hovered */}
             {isHovered && (
@@ -116,7 +150,7 @@ export function ComponentNode({ position, label, inputs, outputs, getPortValue, 
                 x={p.x}
                 y={p.y}
                 radius={PORT_RADIUS + 4}
-                fill={active ? "rgba(233, 210, 79, 0.2)" : "rgba(161, 161, 170, 0.2)"}
+                fill={active ? "rgba(233, 210, 79, 0.25)" : "rgba(161, 161, 170, 0.25)"}
                 listening={false}
               />
             )}
@@ -191,6 +225,14 @@ export function ComponentNode({ position, label, inputs, outputs, getPortValue, 
         return (
           <Group
             key={port.id}
+            onClick={(e) => {
+              e.cancelBubble = true;
+              onPortClick?.(port.id, "output", p);
+            }}
+            onTap={(e) => {
+              e.cancelBubble = true;
+              onPortClick?.(port.id, "output", p);
+            }}
             onMouseEnter={(e) => {
               setHoveredPortId(port.id);
               const stage = e.target.getStage();
@@ -202,8 +244,8 @@ export function ComponentNode({ position, label, inputs, outputs, getPortValue, 
               if (stage) stage.container().style.cursor = "default";
             }}
           >
-            {/* Expanded hit target for effortless hovering */}
-            <Circle x={p.x} y={p.y} radius={PORT_RADIUS + 6} fill="transparent" />
+            {/* Expanded hit target for effortless clicking and hovering */}
+            <Circle x={p.x} y={p.y} radius={PORT_RADIUS + 8} fill="transparent" />
 
             {/* Subtle glow/halo when hovered */}
             {isHovered && (
@@ -211,7 +253,7 @@ export function ComponentNode({ position, label, inputs, outputs, getPortValue, 
                 x={p.x}
                 y={p.y}
                 radius={PORT_RADIUS + 4}
-                fill={active ? "rgba(233, 210, 79, 0.2)" : "rgba(161, 161, 170, 0.2)"}
+                fill={active ? "rgba(233, 210, 79, 0.25)" : "rgba(161, 161, 170, 0.25)"}
                 listening={false}
               />
             )}

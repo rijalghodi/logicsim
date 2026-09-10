@@ -1,14 +1,69 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import { createDemoCircuit } from "./components/circuit/demoCircuit";
 import type { Layout, Position } from "./components/circuit/geometry";
-import type { Bit } from "./core";
+import { BottomToolbar } from "./components/toolbar/BottomToolbar";
+import { SaveGateModal } from "./components/modals/SaveGateModal";
+import { UnsavedChangesModal } from "./components/modals/UnsavedChangesModal";
+import {
+  createDefaultRegistry,
+  createGateDefinition,
+  createId,
+  createPortDefinition,
+  validateConnection,
+} from "./core";
+import type { Bit, CircuitDefinition, GateDefinition, PortDefinition, PortRef } from "./core";
+import { loadSavedGates, saveCustomGate } from "./storage/gateStorage";
+
+function createBlankCircuit() {
+  const A = createPortDefinition("A", "input");
+  const B = createPortDefinition("B", "input");
+  const Y = createPortDefinition("Y", "output");
+  return {
+    circuit: { components: [], connections: [] } as CircuitDefinition,
+    layout: {} as Layout,
+    boundary: { inputs: [A, B], outputs: [Y] },
+    boundaryLayout: {} as Record<string, number>,
+  };
+}
 
 function App() {
+  const registry = useMemo(() => createDefaultRegistry(), []);
   const demo = useMemo(() => createDemoCircuit(), []);
-  const [boundaryInputs, setBoundaryInputs] = useState<Record<string, Bit>>({});
+
+  const [savedGates, setSavedGates] = useState<GateDefinition[]>(() => loadSavedGates(registry));
+  const [circuit, setCircuit] = useState<CircuitDefinition>(demo.definition);
   const [layout, setLayout] = useState<Layout>(demo.layout);
+  const [boundary, setBoundary] = useState<{ inputs: PortDefinition[]; outputs: PortDefinition[] }>(demo.boundary);
   const [boundaryLayout, setBoundaryLayout] = useState<Record<string, number>>({});
+  const [boundaryInputs, setBoundaryInputs] = useState<Record<string, Bit>>({});
+
+  const [isDirty, setIsDirty] = useState(false);
+  const [currentGateName, setCurrentGateName] = useState<string | null>(null);
+
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const showToast = useCallback((msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage((curr) => (curr === msg ? null : curr));
+    }, 3500);
+  }, []);
 
   const handleToggleBoundaryInput = useCallback((portId: string) => {
     setBoundaryInputs((prev) => ({ ...prev, [portId]: !prev[portId] }));
@@ -16,26 +71,189 @@ function App() {
 
   const handleMoveComponent = useCallback((componentId: string, position: Position) => {
     setLayout((prev) => ({ ...prev, [componentId]: position }));
+    setIsDirty(true);
   }, []);
 
   const handleMoveBoundaryPort = useCallback((portId: string, y: number) => {
     setBoundaryLayout((prev) => ({ ...prev, [portId]: y }));
+    setIsDirty(true);
   }, []);
 
+  const resetToBlank = useCallback(() => {
+    const blank = createBlankCircuit();
+    setCircuit(blank.circuit);
+    setLayout(blank.layout);
+    setBoundary(blank.boundary);
+    setBoundaryLayout(blank.boundaryLayout);
+    setBoundaryInputs({});
+    setCurrentGateName(null);
+    setIsDirty(false);
+  }, []);
+
+  const handleNewClick = useCallback(() => {
+    if (isDirty && (circuit.components.length > 0 || circuit.connections.length > 0)) {
+      setShowUnsavedModal(true);
+    } else {
+      resetToBlank();
+    }
+  }, [isDirty, circuit, resetToBlank]);
+
+  const handleSaveClick = useCallback(() => {
+    setShowSaveModal(true);
+  }, []);
+
+  const handleConfirmSave = useCallback(
+    (name: string) => {
+      const gate = createGateDefinition({
+        name,
+        inputs: boundary.inputs,
+        outputs: boundary.outputs,
+        circuit,
+      });
+
+      saveCustomGate(gate, registry);
+      setSavedGates(loadSavedGates(registry));
+      setCurrentGateName(name);
+      setIsDirty(false);
+      setShowSaveModal(false);
+      showToast(`Gate "${name}" saved to library!`);
+    },
+    [boundary, circuit, registry, showToast],
+  );
+
+  const handleDiscardAndNew = useCallback(() => {
+    setShowUnsavedModal(false);
+    resetToBlank();
+  }, [resetToBlank]);
+
+  const handleDropGate = useCallback((gateType: string, position: Position) => {
+    const newId = createId("c");
+    setCircuit((prev) => ({
+      ...prev,
+      components: [...prev.components, { id: newId, type: gateType }],
+    }));
+    setLayout((prev) => ({
+      ...prev,
+      [newId]: position,
+    }));
+    setIsDirty(true);
+  }, []);
+
+  const handleAddGateCenter = useCallback(
+    (gateType: string) => {
+      const pos: Position = {
+        x: Math.round(windowSize.width / 2 - 60),
+        y: Math.round(windowSize.height / 2 - 40),
+      };
+      handleDropGate(gateType, pos);
+    },
+    [windowSize, handleDropGate],
+  );
+
+  const handleConnectWire = useCallback(
+    (from: PortRef, to: PortRef) => {
+      const issues = validateConnection({
+        circuit,
+        registry,
+        connection: { from, to },
+        boundary,
+      });
+
+      if (issues.length > 0) {
+        showToast(issues[0].message);
+        return;
+      }
+
+      setCircuit((prev) => ({
+        ...prev,
+        connections: [...prev.connections, { from, to }],
+      }));
+      setIsDirty(true);
+    },
+    [circuit, registry, boundary, showToast],
+  );
+
+  const handleDisconnectWire = useCallback((from: PortRef, to: PortRef) => {
+    setCircuit((prev) => ({
+      ...prev,
+      connections: prev.connections.filter(
+        (c) =>
+          !(
+            c.from.componentId === from.componentId &&
+            c.from.portId === from.portId &&
+            c.to.componentId === to.componentId &&
+            c.to.portId === to.portId
+          ),
+      ),
+    }));
+    setIsDirty(true);
+  }, []);
+
+  // Keyboard shortcuts (Ctrl+S / Ctrl+N)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        handleSaveClick();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "n") {
+        e.preventDefault();
+        handleNewClick();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleSaveClick, handleNewClick]);
+
   return (
-    <CircuitCanvas
-      circuit={demo.definition}
-      registry={demo.registry}
-      layout={layout}
-      boundary={demo.boundary}
-      boundaryLayout={boundaryLayout}
-      boundaryInputs={boundaryInputs}
-      onToggleBoundaryInput={handleToggleBoundaryInput}
-      onMoveComponent={handleMoveComponent}
-      onMoveBoundaryPort={handleMoveBoundaryPort}
-      width={window.innerWidth}
-      height={window.innerHeight}
-    />
+    <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
+      {/* Circuit Canvas */}
+      <CircuitCanvas
+        circuit={circuit}
+        registry={registry}
+        layout={layout}
+        boundary={boundary}
+        boundaryLayout={boundaryLayout}
+        boundaryInputs={boundaryInputs}
+        onToggleBoundaryInput={handleToggleBoundaryInput}
+        onMoveComponent={handleMoveComponent}
+        onMoveBoundaryPort={handleMoveBoundaryPort}
+        onDropGate={handleDropGate}
+        onConnectWire={handleConnectWire}
+        onDisconnectWire={handleDisconnectWire}
+        width={windowSize.width}
+        height={windowSize.height}
+      />
+
+      {/* Floating Bottom Toolbar */}
+      <BottomToolbar
+        savedGates={savedGates}
+        onNew={handleNewClick}
+        onSave={handleSaveClick}
+        onAddGate={handleAddGateCenter}
+      />
+
+      {/* Toast Notification */}
+      {toastMessage && <div className="wire-toast">{toastMessage}</div>}
+
+      {/* Save Gate Modal */}
+      <SaveGateModal
+        isOpen={showSaveModal}
+        initialName={currentGateName ?? ""}
+        onSave={handleConfirmSave}
+        onCancel={() => setShowSaveModal(false)}
+      />
+
+      {/* Unsaved Changes Confirmation Modal */}
+      <UnsavedChangesModal
+        isOpen={showUnsavedModal}
+        onSave={() => {
+          setShowUnsavedModal(false);
+          setShowSaveModal(true);
+        }}
+        onDiscard={handleDiscardAndNew}
+        onCancel={() => setShowUnsavedModal(false)}
+      />
+    </div>
   );
 }
 

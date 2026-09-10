@@ -1,10 +1,11 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Layer, Rect, Stage } from "react-konva";
-import { evaluateCircuit } from "../../core";
-import type { Bit, BoundaryPorts, CircuitDefinition, GateRegistry } from "../../core";
+import type Konva from "konva";
+import { BOUNDARY_ID, evaluateCircuit } from "../../core";
+import type { Bit, BoundaryPorts, CircuitDefinition, GateRegistry, PortRef } from "../../core";
 import { BoundaryPortView } from "./BoundaryPortView";
 import { ComponentNode } from "./ComponentNode";
-import { getBoundaryPortPosition } from "./geometry";
+import { getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
 import type { Layout, Position } from "./geometry";
 import { getComponentInputValue, getPortValue, resolvePortPosition } from "./portResolution";
 import type { CircuitViewContext } from "./portResolution";
@@ -25,11 +26,17 @@ export interface CircuitCanvasProps {
   readonly onMoveBoundaryPort?: (portId: string, y: number) => void;
   /** Omit to make components fixed (non-draggable). */
   readonly onMoveComponent?: (componentId: string, position: Position) => void;
+  /** Triggered when a gate is dragged from the bottom toolbar and dropped onto the canvas. */
+  readonly onDropGate?: (gateType: string, position: Position) => void;
+  /** Triggered when a wire is connected from source to destination. */
+  readonly onConnectWire?: (from: PortRef, to: PortRef) => void;
+  /** Triggered when an existing wire is deleted. */
+  readonly onDisconnectWire?: (from: PortRef, to: PortRef) => void;
   readonly width: number;
   readonly height: number;
 }
 
-const CANVAS_BACKGROUND = "#1a1a1a";
+const CANVAS_BACKGROUND = "#141417";
 
 /** Renders one flat level of a circuit: its own components, wires, and boundary ports, all live. */
 export function CircuitCanvas({
@@ -42,9 +49,16 @@ export function CircuitCanvas({
   onToggleBoundaryInput,
   onMoveBoundaryPort,
   onMoveComponent,
+  onDropGate,
+  onConnectWire,
+  onDisconnectWire,
   width,
   height,
 }: CircuitCanvasProps) {
+  const [wiringDraft, setWiringDraft] = useState<{ from: PortRef; fromPos: Position } | null>(null);
+  const [mousePos, setMousePos] = useState<Position | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const simulation = useMemo(
     () => evaluateCircuit(circuit, registry, { boundaryInputs }),
     [circuit, registry, boundaryInputs],
@@ -62,75 +76,186 @@ export function CircuitCanvas({
     canvasHeight: height,
   };
 
+  // Cancel wiring on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setWiringDraft(null);
+        setMousePos(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const handleStageMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (!wiringDraft) return;
+    const stage = e.target.getStage();
+    const ptr = stage?.getPointerPosition();
+    if (ptr) {
+      setMousePos(ptr);
+    }
+  };
+
+  const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    // If clicking the canvas background, cancel wiring draft
+    if (e.target === e.target.getStage() || e.target.attrs.name === "canvas-bg") {
+      setWiringDraft(null);
+      setMousePos(null);
+    }
+  };
+
+  const handlePortInteraction = (ref: PortRef, portPos: Position) => {
+    if (!wiringDraft) {
+      // Start wiring from this port
+      setWiringDraft({ from: ref, fromPos: portPos });
+      setMousePos(portPos);
+    } else {
+      // If clicking the exact same port, cancel
+      if (wiringDraft.from.componentId === ref.componentId && wiringDraft.from.portId === ref.portId) {
+        setWiringDraft(null);
+        setMousePos(null);
+        return;
+      }
+      // Complete connection
+      onConnectWire?.(wiringDraft.from, ref);
+      setWiringDraft(null);
+      setMousePos(null);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (e.dataTransfer.types.includes("application/logicsim-gate")) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const gateType = e.dataTransfer.getData("application/logicsim-gate");
+    if (!gateType || !onDropGate || !containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const dropPos: Position = {
+      x: Math.round(e.clientX - rect.left - NODE_WIDTH / 2),
+      y: Math.round(e.clientY - rect.top - 30),
+    };
+
+    onDropGate(gateType, dropPos);
+  };
+
   return (
-    <Stage width={width} height={height}>
-      <Layer>
-        <Rect x={0} y={0} width={width} height={height} fill={CANVAS_BACKGROUND} listening={false} />
-
-        {circuit.connections.map((connection) => (
-          <WireLine
-            key={`${connection.from.componentId}:${connection.from.portId}->${connection.to.componentId}:${connection.to.portId}`}
-            from={resolvePortPosition(connection.from, ctx)}
-            to={resolvePortPosition(connection.to, ctx)}
-            active={Boolean(getPortValue(connection.from, ctx))}
+    <div
+      ref={containerRef}
+      style={{ position: "relative", width, height, overflow: "hidden" }}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      <Stage
+        width={width}
+        height={height}
+        onMouseMove={handleStageMouseMove}
+        onClick={handleStageClick}
+        onTap={handleStageClick}
+      >
+        <Layer>
+          <Rect
+            name="canvas-bg"
+            x={0}
+            y={0}
+            width={width}
+            height={height}
+            fill={CANVAS_BACKGROUND}
+            listening={true}
           />
-        ))}
 
-        {circuit.components.map((component) => {
-          const resolved = registry.resolve(component.type);
-          const label = resolved.kind === "primitive" ? resolved.type : resolved.definition.name;
-          const inputs = resolved.kind === "primitive" ? resolved.inputs : resolved.definition.inputs;
-          const outputs = resolved.kind === "primitive" ? resolved.outputs : resolved.definition.outputs;
-          const position = layout[component.id] ?? { x: 0, y: 0 };
+          {/* Existing wires */}
+          {circuit.connections.map((connection) => {
+            const key = `${connection.from.componentId}:${connection.from.portId}->${connection.to.componentId}:${connection.to.portId}`;
+            return (
+              <WireLine
+                key={key}
+                from={resolvePortPosition(connection.from, ctx)}
+                to={resolvePortPosition(connection.to, ctx)}
+                active={Boolean(getPortValue(connection.from, ctx))}
+                onDelete={onDisconnectWire ? () => onDisconnectWire(connection.from, connection.to) : undefined}
+              />
+            );
+          })}
 
-          return (
-            <ComponentNode
-              key={component.id}
-              position={position}
-              label={label}
-              inputs={inputs}
-              outputs={outputs}
-              getPortValue={(portId, direction) =>
-                direction === "output"
-                  ? Boolean(simulation.componentOutputs[component.id]?.[portId])
-                  : Boolean(getComponentInputValue(component.id, portId, ctx))
-              }
-              onMove={onMoveComponent ? (next) => onMoveComponent(component.id, next) : undefined}
-            />
-          );
-        })}
+          {/* Active wire draft preview following mouse cursor */}
+          {wiringDraft && mousePos && (
+            <WireLine from={wiringDraft.fromPos} to={mousePos} active={true} isDraft={true} />
+          )}
 
-        {boundary?.inputs.map((port, index) => {
-          const base = getBoundaryPortPosition("left", index, boundary.inputs.length, width, height);
-          const position = { x: base.x, y: boundaryLayout?.[port.id] ?? base.y };
-          return (
-            <BoundaryPortView
-              key={port.id}
-              position={position}
-              edgeX={0}
-              name={port.name}
-              active={Boolean(boundaryInputs[port.id])}
-              onToggle={onToggleBoundaryInput ? () => onToggleBoundaryInput(port.id) : undefined}
-              onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}
-            />
-          );
-        })}
+          {/* Placed gate components */}
+          {circuit.components.map((component) => {
+            const resolved = registry.resolve(component.type);
+            const label = resolved.kind === "primitive" ? resolved.type : resolved.definition.name;
+            const inputs = resolved.kind === "primitive" ? resolved.inputs : resolved.definition.inputs;
+            const outputs = resolved.kind === "primitive" ? resolved.outputs : resolved.definition.outputs;
+            const position = layout[component.id] ?? { x: 0, y: 0 };
 
-        {boundary?.outputs.map((port, index) => {
-          const base = getBoundaryPortPosition("right", index, boundary.outputs.length, width, height);
-          const position = { x: base.x, y: boundaryLayout?.[port.id] ?? base.y };
-          return (
-            <BoundaryPortView
-              key={port.id}
-              position={position}
-              edgeX={width}
-              name={port.name}
-              active={Boolean(simulation.boundaryOutputs[port.id])}
-              onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}
-            />
-          );
-        })}
-      </Layer>
-    </Stage>
+            return (
+              <ComponentNode
+                key={component.id}
+                position={position}
+                label={label}
+                inputs={inputs}
+                outputs={outputs}
+                getPortValue={(portId, direction) =>
+                  direction === "output"
+                    ? Boolean(simulation.componentOutputs[component.id]?.[portId])
+                    : Boolean(getComponentInputValue(component.id, portId, ctx))
+                }
+                onMove={onMoveComponent ? (next) => onMoveComponent(component.id, next) : undefined}
+                onPortClick={(portId, _direction, portPos) =>
+                  handlePortInteraction({ componentId: component.id, portId }, portPos)
+                }
+                isWiringActive={Boolean(wiringDraft)}
+              />
+            );
+          })}
+
+          {/* Left boundary inputs */}
+          {boundary?.inputs.map((port, index) => {
+            const base = getBoundaryPortPosition("left", index, boundary.inputs.length, width, height);
+            const position = { x: base.x, y: boundaryLayout?.[port.id] ?? base.y };
+            return (
+              <BoundaryPortView
+                key={port.id}
+                position={position}
+                edgeX={0}
+                name={port.name}
+                active={Boolean(boundaryInputs[port.id])}
+                onToggle={onToggleBoundaryInput ? () => onToggleBoundaryInput(port.id) : undefined}
+                onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}
+                onPortClick={(p) => handlePortInteraction({ componentId: BOUNDARY_ID, portId: port.id }, p)}
+                isWiringActive={Boolean(wiringDraft)}
+              />
+            );
+          })}
+
+          {/* Right boundary outputs */}
+          {boundary?.outputs.map((port, index) => {
+            const base = getBoundaryPortPosition("right", index, boundary.outputs.length, width, height);
+            const position = { x: base.x, y: boundaryLayout?.[port.id] ?? base.y };
+            return (
+              <BoundaryPortView
+                key={port.id}
+                position={position}
+                edgeX={width}
+                name={port.name}
+                active={Boolean(simulation.boundaryOutputs[port.id])}
+                onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}
+                onPortClick={(p) => handlePortInteraction({ componentId: BOUNDARY_ID, portId: port.id }, p)}
+                isWiringActive={Boolean(wiringDraft)}
+              />
+            );
+          })}
+        </Layer>
+      </Stage>
+    </div>
   );
 }

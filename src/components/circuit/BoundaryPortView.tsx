@@ -17,6 +17,10 @@ interface BoundaryPortViewProps {
   readonly onToggle?: () => void;
   /** Fired with the port's new y while/after dragging — x never changes. */
   readonly onMove?: (y: number) => void;
+  /** Fired when clicking the boundary pin circle to start or finish a wire connection. */
+  readonly onPortClick?: (position: Position) => void;
+  /** Whether a wire draft is currently in progress. */
+  readonly isWiringActive?: boolean;
 }
 
 /**
@@ -25,7 +29,16 @@ interface BoundaryPortViewProps {
  * circle. Draggable vertically only — the line always stays flush with
  * the screen edge.
  */
-export function BoundaryPortView({ position, edgeX, name, active, onToggle, onMove }: BoundaryPortViewProps) {
+export function BoundaryPortView({
+  position,
+  edgeX,
+  name,
+  active,
+  onToggle,
+  onMove,
+  onPortClick,
+  isWiringActive,
+}: BoundaryPortViewProps) {
   const color = active ? WIRE_ACTIVE_COLOR : WIRE_INACTIVE_COLOR;
   const draggable = Boolean(onMove);
 
@@ -42,22 +55,81 @@ export function BoundaryPortView({ position, edgeX, name, active, onToggle, onMo
       dragBoundFunc={(pos) => ({ x: 0, y: pos.y })}
       onDragMove={(e) => onMove?.(e.target.y())}
       onDragEnd={(e) => onMove?.(e.target.y())}
-      onClick={onToggle}
-      onTap={onToggle}
-      onMouseEnter={(e) => setCursor(e, draggable ? (onToggle ? "pointer" : "ns-resize") : "default")}
+      onMouseEnter={(e) => setCursor(e, draggable ? "ns-resize" : "default")}
       onMouseLeave={(e) => setCursor(e, "default")}
     >
-      <Line points={[edgeX, 0, position.x, 0]} stroke={color} strokeWidth={2} listening={false} />
-      <Circle x={position.x} y={0} radius={BOUNDARY_PORT_RADIUS} fill={color} />
+      {/* Lead line: clicking toggles input value if input */}
+      <Line
+        points={[edgeX, 0, position.x, 0]}
+        stroke={color}
+        strokeWidth={3}
+        hitStrokeWidth={14}
+        onClick={onToggle}
+        onTap={onToggle}
+        onMouseEnter={(e) => {
+          if (onToggle) setCursor(e, "pointer");
+        }}
+        onMouseLeave={(e) => setCursor(e, draggable ? "ns-resize" : "default")}
+      />
+
+      {/* Target ring when wiring is active */}
+      {isWiringActive && (
+        <Circle
+          x={position.x}
+          y={0}
+          radius={BOUNDARY_PORT_RADIUS + 6}
+          stroke={WIRE_ACTIVE_COLOR}
+          strokeWidth={1.5}
+          dash={[3, 3]}
+          listening={false}
+        />
+      )}
+
+      {/* Pin Circle: clicking wires or toggles */}
+      <Circle
+        x={position.x}
+        y={0}
+        radius={BOUNDARY_PORT_RADIUS}
+        fill={color}
+        stroke="#ffffff"
+        strokeWidth={1.5}
+        hitStrokeWidth={10}
+        onClick={(e) => {
+          e.cancelBubble = true;
+          if (onPortClick) {
+            onPortClick(position);
+          } else if (onToggle) {
+            onToggle();
+          }
+        }}
+        onTap={(e) => {
+          e.cancelBubble = true;
+          if (onPortClick) {
+            onPortClick(position);
+          } else if (onToggle) {
+            onToggle();
+          }
+        }}
+        onMouseEnter={(e) => setCursor(e, "pointer")}
+        onMouseLeave={(e) => setCursor(e, draggable ? "ns-resize" : "default")}
+      />
+
+      {/* Port Name Text */}
       <Text
         x={position.x - BOUNDARY_LABEL_WIDTH / 2}
         y={-BOUNDARY_LABEL_OFFSET_Y}
         width={BOUNDARY_LABEL_WIDTH}
         text={name}
         fontSize={13}
+        fontStyle="bold"
         fill={LABEL_COLOR}
         align="center"
-        listening={false}
+        onClick={onToggle}
+        onTap={onToggle}
+        onMouseEnter={(e) => {
+          if (onToggle) setCursor(e, "pointer");
+        }}
+        onMouseLeave={(e) => setCursor(e, draggable ? "ns-resize" : "default")}
       />
     </Group>
   );
