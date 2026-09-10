@@ -47,8 +47,8 @@ export const CONTROLLER_STROKE = "hsl(0, 0%, 20%)";
 export const CONTROLLER_STROKE_HOVER = "hsl(0, 0%, 30%)";
 
 // Boundary Port Bit Circle Colors
-export const BIT_FILL = "hsl(56, 15%, 21%)";
-export const BIT_FILL_HOVER = "hsl(56, 15%, 32%)";
+export const BIT_FILL = "hsl(53, 98%, 16%)";
+export const BIT_FILL_HOVER = "hsl(53, 98%, 20%)";
 export const BIT_STROKE = "hsl(0, 0%, 6%)";
 export const BIT_STROKE_HOVER = "hsl(53, 98%, 10%)";
-export const BIT_STROKE_ACTIVE = "hsl(53, 98%, 77%)";
+export const BIT_STROKE_ACTIVE = WIRE_ACTIVE_COLOR;
