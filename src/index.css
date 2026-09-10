@@ -44,7 +44,7 @@ body, html {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 6px 10px;
   background: var(--panel-bg);
   backdrop-filter: blur(20px);
@@ -107,13 +107,13 @@ body, html {
   align-items: center;
   gap: 8px;
   height: 32px;
-  padding: 0 14px;
+  padding: 0 12px;
   background: #202024;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-btn);
   color: var(--text-primary);
   font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: grab;
   transition: all 0.15s ease;
@@ -124,7 +124,6 @@ body, html {
   background: #2a2a30;
   border-color: var(--accent-gold);
   box-shadow: 0 0 12px var(--accent-gold-glow);
-  transform: translateY(-2px);
 }
 
 .gate-chip:active {

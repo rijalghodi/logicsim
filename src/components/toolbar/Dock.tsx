@@ -89,7 +89,7 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
         title="NAND Gate: Drag to canvas or click to add"
       >
         <span>NAND</span>
-        <span className="gate-chip-tag">2 in · 1 out</span>
+        {/* <span className="gate-chip-tag">2 in · 1 out</span> */}
       </button>
 
       {/* User-created Custom Gates */}
@@ -104,9 +104,9 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
           title={`${gate.name}: Drag to canvas or click to add`}
         >
           <span>{gate.name}</span>
-          <span className="gate-chip-tag">
+          {/* <span className="gate-chip-tag">
             {gate.inputs.length} in · {gate.outputs.length} out
-          </span>
+          </span> */}
         </button>
       ))}
     </div>

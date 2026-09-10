@@ -60,7 +60,7 @@ export function BoundaryPortView({
   const controllerY = -CONTROLLER_HEIGHT / 2;
 
   // 2. Bit input/output circle (between edge controller and wire connection pin)
-  const bitCircleX = isLeft ? 38 : edgeX - 38;
+  const bitCircleX = isLeft ? 32 : edgeX - 32;
 
   // 3. Connecting wire lead between Bit circle and Wire connection pin
   const lineFromX = isLeft ? bitCircleX + BIT_CIRCLE_RADIUS : position.x + PORT_RADIUS;
