@@ -46,8 +46,10 @@ export function SaveGateModal({ isOpen, initialName = "", onSave, onCancel }: Sa
   return (
     <div className="modal-backdrop" onClick={onCancel} onKeyDown={handleKeyDown}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <h3 className="modal-title">Save Gate</h3>
-        <form onSubmit={handleSubmit}>
+        <div className="modal-header">
+          <h3 className="modal-title">Save Chip</h3>
+        </div>
+        <form onSubmit={handleSubmit} className="modal-body">
           <input
             ref={inputRef}
             type="text"
@@ -69,7 +71,7 @@ export function SaveGateModal({ isOpen, initialName = "", onSave, onCancel }: Sa
               Cancel
             </button>
             <button type="submit" className="btn-primary">
-              Save Gate
+              Save
             </button>
           </div>
         </form>

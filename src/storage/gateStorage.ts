@@ -52,7 +52,7 @@ export function saveCustomGate(gate: GateDefinition, registry: GateRegistry): vo
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (err) {
-    console.error("Failed to save gate to localStorage:", err);
+    console.error("Failed to save chip to localStorage:", err);
   }
 }
 

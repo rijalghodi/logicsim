@@ -1,11 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 
 :root {
-  --bg-0: hsl(0, 0%, 7%);
-  --bg-1: hsl(0, 0%, 13%);
-  --bg-2: hsl(0, 0%, 18%);
-  --bg-3: hsl(0, 0%, 26%);
+  --bg-0: hsl(0, 0%, 8%);
+  --bg-1: hsl(0, 0%, 16%);
+  --bg-2: hsl(0, 0%, 22%);
+  --bg-3: hsl(0, 0%, 32%);
   --primary: hsl(51, 78%, 61%);
+  --danger: hsl(0, 80%, 66%);
   --border: hsl(0, 0%, 26%);
   --fg: hsl(0, 0%, 96%);
   --fg-secondary: hsl(0, 0%, 65%);
@@ -50,7 +51,7 @@ input {
   align-items: center;
   gap: 4px;
   padding: 6px 10px;
-  background: var(--bg-0);
+  background: "transparent";
   border: none;
   z-index: 1000;
 }
@@ -220,18 +221,31 @@ input {
   }
 }
 
+.modal-header {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .modal-title {
-  margin: 0 0 8px 0;
   font-size: 18px;
+  margin: 0 0;
   font-weight: 600;
   color: var(--fg);
 }
 
 .modal-description {
-  margin: 0 0 20px 0;
   font-size: 13px;
+  margin: 0 0;
   color: var(--fg-secondary);
   line-height: 1.5;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .modal-input {
@@ -246,7 +260,6 @@ input {
   font-weight: 500;
   outline: none;
   transition: all 0.15s ease;
-  margin-bottom: 20px;
 }
 
 .modal-input:focus {
@@ -261,33 +274,33 @@ input {
 }
 
 .btn-primary {
-  height: 38px;
+  height: 32px;
   padding: 0 18px;
-  background: var(--primary);
+  background: hsl(from var(--primary) h s l / 86%);
   border: none;
   border-radius: var(--radius-btn);
   color: #121214;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .btn-primary:hover {
-  background: hsl(from var(--primary) h s l / 50%);
+  background: var(--primary);
 }
 
 .btn-secondary {
-  height: 38px;
+  height: 32px;
   padding: 0 16px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-btn);
   color: var(--fg);
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -299,20 +312,26 @@ input {
 .btn-danger {
   height: 38px;
   padding: 0 16px;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: hsl(from var(--danger) h s l / 15%);
+  border: 1px solid hsl(from var(--danger) h s l / 30%);
   border-radius: var(--radius-btn);
-  color: #fca5a5;
+  color: var(--danger);
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .btn-danger:hover {
-  background: rgba(239, 68, 68, 0.25);
-  border-color: rgba(239, 68, 68, 0.5);
+  background: hsl(from var(--danger) h s l / 25%);
+  border-color: hsl(from var(--danger) h s l / 50%);
+}
+
+.modal-actions .btn-danger,
+.modal-actions .btn-primary,
+.modal-actions .btn-secondary {
+  flex-grow: 1;
 }
 
 /* ==========================================================================

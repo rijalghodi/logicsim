@@ -250,7 +250,7 @@ function App() {
       {/* Toast Notification */}
       {toastMessage && <div className="wire-toast">{toastMessage}</div>}
 
-      {/* Save Gate Modal */}
+      {/* Save Chip Modal */}
       <SaveGateModal
         isOpen={showSaveModal}
         initialName={currentGateName ?? ""}
