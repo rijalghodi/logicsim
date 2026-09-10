@@ -21,7 +21,7 @@
   align-items: center;
   gap: 6px;
   height: 32px;
-  padding: 0 12px;
+  padding: 0 6px;
   background: var(--bg-2);
   border: none;
   border-radius: var(--radius-btn);
@@ -43,7 +43,7 @@
 }
 
 /* Chip chip inside toolbar */
-.chip-chip {
+.dock-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -64,26 +64,26 @@
   position: relative;
 }
 
-.chip-chip:hover {
+.dock-chip:hover {
   background: var(--bg-3);
 }
 
-.chip-chip:active {
+.dock-chip:active {
   cursor: grabbing;
   transform: scale(0.96);
 }
 
-.chip-chip-composite {
+.dock-chip-composite {
   padding: 0;
   cursor: default;
   align-items: stretch;
 }
 
-.chip-chip-composite:active {
+.dock-chip-composite:active {
   transform: none; /* Let the inner button handle the scale or just disable it for the wrapper to prevent menu scale */
 }
 
-.chip-chip-main {
+.dock-chip-main {
   background: transparent;
   border: none;
   color: inherit;
@@ -100,20 +100,20 @@
   border-radius: var(--radius-btn);
 }
 
-.chip-chip-composite:hover .chip-chip-main {
+.dock-chip-composite:hover .dock-chip-main {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.chip-chip-main:active {
+.dock-chip-main:active {
   cursor: grabbing;
 }
 
-.chip-chip-main:hover {
+.dock-chip-main:hover {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.chip-chip-menu-btn {
+.dock-chip-menu-btn {
   background: transparent;
   border: none;
   border-left: 1px solid transparent;
@@ -132,13 +132,13 @@
   border-bottom-right-radius: var(--radius-btn);
 }
 
-.chip-chip-composite:hover .chip-chip-menu-btn {
+.dock-chip-composite:hover .dock-chip-menu-btn {
   width: 18px;
   opacity: 1;
   border-left-color: rgba(255, 255, 255, 0.1);
 }
 
-.chip-chip-menu-btn:hover {
+.dock-chip-menu-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   color: var(--fg);
 }

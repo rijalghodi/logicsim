@@ -5,6 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuShortcut,
 } from "./DropdownMenu";
+import { MenuIcon } from "./icons/MenuIcon";
 
 interface DockMenuProps {
   readonly onNew: () => void;
@@ -16,7 +17,7 @@ export function DockMenu({ onNew, onSave }: DockMenuProps) {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <button type="button" className="dock-btn dock-btn-menu" title="Circuit & Chip Actions">
-          MENU
+          <MenuIcon size={14} /> MENU
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>

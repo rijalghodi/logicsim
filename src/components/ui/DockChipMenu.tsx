@@ -1,5 +1,6 @@
 import type { ChipDefinition } from "../../core";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./DropdownMenu";
+import { MoreVerticalIcon } from "./icons/MoreVerticalIcon";
 
 interface DockChipMenuProps {
   readonly chip: ChipDefinition;
@@ -12,10 +13,10 @@ interface DockChipMenuProps {
 
 export function DockChipMenu({ chip, isDisabled, onAddChip, onDragStart, onOpen, onRename }: DockChipMenuProps) {
   return (
-    <div className="chip-chip chip-chip-composite">
+    <div className="dock-chip dock-chip-composite">
       <button
         type="button"
-        className="chip-chip-main"
+        className="dock-chip-main"
         disabled={isDisabled}
         draggable={!isDisabled}
         style={{ opacity: isDisabled ? 0.5 : 1, cursor: isDisabled ? "not-allowed" : "pointer" }}
@@ -30,21 +31,8 @@ export function DockChipMenu({ chip, isDisabled, onAddChip, onDragStart, onOpen,
 
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <button type="button" className="chip-chip-menu-btn" aria-label="Chip Options">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="1.8" fill="currentColor" />
-              <circle cx="12" cy="3" r="1.8" fill="currentColor" />
-              <circle cx="12" cy="21" r="1.8" fill="currentColor" />
-            </svg>
+          <button type="button" className="dock-chip-menu-btn" aria-label="Chip Options">
+            <MoreVerticalIcon size={16} />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>

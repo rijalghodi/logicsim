@@ -13,7 +13,15 @@ interface DockProps {
   readonly onRenameChip?: (chipId: string) => void;
 }
 
-export function Dock({ savedChips, disabledChipIds = new Set(), onNew, onSave, onAddChip, onOpenChip, onRenameChip }: DockProps) {
+export function Dock({
+  savedChips,
+  disabledChipIds = new Set(),
+  onNew,
+  onSave,
+  onAddChip,
+  onOpenChip,
+  onRenameChip,
+}: DockProps) {
   const handleDragStart = (e: React.DragEvent, chipType: string) => {
     e.dataTransfer.setData("application/logicsim-chip", chipType);
     e.dataTransfer.effectAllowed = "copy";
@@ -27,7 +35,7 @@ export function Dock({ savedChips, disabledChipIds = new Set(), onNew, onSave, o
       {/* Input / Output Primitives */}
       <button
         type="button"
-        className="chip-chip"
+        className="dock-chip"
         draggable
         onDragStart={(e) => handleDragStart(e, "IN")}
         onClick={() => onAddChip?.("IN")}
@@ -38,7 +46,7 @@ export function Dock({ savedChips, disabledChipIds = new Set(), onNew, onSave, o
 
       <button
         type="button"
-        className="chip-chip"
+        className="dock-chip"
         draggable
         onDragStart={(e) => handleDragStart(e, "OUT")}
         onClick={() => onAddChip?.("OUT")}
@@ -50,7 +58,7 @@ export function Dock({ savedChips, disabledChipIds = new Set(), onNew, onSave, o
       {/* NAND Primitive Chip */}
       <button
         type="button"
-        className="chip-chip"
+        className="dock-chip"
         draggable
         onDragStart={(e) => handleDragStart(e, "NAND")}
         onClick={() => onAddChip?.("NAND")}
