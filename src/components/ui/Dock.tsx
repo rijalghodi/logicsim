@@ -1,20 +1,20 @@
 import { DockMenu } from "./DockMenu";
 import "./Dock.css";
 import { DockChipMenu } from "./DockChipMenu";
-import type { GateDefinition } from "../../core";
+import type { ChipDefinition } from "../../core";
 
 interface DockProps {
-  readonly savedGates: readonly GateDefinition[];
+  readonly savedChips: readonly ChipDefinition[];
   readonly onNew: () => void;
   readonly onSave: () => void;
-  readonly onAddGate?: (gateType: string) => void;
-  readonly onOpenGate?: (gateId: string) => void;
-  readonly onRenameGate?: (gateId: string) => void;
+  readonly onAddChip?: (chipType: string) => void;
+  readonly onOpenChip?: (chipId: string) => void;
+  readonly onRenameChip?: (chipId: string) => void;
 }
 
-export function Dock({ savedGates, onNew, onSave, onAddGate, onOpenGate, onRenameGate }: DockProps) {
-  const handleDragStart = (e: React.DragEvent, gateType: string) => {
-    e.dataTransfer.setData("application/logicsim-gate", gateType);
+export function Dock({ savedChips, onNew, onSave, onAddChip, onOpenChip, onRenameChip }: DockProps) {
+  const handleDragStart = (e: React.DragEvent, chipType: string) => {
+    e.dataTransfer.setData("application/logicsim-chip", chipType);
     e.dataTransfer.effectAllowed = "copy";
   };
 
@@ -26,10 +26,10 @@ export function Dock({ savedGates, onNew, onSave, onAddGate, onOpenGate, onRenam
       {/* Input / Output Primitives */}
       <button
         type="button"
-        className="gate-chip"
+        className="chip-chip"
         draggable
         onDragStart={(e) => handleDragStart(e, "IN")}
-        onClick={() => onAddGate?.("IN")}
+        onClick={() => onAddChip?.("IN")}
         title="Input Port: Drag to left edge or click to add"
       >
         <span>IN</span>
@@ -37,10 +37,10 @@ export function Dock({ savedGates, onNew, onSave, onAddGate, onOpenGate, onRenam
 
       <button
         type="button"
-        className="gate-chip"
+        className="chip-chip"
         draggable
         onDragStart={(e) => handleDragStart(e, "OUT")}
-        onClick={() => onAddGate?.("OUT")}
+        onClick={() => onAddChip?.("OUT")}
         title="Output Port: Drag to right edge or click to add"
       >
         <span>OUT</span>
@@ -49,24 +49,24 @@ export function Dock({ savedGates, onNew, onSave, onAddGate, onOpenGate, onRenam
       {/* NAND Primitive Chip */}
       <button
         type="button"
-        className="gate-chip"
+        className="chip-chip"
         draggable
         onDragStart={(e) => handleDragStart(e, "NAND")}
-        onClick={() => onAddGate?.("NAND")}
-        title="NAND Gate: Drag to canvas or click to add"
+        onClick={() => onAddChip?.("NAND")}
+        title="NAND Chip: Drag to canvas or click to add"
       >
         <span>NAND</span>
       </button>
 
-      {/* User-created Custom Gates */}
-      {savedGates.map((gate) => (
+      {/* User-created Custom Chips */}
+      {savedChips.map((chip) => (
         <DockChipMenu
-          key={gate.id}
-          gate={gate}
-          onAddGate={onAddGate}
+          key={chip.id}
+          chip={chip}
+          onAddChip={onAddChip}
           onDragStart={handleDragStart}
-          onOpen={() => onOpenGate?.(gate.id)}
-          onRename={() => onRenameGate?.(gate.id)}
+          onOpen={() => onOpenChip?.(chip.id)}
+          onRename={() => onRenameChip?.(chip.id)}
         />
       ))}
     </div>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { Bit } from "../bit";
-import { nandGate } from "./nand";
+import { nandChip } from "./nand";
 
 describe("NAND primitive", () => {
   const cases: [Bit, Bit, Bit][] = [
@@ -12,7 +12,7 @@ describe("NAND primitive", () => {
 
   for (const [a, b, expected] of cases) {
     it(`${a} NAND ${b} = ${expected}`, () => {
-      expect(nandGate.evaluate({ A: a, B: b }).Y).toBe(expected);
+      expect(nandChip.evaluate({ A: a, B: b }).Y).toBe(expected);
     });
   }
 });

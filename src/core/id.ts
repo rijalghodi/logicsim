@@ -1,6 +1,6 @@
 /**
  * Stable, globally-unique IDs for anything that needs to be referenced
- * across serialization boundaries (components, ports, gate definitions).
+ * across serialization boundaries (components, ports, chip definitions).
  * Using randomUUID keeps IDs opaque and collision-free without the core
  * depending on any storage layer to hand out sequential IDs.
  */

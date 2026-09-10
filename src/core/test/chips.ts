@@ -1,15 +1,15 @@
-import { BOUNDARY_ID, Circuit, createGateDefinition, createPortDefinition } from "../index";
-import type { GateDefinition, GateRegistry } from "../index";
+import { BOUNDARY_ID, Circuit, createChipDefinition, createPortDefinition } from "../index";
+import type { ChipDefinition, ChipRegistry } from "../index";
 
 /**
- * A small library of gates built purely from NAND, shared across the e2e
+ * A small library of chips built purely from NAND, shared across the e2e
  * test suite. Each builder follows the same pattern: wire a `Circuit`
  * using the `BOUNDARY_ID` convention (SPEC.md §4), then wrap it into a
- * named `GateDefinition` with `createGateDefinition`. Not a test file
+ * named `ChipDefinition` with `createChipDefinition`. Not a test file
  * itself — no assertions live here.
  */
 
-export function buildNotGate(registry: GateRegistry): GateDefinition {
+export function buildNotChip(registry: ChipRegistry): ChipDefinition {
   const A = createPortDefinition("A", "input");
   const Y = createPortDefinition("Y", "output");
   const circuit = new Circuit({ registry, inputs: [A], outputs: [Y] });
@@ -19,11 +19,11 @@ export function buildNotGate(registry: GateRegistry): GateDefinition {
   circuit.connect({ componentId: BOUNDARY_ID, portId: A.id }, { componentId: nand1, portId: "B" });
   circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: BOUNDARY_ID, portId: Y.id });
 
-  return createGateDefinition({ name: "NOT", inputs: [A], outputs: [Y], circuit: circuit.toDefinition() });
+  return createChipDefinition({ name: "NOT", inputs: [A], outputs: [Y], circuit: circuit.toDefinition() });
 }
 
-/** AND(A, B) = NAND(NAND(A, B), NAND(A, B)) — the textbook two-NAND AND gate. */
-export function buildAndGate(registry: GateRegistry): GateDefinition {
+/** AND(A, B) = NAND(NAND(A, B), NAND(A, B)) — the textbook two-NAND AND chip. */
+export function buildAndChip(registry: ChipRegistry): ChipDefinition {
   const A = createPortDefinition("A", "input");
   const B = createPortDefinition("B", "input");
   const Y = createPortDefinition("Y", "output");
@@ -37,11 +37,11 @@ export function buildAndGate(registry: GateRegistry): GateDefinition {
   circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: nand2, portId: "B" });
   circuit.connect({ componentId: nand2, portId: "Y" }, { componentId: BOUNDARY_ID, portId: Y.id });
 
-  return createGateDefinition({ name: "AND", inputs: [A, B], outputs: [Y], circuit: circuit.toDefinition() });
+  return createChipDefinition({ name: "AND", inputs: [A, B], outputs: [Y], circuit: circuit.toDefinition() });
 }
 
 /** Standard 4-NAND XOR: NAND(NAND(A, NAND(A,B)), NAND(B, NAND(A,B))). */
-export function buildXorGate(registry: GateRegistry): GateDefinition {
+export function buildXorChip(registry: ChipRegistry): ChipDefinition {
   const A = createPortDefinition("A", "input");
   const B = createPortDefinition("B", "input");
   const Y = createPortDefinition("Y", "output");
@@ -62,11 +62,11 @@ export function buildXorGate(registry: GateRegistry): GateDefinition {
   circuit.connect({ componentId: n3, portId: "Y" }, { componentId: n4, portId: "B" });
   circuit.connect({ componentId: n4, portId: "Y" }, { componentId: BOUNDARY_ID, portId: Y.id });
 
-  return createGateDefinition({ name: "XOR", inputs: [A, B], outputs: [Y], circuit: circuit.toDefinition() });
+  return createChipDefinition({ name: "XOR", inputs: [A, B], outputs: [Y], circuit: circuit.toDefinition() });
 }
 
-/** OR(A, B) = NAND(NOT(A), NOT(B)) — De Morgan's, nesting the NOT gate as a component. */
-export function buildOrGate(registry: GateRegistry, not: GateDefinition): GateDefinition {
+/** OR(A, B) = NAND(NOT(A), NOT(B)) — De Morgan's, nesting the NOT chip as a component. */
+export function buildOrChip(registry: ChipRegistry, not: ChipDefinition): ChipDefinition {
   const A = createPortDefinition("A", "input");
   const B = createPortDefinition("B", "input");
   const Y = createPortDefinition("Y", "output");
@@ -84,11 +84,11 @@ export function buildOrGate(registry: GateRegistry, not: GateDefinition): GateDe
   circuit.connect({ componentId: notB, portId: notOut.id }, { componentId: nand1, portId: "B" });
   circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: BOUNDARY_ID, portId: Y.id });
 
-  return createGateDefinition({ name: "OR", inputs: [A, B], outputs: [Y], circuit: circuit.toDefinition() });
+  return createChipDefinition({ name: "OR", inputs: [A, B], outputs: [Y], circuit: circuit.toDefinition() });
 }
 
 /** HalfAdder(A, B): Sum = XOR(A, B), Carry = AND(A, B). */
-export function buildHalfAdderGate(registry: GateRegistry, xor: GateDefinition, and: GateDefinition): GateDefinition {
+export function buildHalfAdderChip(registry: ChipRegistry, xor: ChipDefinition, and: ChipDefinition): ChipDefinition {
   const A = createPortDefinition("A", "input");
   const B = createPortDefinition("B", "input");
   const Sum = createPortDefinition("Sum", "output");
@@ -110,7 +110,7 @@ export function buildHalfAdderGate(registry: GateRegistry, xor: GateDefinition, 
   circuit.connect({ componentId: xorC, portId: xorY.id }, { componentId: BOUNDARY_ID, portId: Sum.id });
   circuit.connect({ componentId: andC, portId: andY.id }, { componentId: BOUNDARY_ID, portId: Carry.id });
 
-  return createGateDefinition({
+  return createChipDefinition({
     name: "HALF_ADDER",
     inputs: [A, B],
     outputs: [Sum, Carry],

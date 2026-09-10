@@ -15,7 +15,7 @@ export function DockMenu({ onNew, onSave }: DockMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <button type="button" className="dock-btn dock-btn-menu" title="Circuit & Gate Actions">
+        <button type="button" className="dock-btn dock-btn-menu" title="Circuit & Chip Actions">
           MENU
         </button>
       </DropdownMenuTrigger>

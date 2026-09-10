@@ -1,9 +1,9 @@
 import { BOUNDARY_ID, Circuit, createDefaultRegistry, createPortDefinition } from "../../core";
-import type { CircuitDefinition, GateRegistry, PortDefinition } from "../../core";
+import type { CircuitDefinition, ChipRegistry, PortDefinition } from "../../core";
 import type { Layout } from "./geometry";
 
 export interface DemoCircuit {
-  readonly registry: GateRegistry;
+  readonly registry: ChipRegistry;
   readonly definition: CircuitDefinition;
   readonly boundary: { readonly inputs: PortDefinition[]; readonly outputs: PortDefinition[] };
   readonly layout: Layout;
@@ -11,9 +11,9 @@ export interface DemoCircuit {
 
 /**
  * AND(A, B) = NAND(NAND(A, B), NAND(A, B)) — the textbook two-NAND AND
- * gate, wired flat (not wrapped as a GateDefinition) so it can be viewed
+ * chip, wired flat (not wrapped as a ChipDefinition) so it can be viewed
  * and edited directly as a "root" circuit. See SPEC.md §4 for the
- * boundary wiring and `e2e/andGate.e2e.test.ts` for the same circuit
+ * boundary wiring and `e2e/andChip.e2e.test.ts` for the same circuit
  * proven correct.
  */
 export function createDemoCircuit(): DemoCircuit {

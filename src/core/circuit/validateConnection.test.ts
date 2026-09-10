@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { createDefaultRegistry } from "../gate/createDefaultRegistry";
+import { createDefaultRegistry } from "../chip/createDefaultRegistry";
 import type { CircuitDefinition } from "./Circuit";
 import { validateConnection } from "./validateConnection";
 

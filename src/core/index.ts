@@ -9,8 +9,8 @@ export {
   UnknownComponentTypeError,
 } from "./errors";
 
-export type { PortDefinition, PortDirection } from "./gate/PortDefinition";
-export { createPortDefinition } from "./gate/PortDefinition";
+export type { PortDefinition, PortDirection } from "./chip/PortDefinition";
+export { createPortDefinition } from "./chip/PortDefinition";
 
 export type { ComponentDefinition } from "./circuit/Component";
 export type { Connection, PortRef } from "./circuit/Connection";
@@ -33,20 +33,20 @@ export {
   ruleSingleDriverPerInput,
 } from "./circuit/validateConnection";
 
-export type { GateDefinition } from "./gate/GateDefinition";
-export type { CreateGateDefinitionParams } from "./gate/createGateDefinition";
-export { createGateDefinition } from "./gate/createGateDefinition";
+export type { ChipDefinition } from "./chip/ChipDefinition";
+export type { CreateChipDefinitionParams } from "./chip/createChipDefinition";
+export { createChipDefinition } from "./chip/createChipDefinition";
 
-export type { PrimitiveGateBehavior, ResolvedGateType, ResolvedCustomGate } from "./gate/GateRegistry";
-export { GateRegistry } from "./gate/GateRegistry";
-export { createDefaultRegistry } from "./gate/createDefaultRegistry";
+export type { PrimitiveChipBehavior, ResolvedChipType, ResolvedCustomChip } from "./chip/ChipRegistry";
+export { ChipRegistry } from "./chip/ChipRegistry";
+export { createDefaultRegistry } from "./chip/createDefaultRegistry";
 
-export { NAND_TYPE, nandGate } from "./primitives/nand";
+export { NAND_TYPE, nandChip } from "./primitives/nand";
 
 export type { SimulationState, EvaluateCircuitOptions } from "./simulation/SimulationState";
-export { evaluateCircuit, evaluateGate } from "./simulation/evaluateCircuit";
+export { evaluateCircuit, evaluateChip } from "./simulation/evaluateCircuit";
 
-export type { SerializedGateDefinitionV1 } from "./serialization/types";
-export { GATE_DEFINITION_SCHEMA_VERSION } from "./serialization/types";
-export { serializeGateDefinition } from "./serialization/serializeGateDefinition";
-export { deserializeGateDefinition } from "./serialization/deserializeGateDefinition";
+export type { SerializedChipDefinitionV1 } from "./serialization/types";
+export { CHIP_DEFINITION_SCHEMA_VERSION } from "./serialization/types";
+export { serializeChipDefinition } from "./serialization/serializeChipDefinition";
+export { deserializeChipDefinition } from "./serialization/deserializeChipDefinition";

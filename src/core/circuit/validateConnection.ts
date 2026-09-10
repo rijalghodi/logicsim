@@ -1,5 +1,5 @@
-import type { GateRegistry } from "../gate/GateRegistry";
-import type { PortDefinition, PortDirection } from "../gate/PortDefinition";
+import type { ChipRegistry } from "../chip/ChipRegistry";
+import type { PortDefinition, PortDirection } from "../chip/PortDefinition";
 import type { CircuitDefinition } from "./Circuit";
 import type { Connection, PortRef } from "./Connection";
 import { BOUNDARY_ID } from "./Connection";
@@ -10,7 +10,7 @@ export interface ValidationIssue {
   readonly message: string;
 }
 
-/** The ports a circuit exposes to the outside world when it is a gate's internals. */
+/** The ports a circuit exposes to the outside world when it is a chip's internals. */
 export interface BoundaryPorts {
   readonly inputs: PortDefinition[];
   readonly outputs: PortDefinition[];
@@ -18,7 +18,7 @@ export interface BoundaryPorts {
 
 export interface ConnectionValidationContext {
   readonly circuit: CircuitDefinition;
-  readonly registry: GateRegistry;
+  readonly registry: ChipRegistry;
   readonly connection: Connection;
   readonly boundary?: BoundaryPorts;
 }
@@ -39,15 +39,15 @@ function resolveEndpoint(ctx: ConnectionValidationContext, ref: PortRef): Resolv
     if (!boundary) {
       return { code: "missing-component", message: "This circuit has no boundary ports" };
     }
-    const isGateInput = boundary.inputs.some((port) => port.id === ref.portId);
-    const isGateOutput = boundary.outputs.some((port) => port.id === ref.portId);
-    if (!isGateInput && !isGateOutput) {
+    const isChipInput = boundary.inputs.some((port) => port.id === ref.portId);
+    const isChipOutput = boundary.outputs.some((port) => port.id === ref.portId);
+    if (!isChipInput && !isChipOutput) {
       return { code: "missing-port", message: `Unknown boundary port "${ref.portId}"` };
     }
-    // Roles invert at the boundary: a gate input *supplies* a value to the
-    // internal circuit (acts like a source/output), a gate output
+    // Roles invert at the boundary: a chip input *supplies* a value to the
+    // internal circuit (acts like a source/output), a chip output
     // *consumes* one (acts like a sink/input).
-    return { direction: isGateInput ? "output" : "input" };
+    return { direction: isChipInput ? "output" : "input" };
   }
 
   const component = ctx.circuit.components.find((c) => c.id === ref.componentId);

@@ -1,15 +1,15 @@
 import { describe, expect, it } from "bun:test";
 import { Circuit } from "../circuit/Circuit";
 import { BOUNDARY_ID } from "../circuit/Connection";
-import type { GateRegistry } from "./GateRegistry";
+import type { ChipRegistry } from "./ChipRegistry";
 import { createDefaultRegistry } from "./createDefaultRegistry";
-import { createGateDefinition } from "./createGateDefinition";
-import type { GateDefinition } from "./GateDefinition";
+import { createChipDefinition } from "./createChipDefinition";
+import type { ChipDefinition } from "./ChipDefinition";
 import { createPortDefinition } from "./PortDefinition";
-import { evaluateGate } from "../simulation/evaluateCircuit";
+import { evaluateChip } from "../simulation/evaluateCircuit";
 
-/** AND(A, B) = NAND(NAND(A, B), NAND(A, B)), the textbook two-NAND AND gate. */
-function buildAndGate(registry: GateRegistry): GateDefinition {
+/** AND(A, B) = NAND(NAND(A, B), NAND(A, B)), the textbook two-NAND AND chip. */
+function buildAndChip(registry: ChipRegistry): ChipDefinition {
   const inputs = [createPortDefinition("A", "input"), createPortDefinition("B", "input")];
   const outputs = [createPortDefinition("Y", "output")];
   const circuit = new Circuit({ registry, inputs, outputs });
@@ -23,13 +23,13 @@ function buildAndGate(registry: GateRegistry): GateDefinition {
   circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: nand2, portId: "B" });
   circuit.connect({ componentId: nand2, portId: "Y" }, { componentId: BOUNDARY_ID, portId: outputs[0].id });
 
-  return createGateDefinition({ name: "AND", inputs, outputs, circuit: circuit.toDefinition() });
+  return createChipDefinition({ name: "AND", inputs, outputs, circuit: circuit.toDefinition() });
 }
 
-describe("custom gate composition", () => {
-  it("builds an AND gate from NAND primitives with the full truth table", () => {
+describe("custom chip composition", () => {
+  it("builds an AND chip from NAND primitives with the full truth table", () => {
     const registry = createDefaultRegistry();
-    const and = buildAndGate(registry);
+    const and = buildAndChip(registry);
     const [a, b] = and.inputs;
     const [y] = and.outputs;
 
@@ -41,15 +41,15 @@ describe("custom gate composition", () => {
     ];
 
     for (const [av, bv, expected] of cases) {
-      expect(evaluateGate(and, registry, { [a.id]: av, [b.id]: bv })[y.id]).toBe(expected);
+      expect(evaluateChip(and, registry, { [a.id]: av, [b.id]: bv })[y.id]).toBe(expected);
     }
   });
 
-  it("allows a custom gate to be used as a component inside another custom gate", () => {
+  it("allows a custom chip to be used as a component inside another custom chip", () => {
     const registry = createDefaultRegistry();
-    const and = buildAndGate(registry);
+    const and = buildAndChip(registry);
 
-    // AND3(A, B, C) = AND(AND(A, B), C) — nests the AND gate inside a new gate.
+    // AND3(A, B, C) = AND(AND(A, B), C) — nests the AND chip inside a new chip.
     const inputs = [
       createPortDefinition("A", "input"),
       createPortDefinition("B", "input"),
@@ -79,12 +79,12 @@ describe("custom gate composition", () => {
       { componentId: BOUNDARY_ID, portId: outputs[0].id },
     );
 
-    const and3 = createGateDefinition({ name: "AND3", inputs, outputs, circuit: circuit.toDefinition() });
+    const and3 = createChipDefinition({ name: "AND3", inputs, outputs, circuit: circuit.toDefinition() });
     const [a, b, c] = and3.inputs;
     const [y] = and3.outputs;
 
-    expect(evaluateGate(and3, registry, { [a.id]: true, [b.id]: true, [c.id]: true })[y.id]).toBe(true);
-    expect(evaluateGate(and3, registry, { [a.id]: true, [b.id]: true, [c.id]: false })[y.id]).toBe(false);
-    expect(evaluateGate(and3, registry, { [a.id]: false, [b.id]: true, [c.id]: true })[y.id]).toBe(false);
+    expect(evaluateChip(and3, registry, { [a.id]: true, [b.id]: true, [c.id]: true })[y.id]).toBe(true);
+    expect(evaluateChip(and3, registry, { [a.id]: true, [b.id]: true, [c.id]: false })[y.id]).toBe(false);
+    expect(evaluateChip(and3, registry, { [a.id]: false, [b.id]: true, [c.id]: true })[y.id]).toBe(false);
   });
 });

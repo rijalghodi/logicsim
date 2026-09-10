@@ -3,28 +3,28 @@ import {
   BOUNDARY_ID,
   Circuit,
   createDefaultRegistry,
-  createGateDefinition,
+  createChipDefinition,
   createPortDefinition,
-  deserializeGateDefinition,
-  evaluateGate,
-  serializeGateDefinition,
+  deserializeChipDefinition,
+  evaluateChip,
+  serializeChipDefinition,
 } from "../index";
-import type { GateDefinition, GateRegistry } from "../index";
-import { buildAndGate, buildHalfAdderGate, buildNotGate, buildOrGate, buildXorGate } from "./gates";
+import type { ChipDefinition, ChipRegistry } from "../index";
+import { buildAndChip, buildHalfAdderChip, buildNotChip, buildOrChip, buildXorChip } from "./chips";
 
 /**
- * End-to-end walk through custom-gate composition several layers deep:
+ * End-to-end walk through custom-chip composition several layers deep:
  * NAND -> {NOT, AND, XOR} -> {OR, HALF_ADDER} -> FULL_ADDER, then a 2-bit
  * ripple-carry adder built from two FULL_ADDERs. NOT/AND/XOR/OR/HALF_ADDER
- * come from the shared `./gates` library; FULL_ADDER and the 2-bit adder
+ * come from the shared `./chips` library; FULL_ADDER and the 2-bit adder
  * are specific to this test.
  */
 
 /**
  * FullAdder(A, B, Cin): chains two half adders and ORs their carries —
- * the textbook "two half adders + an OR gate" full adder.
+ * the textbook "two half adders + an OR chip" full adder.
  */
-function buildFullAdderGate(registry: GateRegistry, halfAdder: GateDefinition, or: GateDefinition): GateDefinition {
+function buildFullAdderChip(registry: ChipRegistry, halfAdder: ChipDefinition, or: ChipDefinition): ChipDefinition {
   const A = createPortDefinition("A", "input");
   const B = createPortDefinition("B", "input");
   const Cin = createPortDefinition("Cin", "input");
@@ -50,7 +50,7 @@ function buildFullAdderGate(registry: GateRegistry, halfAdder: GateDefinition, o
   circuit.connect({ componentId: ha2, portId: haCarry.id }, { componentId: orC, portId: orB.id });
   circuit.connect({ componentId: orC, portId: orY.id }, { componentId: BOUNDARY_ID, portId: Cout.id });
 
-  return createGateDefinition({
+  return createChipDefinition({
     name: "FULL_ADDER",
     inputs: [A, B, Cin],
     outputs: [Sum, Cout],
@@ -59,7 +59,7 @@ function buildFullAdderGate(registry: GateRegistry, halfAdder: GateDefinition, o
 }
 
 /** A 2-bit ripple-carry adder: two FULL_ADDERs, the first's Cout feeding the second's Cin. */
-function buildTwoBitAdderGate(registry: GateRegistry, fullAdder: GateDefinition): GateDefinition {
+function buildTwoBitAdderChip(registry: ChipRegistry, fullAdder: ChipDefinition): ChipDefinition {
   const A0 = createPortDefinition("A0", "input");
   const B0 = createPortDefinition("B0", "input");
   const A1 = createPortDefinition("A1", "input");
@@ -87,7 +87,7 @@ function buildTwoBitAdderGate(registry: GateRegistry, fullAdder: GateDefinition)
   circuit.connect({ componentId: fa2, portId: faSum.id }, { componentId: BOUNDARY_ID, portId: Sum1.id });
   circuit.connect({ componentId: fa2, portId: faCout.id }, { componentId: BOUNDARY_ID, portId: Cout.id });
 
-  return createGateDefinition({
+  return createChipDefinition({
     name: "ADDER2",
     inputs: [A0, B0, A1, B1, Cin],
     outputs: [Sum0, Sum1, Cout],
@@ -95,13 +95,13 @@ function buildTwoBitAdderGate(registry: GateRegistry, fullAdder: GateDefinition)
   });
 }
 
-function buildFullAdderStack(registry: GateRegistry = createDefaultRegistry()) {
-  const not = buildNotGate(registry);
-  const and = buildAndGate(registry);
-  const xor = buildXorGate(registry);
-  const or = buildOrGate(registry, not);
-  const halfAdder = buildHalfAdderGate(registry, xor, and);
-  const fullAdder = buildFullAdderGate(registry, halfAdder, or);
+function buildFullAdderStack(registry: ChipRegistry = createDefaultRegistry()) {
+  const not = buildNotChip(registry);
+  const and = buildAndChip(registry);
+  const xor = buildXorChip(registry);
+  const or = buildOrChip(registry, not);
+  const halfAdder = buildHalfAdderChip(registry, xor, and);
+  const fullAdder = buildFullAdderChip(registry, halfAdder, or);
   return { not, and, xor, or, halfAdder, fullAdder };
 }
 
@@ -125,7 +125,7 @@ describe("Full adder end-to-end", () => {
     const [sum, cout] = fullAdder.outputs;
 
     for (const [av, bv, cinv, expectedSum, expectedCout] of TRUTH_TABLE) {
-      const result = evaluateGate(fullAdder, registry, { [a.id]: av, [b.id]: bv, [cin.id]: cinv });
+      const result = evaluateChip(fullAdder, registry, { [a.id]: av, [b.id]: bv, [cin.id]: cinv });
       expect(result[sum.id]).toBe(expectedSum);
       expect(result[cout.id]).toBe(expectedCout);
     }
@@ -134,12 +134,12 @@ describe("Full adder end-to-end", () => {
   it("works as a component nested inside a 2-bit ripple-carry adder", () => {
     const registry = createDefaultRegistry();
     const { fullAdder } = buildFullAdderStack(registry);
-    const adder2 = buildTwoBitAdderGate(registry, fullAdder);
+    const adder2 = buildTwoBitAdderChip(registry, fullAdder);
     const [a0, b0, a1, b1, cin] = adder2.inputs;
     const [sum0, sum1, cout] = adder2.outputs;
 
     // 1 (01) + 1 (01) + 0 = 2 (010)
-    const oneplusone = evaluateGate(adder2, registry, {
+    const oneplusone = evaluateChip(adder2, registry, {
       [a0.id]: true,
       [b0.id]: true,
       [a1.id]: false,
@@ -151,7 +151,7 @@ describe("Full adder end-to-end", () => {
     expect(oneplusone[cout.id]).toBe(false);
 
     // 3 (11) + 1 (01) + 1 = 5 (101)
-    const threeplusonepluscarry = evaluateGate(adder2, registry, {
+    const threeplusonepluscarry = evaluateChip(adder2, registry, {
       [a0.id]: true,
       [b0.id]: true,
       [a1.id]: true,
@@ -163,28 +163,28 @@ describe("Full adder end-to-end", () => {
     expect(threeplusonepluscarry[cout.id]).toBe(true);
   });
 
-  it("survives a serialize/deserialize round-trip as a full gate library", () => {
+  it("survives a serialize/deserialize round-trip as a full chip library", () => {
     const registry = createDefaultRegistry();
     const { not, and, xor, or, halfAdder, fullAdder } = buildFullAdderStack(registry);
 
-    // SPEC.md §8: serialization captures one gate at a time, not its
+    // SPEC.md §8: serialization captures one chip at a time, not its
     // dependency tree — restoring FULL_ADDER for real requires separately
-    // saving and re-registering every custom gate it (transitively) uses.
+    // saving and re-registering every custom chip it (transitively) uses.
     const dependencies = [not, and, xor, or, halfAdder];
-    const savedDependencies = dependencies.map((gate) => JSON.parse(JSON.stringify(serializeGateDefinition(gate))));
-    const savedFullAdder = JSON.parse(JSON.stringify(serializeGateDefinition(fullAdder)));
+    const savedDependencies = dependencies.map((chip) => JSON.parse(JSON.stringify(serializeChipDefinition(chip))));
+    const savedFullAdder = JSON.parse(JSON.stringify(serializeChipDefinition(fullAdder)));
 
     const freshRegistry = createDefaultRegistry();
     for (const saved of savedDependencies) {
-      freshRegistry.registerGate(deserializeGateDefinition(saved));
+      freshRegistry.registerChip(deserializeChipDefinition(saved));
     }
-    const restoredFullAdder = deserializeGateDefinition(savedFullAdder);
+    const restoredFullAdder = deserializeChipDefinition(savedFullAdder);
 
     const [a, b, cin] = restoredFullAdder.inputs;
     const [sum, cout] = restoredFullAdder.outputs;
 
     for (const [av, bv, cinv, expectedSum, expectedCout] of TRUTH_TABLE) {
-      const result = evaluateGate(restoredFullAdder, freshRegistry, { [a.id]: av, [b.id]: bv, [cin.id]: cinv });
+      const result = evaluateChip(restoredFullAdder, freshRegistry, { [a.id]: av, [b.id]: bv, [cin.id]: cinv });
       expect(result[sum.id]).toBe(expectedSum);
       expect(result[cout.id]).toBe(expectedCout);
     }

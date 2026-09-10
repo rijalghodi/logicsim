@@ -2,7 +2,7 @@ import type { Bit } from "../bit";
 
 /**
  * Everything the evaluator produced from one pass: transient, recomputed
- * data — never part of a saved `GateDefinition`. Keyed by component id and
+ * data — never part of a saved `ChipDefinition`. Keyed by component id and
  * then port id so results for nested/custom components sit alongside
  * primitives without any special casing.
  */
@@ -12,7 +12,7 @@ export interface SimulationState {
 }
 
 export interface EvaluateCircuitOptions {
-  /** Values fed into the circuit's own boundary inputs (only meaningful for a gate's internals). */
+  /** Values fed into the circuit's own boundary inputs (only meaningful for a chip's internals). */
   readonly boundaryInputs?: Readonly<Record<string, Bit>>;
   /**
    * Forced values for component input ports that have no driving

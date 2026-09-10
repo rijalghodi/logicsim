@@ -1,21 +1,21 @@
-import type { GateDefinition } from "../gate/GateDefinition";
-import type { PortDefinition, PortDirection } from "../gate/PortDefinition";
+import type { ChipDefinition } from "../chip/ChipDefinition";
+import type { PortDefinition, PortDirection } from "../chip/PortDefinition";
 import type { ComponentDefinition } from "../circuit/Component";
 import type { Connection, PortRef } from "../circuit/Connection";
 import { SerializationError } from "../errors";
 
 /**
- * Rebuilds a `GateDefinition` from `unknown` data (e.g. `JSON.parse` output
+ * Rebuilds a `ChipDefinition` from `unknown` data (e.g. `JSON.parse` output
  * from a persistence adapter), validating the shape field by field rather
  * than trusting a cast. Only schema version 1 exists so far; a future
  * version bump should branch here rather than changing this function's
  * output shape.
  */
-export function deserializeGateDefinition(data: unknown): GateDefinition {
-  const record = expectRecord(data, "gate definition");
+export function deserializeChipDefinition(data: unknown): ChipDefinition {
+  const record = expectRecord(data, "chip definition");
 
   if (record.version !== 1) {
-    throw new SerializationError(`Unsupported gate definition schema version: ${String(record.version)}`);
+    throw new SerializationError(`Unsupported chip definition schema version: ${String(record.version)}`);
   }
 
   return {

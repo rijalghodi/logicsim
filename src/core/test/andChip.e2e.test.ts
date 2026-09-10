@@ -4,21 +4,21 @@ import {
   Circuit,
   createDefaultRegistry,
   createPortDefinition,
-  deserializeGateDefinition,
-  evaluateGate,
-  serializeGateDefinition,
+  deserializeChipDefinition,
+  evaluateChip,
+  serializeChipDefinition,
 } from "../index";
-import { buildAndGate } from "./gates";
+import { buildAndChip } from "./chips";
 
 /**
  * End-to-end walk through every layer in SPEC.md's layering diagram —
  * PortDefinition -> Component/Connection -> CircuitDefinition ->
- * GateDefinition -> GateRegistry -> evaluateCircuit -> serialization —
+ * ChipDefinition -> ChipRegistry -> evaluateCircuit -> serialization —
  * using only the public `../index` surface, with the textbook two-NAND
- * AND gate (SPEC.md §4, built by the shared `./gates` library) as the
+ * AND chip (SPEC.md §4, built by the shared `./chips` library) as the
  * running example.
  */
-describe("AND gate end-to-end", () => {
+describe("AND chip end-to-end", () => {
   const TRUTH_TABLE: [boolean, boolean, boolean][] = [
     [false, false, false],
     [false, true, false],
@@ -28,22 +28,22 @@ describe("AND gate end-to-end", () => {
 
   it("evaluates the full truth table through the registry", () => {
     const registry = createDefaultRegistry();
-    const and = buildAndGate(registry);
+    const and = buildAndChip(registry);
     const [a, b] = and.inputs;
     const [y] = and.outputs;
 
     for (const [av, bv, expected] of TRUTH_TABLE) {
-      expect(evaluateGate(and, registry, { [a.id]: av, [b.id]: bv })[y.id]).toBe(expected);
+      expect(evaluateChip(and, registry, { [a.id]: av, [b.id]: bv })[y.id]).toBe(expected);
     }
   });
 
   it("works as a component nested inside a larger circuit", () => {
     const registry = createDefaultRegistry();
-    const and = buildAndGate(registry);
+    const and = buildAndChip(registry);
     const [andA, andB] = and.inputs;
     const [andY] = and.outputs;
 
-    // AND3(a, b, c) = AND(AND(a, b), c), composed from two AND gate instances.
+    // AND3(a, b, c) = AND(AND(a, b), c), composed from two AND chip instances.
     const a3 = createPortDefinition("A", "input");
     const b3 = createPortDefinition("B", "input");
     const c3 = createPortDefinition("C", "input");
@@ -67,19 +67,19 @@ describe("AND gate end-to-end", () => {
   });
 
   it("survives a serialize/deserialize round-trip and still evaluates correctly", () => {
-    const and = buildAndGate(createDefaultRegistry());
+    const and = buildAndChip(createDefaultRegistry());
 
     // Round-trip through actual JSON text, as it would cross a real persistence boundary.
-    const json = JSON.parse(JSON.stringify(serializeGateDefinition(and)));
-    const restored = deserializeGateDefinition(json);
+    const json = JSON.parse(JSON.stringify(serializeChipDefinition(and)));
+    const restored = deserializeChipDefinition(json);
 
-    // A fresh registry stands in for a brand-new session loading the saved gate.
+    // A fresh registry stands in for a brand-new session loading the saved chip.
     const freshRegistry = createDefaultRegistry();
     const [a, b] = restored.inputs;
     const [y] = restored.outputs;
 
     for (const [av, bv, expected] of TRUTH_TABLE) {
-      expect(evaluateGate(restored, freshRegistry, { [a.id]: av, [b.id]: bv })[y.id]).toBe(expected);
+      expect(evaluateChip(restored, freshRegistry, { [a.id]: av, [b.id]: bv })[y.id]).toBe(expected);
     }
   });
 });

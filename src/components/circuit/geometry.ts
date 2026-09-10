@@ -31,7 +31,7 @@ export function getPortLabelWidth(text: string): number {
   return Math.max(24, text.length * 8);
 }
 
-/** Taller boxes for gates with more ports, so pins on a busy side don't crowd together. */
+/** Taller boxes for chips with more ports, so pins on a busy side don't crowd together. */
 export function getNodeHeight(maxPortCount: number): number {
   return Math.max(MIN_NODE_HEIGHT, (maxPortCount + 1) * PORT_ROW_HEIGHT);
 }

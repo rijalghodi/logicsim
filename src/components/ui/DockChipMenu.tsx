@@ -1,31 +1,31 @@
-import type { GateDefinition } from "../../core";
+import type { ChipDefinition } from "../../core";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./DropdownMenu";
 
 interface DockChipMenuProps {
-  readonly gate: GateDefinition;
-  readonly onAddGate?: (gateId: string) => void;
-  readonly onDragStart: (e: React.DragEvent, gateId: string) => void;
+  readonly chip: ChipDefinition;
+  readonly onAddChip?: (chipId: string) => void;
+  readonly onDragStart: (e: React.DragEvent, chipId: string) => void;
   readonly onOpen: () => void;
   readonly onRename: () => void;
 }
 
-export function DockChipMenu({ gate, onAddGate, onDragStart, onOpen, onRename }: DockChipMenuProps) {
+export function DockChipMenu({ chip, onAddChip, onDragStart, onOpen, onRename }: DockChipMenuProps) {
   return (
-    <div className="gate-chip gate-chip-composite">
+    <div className="chip-chip chip-chip-composite">
       <button
         type="button"
-        className="gate-chip-main"
+        className="chip-chip-main"
         draggable
-        onDragStart={(e) => onDragStart(e, gate.id)}
-        onClick={() => onAddGate?.(gate.id)}
-        title={`${gate.name}: Drag to canvas or click to add`}
+        onDragStart={(e) => onDragStart(e, chip.id)}
+        onClick={() => onAddChip?.(chip.id)}
+        title={`${chip.name}: Drag to canvas or click to add`}
       >
-        <span>{gate.name}</span>
+        <span>{chip.name}</span>
       </button>
 
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <button type="button" className="gate-chip-menu-btn" aria-label="Chip Options">
+          <button type="button" className="chip-chip-menu-btn" aria-label="Chip Options">
             <svg
               width="16"
               height="16"

@@ -2,18 +2,18 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import type { Layout, Position } from "./components/circuit/geometry";
 import { Dock } from "./components/ui/Dock";
-import { SaveChipModal } from "./components/ui/SaveGateModal";
+import { SaveChipModal } from "./components/ui/SaveChipModal";
 import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
 import { Toast, toast } from "./components/ui/Toast";
 import {
   createDefaultRegistry,
-  createGateDefinition,
+  createChipDefinition,
   createId,
   createPortDefinition,
   validateConnection,
 } from "./core";
-import type { Bit, CircuitDefinition, GateDefinition, PortDefinition, PortRef } from "./core";
-import { loadSavedGates, saveCustomGate } from "./storage/gateStorage";
+import type { Bit, CircuitDefinition, ChipDefinition, PortDefinition, PortRef } from "./core";
+import { loadSavedChips, saveCustomChip } from "./storage/chipStorage";
 
 function createBlankCircuit() {
   const IN = createPortDefinition("IN", "input");
@@ -30,7 +30,7 @@ function App() {
   const registry = useMemo(() => createDefaultRegistry(), []);
   const initial = useMemo(() => createBlankCircuit(), []);
 
-  const [savedGates, setSavedGates] = useState<GateDefinition[]>(() => loadSavedGates(registry));
+  const [savedChips, setSavedChips] = useState<ChipDefinition[]>(() => loadSavedChips(registry));
   const [circuit, setCircuit] = useState<CircuitDefinition>(initial.circuit);
   const [layout, setLayout] = useState<Layout>(initial.layout);
   const [boundary, setBoundary] = useState<{ inputs: PortDefinition[]; outputs: PortDefinition[] }>(initial.boundary);
@@ -38,11 +38,11 @@ function App() {
   const [boundaryInputs, setBoundaryInputs] = useState<Record<string, Bit>>({});
 
   const [isDirty, setIsDirty] = useState(false);
-  const [currentGateName, setCurrentGateName] = useState<string | null>(null);
+  const [currentChipName, setCurrentChipName] = useState<string | null>(null);
 
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
-  const [pendingGateToOpen, setPendingGateToOpen] = useState<string | null>(null);
+  const [pendingChipToOpen, setPendingChipToOpen] = useState<string | null>(null);
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -78,13 +78,13 @@ function App() {
     setBoundary(blank.boundary);
     setBoundaryLayout(blank.boundaryLayout);
     setBoundaryInputs({});
-    setCurrentGateName(null);
+    setCurrentChipName(null);
     setIsDirty(false);
   }, []);
 
   const handleNewClick = useCallback(() => {
     if (isDirty && (circuit.components.length > 0 || circuit.connections.length > 0)) {
-      setPendingGateToOpen(null);
+      setPendingChipToOpen(null);
       setShowUnsavedModal(true);
     } else {
       resetToBlank();
@@ -97,16 +97,16 @@ function App() {
 
   const handleConfirmSave = useCallback(
     (name: string) => {
-      const gate = createGateDefinition({
+      const chip = createChipDefinition({
         name,
         inputs: boundary.inputs,
         outputs: boundary.outputs,
         circuit,
       });
 
-      saveCustomGate(gate, registry);
-      setSavedGates(loadSavedGates(registry));
-      setCurrentGateName(name);
+      saveCustomChip(chip, registry);
+      setSavedChips(loadSavedChips(registry));
+      setCurrentChipName(name);
       setIsDirty(false);
       setShowSaveModal(false);
       toast.success(`Chip "${name}" saved to library!`);
@@ -114,46 +114,46 @@ function App() {
     [boundary, circuit, registry],
   );
 
-  const loadGateToCanvas = useCallback(
-    (gateId: string) => {
-      const gateDef = savedGates.find((g) => g.id === gateId);
-      if (!gateDef) return;
+  const loadChipToCanvas = useCallback(
+    (chipId: string) => {
+      const chipDef = savedChips.find((g) => g.id === chipId);
+      if (!chipDef) return;
 
-      setCircuit(gateDef.circuit);
-      setBoundary({ inputs: [...gateDef.inputs], outputs: [...gateDef.outputs] });
+      setCircuit(chipDef.circuit);
+      setBoundary({ inputs: [...chipDef.inputs], outputs: [...chipDef.outputs] });
       setLayout({});
       setBoundaryLayout({});
-      setCurrentGateName(gateDef.name);
+      setCurrentChipName(chipDef.name);
       setIsDirty(false);
-      setPendingGateToOpen(null);
+      setPendingChipToOpen(null);
     },
-    [savedGates],
+    [savedChips],
   );
 
-  const handleOpenGateClick = useCallback(
-    (gateId: string) => {
+  const handleOpenChipClick = useCallback(
+    (chipId: string) => {
       if (isDirty && (circuit.components.length > 0 || circuit.connections.length > 0)) {
-        setPendingGateToOpen(gateId);
+        setPendingChipToOpen(chipId);
         setShowUnsavedModal(true);
       } else {
-        loadGateToCanvas(gateId);
+        loadChipToCanvas(chipId);
       }
     },
-    [isDirty, circuit, loadGateToCanvas],
+    [isDirty, circuit, loadChipToCanvas],
   );
 
   const handleDiscardChanges = useCallback(() => {
     setShowUnsavedModal(false);
-    if (pendingGateToOpen) {
-      loadGateToCanvas(pendingGateToOpen);
+    if (pendingChipToOpen) {
+      loadChipToCanvas(pendingChipToOpen);
     } else {
       resetToBlank();
     }
-  }, [pendingGateToOpen, loadGateToCanvas, resetToBlank]);
+  }, [pendingChipToOpen, loadChipToCanvas, resetToBlank]);
 
-  const handleDropGate = useCallback(
-    (gateType: string, position: Position) => {
-      if (gateType === "IN") {
+  const handleDropChip = useCallback(
+    (chipType: string, position: Position) => {
+      if (chipType === "IN") {
         const name = String.fromCharCode(65 + boundary.inputs.length);
         const port = createPortDefinition(name, "input");
         setBoundary((prev) => ({ ...prev, inputs: [...prev.inputs, port] }));
@@ -162,7 +162,7 @@ function App() {
         return;
       }
 
-      if (gateType === "OUT") {
+      if (chipType === "OUT") {
         const name = boundary.outputs.length === 0 ? "Y" : `Y${boundary.outputs.length}`;
         const port = createPortDefinition(name, "output");
         setBoundary((prev) => ({ ...prev, outputs: [...prev.outputs, port] }));
@@ -174,7 +174,7 @@ function App() {
       const newId = createId("c");
       setCircuit((prev) => ({
         ...prev,
-        components: [...prev.components, { id: newId, type: gateType }],
+        components: [...prev.components, { id: newId, type: chipType }],
       }));
       setLayout((prev) => ({
         ...prev,
@@ -185,15 +185,15 @@ function App() {
     [boundary.inputs.length, boundary.outputs.length],
   );
 
-  const handleAddGateCenter = useCallback(
-    (gateType: string) => {
+  const handleAddChipCenter = useCallback(
+    (chipType: string) => {
       const pos: Position = {
         x: Math.round(windowSize.width / 2 - 60),
         y: Math.round(windowSize.height / 2 - 40),
       };
-      handleDropGate(gateType, pos);
+      handleDropChip(chipType, pos);
     },
-    [windowSize, handleDropGate],
+    [windowSize, handleDropChip],
   );
 
   const handleConnectWire = useCallback(
@@ -275,7 +275,7 @@ function App() {
         onMoveComponent={handleMoveComponent}
         onMoveBoundaryPort={handleMoveBoundaryPort}
         onRemoveComponent={handleRemoveComponent}
-        onDropGate={handleDropGate}
+        onDropChip={handleDropChip}
         onConnectWire={handleConnectWire}
         onDisconnectWire={handleDisconnectWire}
         width={windowSize.width}
@@ -284,12 +284,12 @@ function App() {
 
       {/* Floating Bottom Toolbar */}
       <Dock
-        savedGates={savedGates}
+        savedChips={savedChips}
         onNew={handleNewClick}
         onSave={handleSaveClick}
-        onAddGate={handleAddGateCenter}
-        onOpenGate={handleOpenGateClick}
-        onRenameGate={() => toast.info("Rename coming soon!")}
+        onAddChip={handleAddChipCenter}
+        onOpenChip={handleOpenChipClick}
+        onRenameChip={() => toast.info("Rename coming soon!")}
       />
 
       {/* Toast Notification */}
@@ -298,7 +298,7 @@ function App() {
       {/* Save Chip Modal */}
       <SaveChipModal
         isOpen={showSaveModal}
-        initialName={currentGateName ?? ""}
+        initialName={currentChipName ?? ""}
         onSave={handleConfirmSave}
         onCancel={() => setShowSaveModal(false)}
       />
@@ -313,7 +313,7 @@ function App() {
         onDiscard={handleDiscardChanges}
         onCancel={() => {
           setShowUnsavedModal(false);
-          setPendingGateToOpen(null);
+          setPendingChipToOpen(null);
         }}
       />
     </div>

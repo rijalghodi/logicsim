@@ -32,7 +32,7 @@ interface ChipProps {
   readonly isWiringActive?: boolean;
 }
 
-/** One gate instance: a box with its name centered, input pins on the left edge, output pins on the right. */
+/** One chip instance: a box with its name centered, input pins on the left edge, output pins on the right. */
 export function Chip({
   position,
   label,

@@ -1,14 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import { Circuit } from "../circuit/Circuit";
 import { BOUNDARY_ID } from "../circuit/Connection";
-import { createDefaultRegistry } from "../gate/createDefaultRegistry";
-import { createGateDefinition } from "../gate/createGateDefinition";
-import { createPortDefinition } from "../gate/PortDefinition";
-import { evaluateGate } from "../simulation/evaluateCircuit";
-import { deserializeGateDefinition } from "./deserializeGateDefinition";
-import { serializeGateDefinition } from "./serializeGateDefinition";
+import { createDefaultRegistry } from "../chip/createDefaultRegistry";
+import { createChipDefinition } from "../chip/createChipDefinition";
+import { createPortDefinition } from "../chip/PortDefinition";
+import { evaluateChip } from "../simulation/evaluateCircuit";
+import { deserializeChipDefinition } from "./deserializeChipDefinition";
+import { serializeChipDefinition } from "./serializeChipDefinition";
 
-function buildAndGate() {
+function buildAndChip() {
   const registry = createDefaultRegistry();
   const inputs = [createPortDefinition("A", "input"), createPortDefinition("B", "input")];
   const outputs = [createPortDefinition("Y", "output")];
@@ -23,29 +23,29 @@ function buildAndGate() {
   circuit.connect({ componentId: nand1, portId: "Y" }, { componentId: nand2, portId: "B" });
   circuit.connect({ componentId: nand2, portId: "Y" }, { componentId: BOUNDARY_ID, portId: outputs[0].id });
 
-  return { registry, gate: createGateDefinition({ name: "AND", inputs, outputs, circuit: circuit.toDefinition() }) };
+  return { registry, chip: createChipDefinition({ name: "AND", inputs, outputs, circuit: circuit.toDefinition() }) };
 }
 
-describe("gate definition serialization", () => {
+describe("chip definition serialization", () => {
   it("round-trips through JSON and stays behaviorally equivalent", () => {
-    const { registry, gate } = buildAndGate();
+    const { registry, chip } = buildAndChip();
 
-    const json = JSON.stringify(serializeGateDefinition(gate));
-    const restored = deserializeGateDefinition(JSON.parse(json));
+    const json = JSON.stringify(serializeChipDefinition(chip));
+    const restored = deserializeChipDefinition(JSON.parse(json));
 
-    expect(restored).toEqual(gate);
+    expect(restored).toEqual(chip);
 
     const [a, b] = restored.inputs;
     const [y] = restored.outputs;
-    expect(evaluateGate(restored, registry, { [a.id]: true, [b.id]: true })[y.id]).toBe(true);
-    expect(evaluateGate(restored, registry, { [a.id]: true, [b.id]: false })[y.id]).toBe(false);
+    expect(evaluateChip(restored, registry, { [a.id]: true, [b.id]: true })[y.id]).toBe(true);
+    expect(evaluateChip(restored, registry, { [a.id]: true, [b.id]: false })[y.id]).toBe(false);
   });
 
   it("rejects an unsupported schema version", () => {
-    expect(() => deserializeGateDefinition({ version: 99 })).toThrow();
+    expect(() => deserializeChipDefinition({ version: 99 })).toThrow();
   });
 
   it("rejects malformed data", () => {
-    expect(() => deserializeGateDefinition({ version: 1, id: "x" })).toThrow();
+    expect(() => deserializeChipDefinition({ version: 1, id: "x" })).toThrow();
   });
 });

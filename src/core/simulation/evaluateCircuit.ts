@@ -1,6 +1,6 @@
 import type { Bit } from "../bit";
-import type { GateRegistry } from "../gate/GateRegistry";
-import type { GateDefinition } from "../gate/GateDefinition";
+import type { ChipRegistry } from "../chip/ChipRegistry";
+import type { ChipDefinition } from "../chip/ChipDefinition";
 import type { CircuitDefinition } from "../circuit/Circuit";
 import type { ComponentDefinition } from "../circuit/Component";
 import type { Connection } from "../circuit/Connection";
@@ -21,7 +21,7 @@ function inputKey(componentId: string, portId: string): string {
  *         v
  *   evaluate each component once, in that order, resolving its
  *   type through the registry (primitive truth table, or recurse
- *   into a custom gate's own circuit)
+ *   into a custom chip's own circuit)
  *         v
  *   collect the values landing on boundary outputs
  *
@@ -35,7 +35,7 @@ function inputKey(componentId: string, portId: string): string {
  */
 export function evaluateCircuit(
   circuit: CircuitDefinition,
-  registry: GateRegistry,
+  registry: ChipRegistry,
   options: EvaluateCircuitOptions = {},
 ): SimulationState {
   const boundaryInputs = options.boundaryInputs ?? {};
@@ -92,13 +92,13 @@ export function evaluateCircuit(
   return { componentOutputs: Object.fromEntries(componentOutputs), boundaryOutputs };
 }
 
-/** Convenience for evaluating a `GateDefinition` by its external interface. */
-export function evaluateGate(
-  gate: GateDefinition,
-  registry: GateRegistry,
+/** Convenience for evaluating a `ChipDefinition` by its external interface. */
+export function evaluateChip(
+  chip: ChipDefinition,
+  registry: ChipRegistry,
   inputs: Readonly<Record<string, Bit>>,
 ): Record<string, Bit> {
-  return evaluateCircuit(gate.circuit, registry, { boundaryInputs: inputs }).boundaryOutputs;
+  return evaluateCircuit(chip.circuit, registry, { boundaryInputs: inputs }).boundaryOutputs;
 }
 
 function topologicallySortComponents(circuit: CircuitDefinition): string[] {

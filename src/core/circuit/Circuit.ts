@@ -1,10 +1,10 @@
 import type { Bit } from "../bit";
 import { createId } from "../id";
 import { ConnectionValidationError } from "../errors";
-import type { GateDefinition } from "../gate/GateDefinition";
-import type { GateRegistry } from "../gate/GateRegistry";
-import { createDefaultRegistry } from "../gate/createDefaultRegistry";
-import type { PortDefinition } from "../gate/PortDefinition";
+import type { ChipDefinition } from "../chip/ChipDefinition";
+import type { ChipRegistry } from "../chip/ChipRegistry";
+import { createDefaultRegistry } from "../chip/createDefaultRegistry";
+import type { PortDefinition } from "../chip/PortDefinition";
 import { evaluateCircuit } from "../simulation/evaluateCircuit";
 import type { SimulationState } from "../simulation/SimulationState";
 import type { ComponentDefinition } from "./Component";
@@ -24,8 +24,8 @@ export interface CircuitDefinition {
 
 export interface CircuitOptions {
   /** Shared registry to resolve component types against. Defaults to a fresh registry with just NAND. */
-  readonly registry?: GateRegistry;
-  /** This circuit's own external ports, when it is being built as a gate's internals (see `BOUNDARY_ID`). */
+  readonly registry?: ChipRegistry;
+  /** This circuit's own external ports, when it is being built as a chip's internals (see `BOUNDARY_ID`). */
   readonly inputs?: PortDefinition[];
   readonly outputs?: PortDefinition[];
 }
@@ -41,7 +41,7 @@ export interface CircuitOptions {
  * (e.g. keyed by component id) rather than the core carrying `x`/`y`.
  */
 export class Circuit {
-  readonly registry: GateRegistry;
+  readonly registry: ChipRegistry;
   private readonly boundary: BoundaryPorts;
   private components: ComponentDefinition[] = [];
   private connections: Connection[] = [];
@@ -53,17 +53,17 @@ export class Circuit {
 
   /**
    * Adds a component. `type` may be a primitive's type name ("NAND") or a
-   * `GateDefinition` — passing a definition registers it (if not already
+   * `ChipDefinition` — passing a definition registers it (if not already
    * registered) so it can immediately be wired up as a component.
    */
-  addComponent(type: string | GateDefinition, id: string = createId("c")): string {
+  addComponent(type: string | ChipDefinition, id: string = createId("c")): string {
     if (typeof type === "string") {
       this.components.push({ id, type });
       return id;
     }
 
-    if (!this.registry.hasGate(type.id)) {
-      this.registry.registerGate(type);
+    if (!this.registry.hasChip(type.id)) {
+      this.registry.registerChip(type);
     }
     this.components.push({ id, type: type.id });
     return id;
@@ -107,7 +107,7 @@ export class Circuit {
   /**
    * Runs a combinational evaluation pass over the current wiring. See
    * `evaluateCircuit` for the algorithm; `boundaryInputs` only matters if
-   * this circuit was built with boundary ports (i.e. is a gate's
+   * this circuit was built with boundary ports (i.e. is a chip's
    * internals), `componentInputOverrides` is for poking values directly
    * into an unconnected component input (handy for tests on raw circuits).
    */

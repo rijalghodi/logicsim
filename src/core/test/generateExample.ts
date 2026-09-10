@@ -1,11 +1,11 @@
-import { createDefaultRegistry, serializeGateDefinition } from "../index";
-import { buildAndGate } from "./gates";
+import { createDefaultRegistry, serializeChipDefinition } from "../index";
+import { buildAndChip } from "./chips";
 import * as fs from "fs";
 
 const registry = createDefaultRegistry();
-const andGate = buildAndGate(registry);
-const serialized = serializeGateDefinition(andGate);
+const andChip = buildAndChip(registry);
+const serialized = serializeChipDefinition(andChip);
 
-fs.mkdirSync(__dirname + "/gates", { recursive: true });
-await Bun.write(__dirname + "/gates/andGate.json", JSON.stringify(serialized, null, 2));
-console.log("Successfully generated src/core/test/gates/andGate.json");
+fs.mkdirSync(__dirname + "/chips", { recursive: true });
+await Bun.write(__dirname + "/chips/andChip.json", JSON.stringify(serialized, null, 2));
+console.log("Successfully generated src/core/test/chips/andChip.json");

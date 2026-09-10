@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Layer, Rect, Stage } from "react-konva";
 import type Konva from "konva";
 import { BOUNDARY_ID, evaluateCircuit } from "../../core";
-import type { Bit, BoundaryPorts, CircuitDefinition, GateRegistry, PortRef } from "../../core";
+import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } from "../../core";
 import { BoundaryPort } from "./BoundaryPort";
 import { Chip } from "./Chip";
 import { ChipContextMenu } from "../ui/ChipContextMenu";
@@ -15,14 +15,14 @@ import { CANVAS_BACKGROUND } from "./colors";
 
 export interface CircuitCanvasProps {
   readonly circuit: CircuitDefinition;
-  readonly registry: GateRegistry;
+  readonly registry: ChipRegistry;
   readonly layout: Layout;
   /** This circuit's own inputs/outputs, when it's being viewed as a chip's internals (see SPEC.md §4). */
   readonly boundary?: BoundaryPorts;
   /** Per-boundary-port-id y override, from dragging — falls back to even spacing when absent. */
   readonly boundaryLayout?: Readonly<Record<string, number>>;
   readonly boundaryInputs: Readonly<Record<string, Bit>>;
-  /** Omit to render boundary inputs as read-only (e.g. viewing a nested gate driven by its parent). */
+  /** Omit to render boundary inputs as read-only (e.g. viewing a nested chip driven by its parent). */
   readonly onToggleBoundaryInput?: (portId: string) => void;
   /** Omit to make boundary ports vertically fixed (non-draggable). */
   readonly onMoveBoundaryPort?: (portId: string, y: number) => void;
@@ -30,8 +30,8 @@ export interface CircuitCanvasProps {
   readonly onMoveComponent?: (componentId: string, position: Position) => void;
   /** Triggered when a component should be removed. */
   readonly onRemoveComponent?: (componentId: string) => void;
-  /** Triggered when a gate is dragged from the bottom toolbar and dropped onto the canvas. */
-  readonly onDropGate?: (gateType: string, position: Position) => void;
+  /** Triggered when a chip is dragged from the bottom toolbar and dropped onto the canvas. */
+  readonly onDropChip?: (chipType: string, position: Position) => void;
   /** Triggered when a wire is connected from source to destination. */
   readonly onConnectWire?: (from: PortRef, to: PortRef) => void;
   /** Triggered when an existing wire is deleted. */
@@ -52,7 +52,7 @@ export function CircuitCanvas({
   onMoveBoundaryPort,
   onMoveComponent,
   onRemoveComponent,
-  onDropGate,
+  onDropChip,
   onConnectWire,
   onDisconnectWire,
   width,
@@ -129,7 +129,7 @@ export function CircuitCanvas({
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-    if (e.dataTransfer.types.includes("application/logicsim-gate")) {
+    if (e.dataTransfer.types.includes("application/logicsim-chip")) {
       e.preventDefault();
       e.dataTransfer.dropEffect = "copy";
     }
@@ -137,8 +137,8 @@ export function CircuitCanvas({
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const gateType = e.dataTransfer.getData("application/logicsim-gate");
-    if (!gateType || !onDropGate || !containerRef.current) return;
+    const chipType = e.dataTransfer.getData("application/logicsim-chip");
+    if (!chipType || !onDropChip || !containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     const dropPos: Position = {
@@ -146,7 +146,7 @@ export function CircuitCanvas({
       y: Math.round(e.clientY - rect.top - 30),
     };
 
-    onDropGate(gateType, dropPos);
+    onDropChip(chipType, dropPos);
   };
 
   return (
@@ -185,7 +185,7 @@ export function CircuitCanvas({
             <WireLine from={wiringDraft.fromPos} to={mousePos} active={true} isDraft={true} />
           )}
 
-          {/* Placed gate components */}
+          {/* Placed chip components */}
           {circuit.components.map((component) => {
             const resolved = registry.resolve(component.type);
             const label = resolved.kind === "primitive" ? resolved.type : resolved.definition.name;

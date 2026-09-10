@@ -1,5 +1,5 @@
 import { BOUNDARY_ID } from "../../core";
-import type { Bit, BoundaryPorts, CircuitDefinition, GateRegistry, PortRef, SimulationState } from "../../core";
+import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef, SimulationState } from "../../core";
 import { getBoundaryPortPosition, getComponentPortPosition } from "./geometry";
 import type { Layout, Position } from "./geometry";
 
@@ -10,7 +10,7 @@ import type { Layout, Position } from "./geometry";
  */
 export interface CircuitViewContext {
   readonly circuit: CircuitDefinition;
-  readonly registry: GateRegistry;
+  readonly registry: ChipRegistry;
   readonly boundary?: BoundaryPorts;
   readonly layout: Layout;
   /** Per-boundary-port-id y override, from dragging — falls back to even spacing when absent. */
