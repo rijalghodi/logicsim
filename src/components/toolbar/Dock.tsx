@@ -72,6 +72,29 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
         )}
       </div>
 
+      {/* Input / Output Primitives */}
+      <button
+        type="button"
+        className="gate-chip"
+        draggable
+        onDragStart={(e) => handleDragStart(e, "IN")}
+        onClick={() => onAddGate?.("IN")}
+        title="Input Port: Drag to left edge or click to add"
+      >
+        <span>IN</span>
+      </button>
+
+      <button
+        type="button"
+        className="gate-chip"
+        draggable
+        onDragStart={(e) => handleDragStart(e, "OUT")}
+        onClick={() => onAddGate?.("OUT")}
+        title="Output Port: Drag to right edge or click to add"
+      >
+        <span>OUT</span>
+      </button>
+
       {/* NAND Primitive Chip */}
       <button
         type="button"

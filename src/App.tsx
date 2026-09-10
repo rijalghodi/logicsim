@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
-import { createDemoCircuit } from "./components/circuit/demoCircuit";
 import type { Layout, Position } from "./components/circuit/geometry";
 import { Dock } from "./components/toolbar/Dock";
 import { SaveGateModal } from "./components/modals/SaveGateModal";
@@ -29,12 +28,12 @@ function createBlankCircuit() {
 
 function App() {
   const registry = useMemo(() => createDefaultRegistry(), []);
-  const demo = useMemo(() => createDemoCircuit(), []);
+  const initial = useMemo(() => createBlankCircuit(), []);
 
   const [savedGates, setSavedGates] = useState<GateDefinition[]>(() => loadSavedGates(registry));
-  const [circuit, setCircuit] = useState<CircuitDefinition>(demo.definition);
-  const [layout, setLayout] = useState<Layout>(demo.layout);
-  const [boundary, setBoundary] = useState<{ inputs: PortDefinition[]; outputs: PortDefinition[] }>(demo.boundary);
+  const [circuit, setCircuit] = useState<CircuitDefinition>(initial.circuit);
+  const [layout, setLayout] = useState<Layout>(initial.layout);
+  const [boundary, setBoundary] = useState<{ inputs: PortDefinition[]; outputs: PortDefinition[] }>(initial.boundary);
   const [boundaryLayout, setBoundaryLayout] = useState<Record<string, number>>({});
   const [boundaryInputs, setBoundaryInputs] = useState<Record<string, Bit>>({});
 
@@ -126,18 +125,39 @@ function App() {
     resetToBlank();
   }, [resetToBlank]);
 
-  const handleDropGate = useCallback((gateType: string, position: Position) => {
-    const newId = createId("c");
-    setCircuit((prev) => ({
-      ...prev,
-      components: [...prev.components, { id: newId, type: gateType }],
-    }));
-    setLayout((prev) => ({
-      ...prev,
-      [newId]: position,
-    }));
-    setIsDirty(true);
-  }, []);
+  const handleDropGate = useCallback(
+    (gateType: string, position: Position) => {
+      if (gateType === "IN") {
+        const name = String.fromCharCode(65 + boundary.inputs.length);
+        const port = createPortDefinition(name, "input");
+        setBoundary((prev) => ({ ...prev, inputs: [...prev.inputs, port] }));
+        setBoundaryLayout((prev) => ({ ...prev, [port.id]: position.y }));
+        setIsDirty(true);
+        return;
+      }
+
+      if (gateType === "OUT") {
+        const name = boundary.outputs.length === 0 ? "Y" : `Y${boundary.outputs.length}`;
+        const port = createPortDefinition(name, "output");
+        setBoundary((prev) => ({ ...prev, outputs: [...prev.outputs, port] }));
+        setBoundaryLayout((prev) => ({ ...prev, [port.id]: position.y }));
+        setIsDirty(true);
+        return;
+      }
+
+      const newId = createId("c");
+      setCircuit((prev) => ({
+        ...prev,
+        components: [...prev.components, { id: newId, type: gateType }],
+      }));
+      setLayout((prev) => ({
+        ...prev,
+        [newId]: position,
+      }));
+      setIsDirty(true);
+    },
+    [boundary.inputs.length, boundary.outputs.length],
+  );
 
   const handleAddGateCenter = useCallback(
     (gateType: string) => {
@@ -225,12 +245,7 @@ function App() {
       />
 
       {/* Floating Bottom Toolbar */}
-      <Dock
-        savedGates={savedGates}
-        onNew={handleNewClick}
-        onSave={handleSaveClick}
-        onAddGate={handleAddGateCenter}
-      />
+      <Dock savedGates={savedGates} onNew={handleNewClick} onSave={handleSaveClick} onAddGate={handleAddGateCenter} />
 
       {/* Toast Notification */}
       {toastMessage && <div className="wire-toast">{toastMessage}</div>}

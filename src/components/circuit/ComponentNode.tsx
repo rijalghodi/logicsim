@@ -78,7 +78,7 @@ export function ComponentNode({
           height={box.height}
           text={label}
           fontSize={12}
-          fontFamily="monospace"
+          fontFamily="Ubuntu Sans Mono"
           fontStyle="bold"
           fontVariant="uppercase"
           fill={LABEL_COLOR}
