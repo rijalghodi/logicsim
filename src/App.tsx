@@ -3,7 +3,7 @@ import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import type { Layout, Position } from "./components/circuit/geometry";
 import { Dock } from "./components/ui/Dock";
 import { SaveGateModal } from "./components/ui/SaveGateModal";
-import { UnsavedChangesModal } from "./components/ui/UnsavedChangesModal";
+import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
 import { Toast, toast } from "./components/ui/Toast";
 import {
   createDefaultRegistry,
@@ -42,6 +42,7 @@ function App() {
 
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [pendingGateToOpen, setPendingGateToOpen] = useState<string | null>(null);
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -55,7 +56,6 @@ function App() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
 
   const handleToggleBoundaryInput = useCallback((portId: string) => {
     setBoundaryInputs((prev) => ({ ...prev, [portId]: !prev[portId] }));
@@ -84,6 +84,7 @@ function App() {
 
   const handleNewClick = useCallback(() => {
     if (isDirty && (circuit.components.length > 0 || circuit.connections.length > 0)) {
+      setPendingGateToOpen(null);
       setShowUnsavedModal(true);
     } else {
       resetToBlank();
@@ -113,10 +114,42 @@ function App() {
     [boundary, circuit, registry],
   );
 
-  const handleDiscardAndNew = useCallback(() => {
+  const loadGateToCanvas = useCallback(
+    (gateId: string) => {
+      const gateDef = savedGates.find((g) => g.id === gateId);
+      if (!gateDef) return;
+
+      setCircuit(gateDef.circuit);
+      setBoundary({ inputs: [...gateDef.inputs], outputs: [...gateDef.outputs] });
+      setLayout({});
+      setBoundaryLayout({});
+      setCurrentGateName(gateDef.name);
+      setIsDirty(false);
+      setPendingGateToOpen(null);
+    },
+    [savedGates],
+  );
+
+  const handleOpenGateClick = useCallback(
+    (gateId: string) => {
+      if (isDirty && (circuit.components.length > 0 || circuit.connections.length > 0)) {
+        setPendingGateToOpen(gateId);
+        setShowUnsavedModal(true);
+      } else {
+        loadGateToCanvas(gateId);
+      }
+    },
+    [isDirty, circuit, loadGateToCanvas],
+  );
+
+  const handleDiscardChanges = useCallback(() => {
     setShowUnsavedModal(false);
-    resetToBlank();
-  }, [resetToBlank]);
+    if (pendingGateToOpen) {
+      loadGateToCanvas(pendingGateToOpen);
+    } else {
+      resetToBlank();
+    }
+  }, [pendingGateToOpen, loadGateToCanvas, resetToBlank]);
 
   const handleDropGate = useCallback(
     (gateType: string, position: Position) => {
@@ -250,7 +283,14 @@ function App() {
       />
 
       {/* Floating Bottom Toolbar */}
-      <Dock savedGates={savedGates} onNew={handleNewClick} onSave={handleSaveClick} onAddGate={handleAddGateCenter} />
+      <Dock
+        savedGates={savedGates}
+        onNew={handleNewClick}
+        onSave={handleSaveClick}
+        onAddGate={handleAddGateCenter}
+        onOpenGate={handleOpenGateClick}
+        onRenameGate={() => toast.info("Rename coming soon!")}
+      />
 
       {/* Toast Notification */}
       <Toast />
@@ -264,14 +304,17 @@ function App() {
       />
 
       {/* Unsaved Changes Confirmation Modal */}
-      <UnsavedChangesModal
+      <UnsavedChangesAlert
         isOpen={showUnsavedModal}
         onSave={() => {
           setShowUnsavedModal(false);
           setShowSaveModal(true);
         }}
-        onDiscard={handleDiscardAndNew}
-        onCancel={() => setShowUnsavedModal(false)}
+        onDiscard={handleDiscardChanges}
+        onCancel={() => {
+          setShowUnsavedModal(false);
+          setPendingGateToOpen(null);
+        }}
       />
     </div>
   );

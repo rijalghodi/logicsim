@@ -114,7 +114,7 @@ export function Chip({
           width={box.width}
           height={box.height}
           text={label}
-          fontSize={14}
+          fontSize={16}
           fontFamily="JetBrains Mono"
           fontStyle="bold"
           fill={LABEL_COLOR}

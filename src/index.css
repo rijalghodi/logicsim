@@ -91,9 +91,11 @@ input {
 .gate-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   height: 32px;
   padding: 0 6px;
+  min-width: 40px;
   background: var(--bg-2);
   border-radius: var(--radius-btn);
   border: none;
@@ -154,7 +156,8 @@ input {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 8px 12px;
+  padding: 0px 12px;
+  height: 28px;
   border: none;
   background: transparent;
   border-radius: 6px;
@@ -182,9 +185,9 @@ input {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,11 +1,11 @@
-interface UnsavedChangesModalProps {
+interface UnsavedChangesAlertProps {
   readonly isOpen: boolean;
   readonly onSave: () => void;
   readonly onDiscard: () => void;
   readonly onCancel: () => void;
 }
 
-export function UnsavedChangesModal({ isOpen, onSave, onDiscard, onCancel }: UnsavedChangesModalProps) {
+export function UnsavedChangesAlert({ isOpen, onSave, onDiscard, onCancel }: UnsavedChangesAlertProps) {
   if (!isOpen) return null;
 
   return (
@@ -20,8 +20,8 @@ export function UnsavedChangesModal({ isOpen, onSave, onDiscard, onCancel }: Uns
         <div className="modal-header">
           <h3 className="modal-title">Unsaved Changes</h3>
           <p className="modal-description">
-            The current circuit has unsaved changes. Do you want to save this circuit as a gate before creating a new
-            canvas, or discard changes?
+            The current circuit has unsaved changes. Do you want to save this circuit as a gate before opening a new ci,
+            or discard changes?
           </p>
         </div>
 
@@ -30,7 +30,7 @@ export function UnsavedChangesModal({ isOpen, onSave, onDiscard, onCancel }: Uns
             Cancel
           </button>
           <button type="button" className="btn-danger" onClick={onDiscard}>
-            Discard & New
+            Discard
           </button>
           <button type="button" className="btn-primary" onClick={onSave}>
             Save

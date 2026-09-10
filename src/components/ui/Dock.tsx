@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { DockMenu } from "./DockMenu";
+import { DockChipMenu } from "./DockChipMenu";
 import type { GateDefinition } from "../../core";
 
 interface DockProps {
@@ -6,26 +7,11 @@ interface DockProps {
   readonly onNew: () => void;
   readonly onSave: () => void;
   readonly onAddGate?: (gateType: string) => void;
+  readonly onOpenGate?: (gateId: string) => void;
+  readonly onRenameGate?: (gateId: string) => void;
 }
 
-export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    }
-    if (menuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [menuOpen]);
-
+export function Dock({ savedGates, onNew, onSave, onAddGate, onOpenGate, onRenameGate }: DockProps) {
   const handleDragStart = (e: React.DragEvent, gateType: string) => {
     e.dataTransfer.setData("application/logicsim-gate", gateType);
     e.dataTransfer.effectAllowed = "copy";
@@ -34,43 +20,7 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
   return (
     <div className="dock-container">
       {/* Menu dropdown trigger */}
-      <div style={{ position: "relative" }} ref={menuRef}>
-        <button
-          type="button"
-          className="dock-btn dock-btn-menu"
-          onClick={() => setMenuOpen((prev) => !prev)}
-          title="Circuit & Gate Actions"
-        >
-          MENU
-        </button>
-
-        {menuOpen && (
-          <div className="menu-dropdown">
-            <button
-              type="button"
-              className="dropdown-item"
-              onClick={() => {
-                setMenuOpen(false);
-                onNew();
-              }}
-            >
-              <span>NEW CHIP</span>
-              <span className="dropdown-item-shortcut">Ctrl+N</span>
-            </button>
-            <button
-              type="button"
-              className="dropdown-item"
-              onClick={() => {
-                setMenuOpen(false);
-                onSave();
-              }}
-            >
-              <span>SAVE CHIP</span>
-              <span className="dropdown-item-shortcut">Ctrl+S</span>
-            </button>
-          </div>
-        )}
-      </div>
+      <DockMenu onNew={onNew} onSave={onSave} />
 
       {/* Input / Output Primitives */}
       <button
@@ -109,17 +59,18 @@ export function Dock({ savedGates, onNew, onSave, onAddGate }: DockProps) {
 
       {/* User-created Custom Gates */}
       {savedGates.map((gate) => (
-        <button
-          key={gate.id}
-          type="button"
-          className="gate-chip"
-          draggable
-          onDragStart={(e) => handleDragStart(e, gate.id)}
-          onClick={() => onAddGate?.(gate.id)}
-          title={`${gate.name}: Drag to canvas or click to add`}
-        >
-          <span>{gate.name}</span>
-        </button>
+        <DockChipMenu key={gate.id} onOpen={() => onOpenGate?.(gate.id)} onRename={() => onRenameGate?.(gate.id)}>
+          <button
+            type="button"
+            className="gate-chip"
+            draggable
+            onDragStart={(e) => handleDragStart(e, gate.id)}
+            onClick={() => onAddGate?.(gate.id)}
+            title={`${gate.name}: Drag to canvas or click to add`}
+          >
+            <span>{gate.name}</span>
+          </button>
+        </DockChipMenu>
       ))}
     </div>
   );

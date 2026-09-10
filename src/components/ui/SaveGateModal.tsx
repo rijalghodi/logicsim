@@ -50,7 +50,7 @@ export function SaveGateModal({ isOpen, initialName = "", onSave, onCancel }: Sa
             ref={inputRef}
             type="text"
             className="modal-input"
-            placeholder="CHIP NAME (e.g. AND, XOR, HALF_ADDER)"
+            placeholder="CHIP NAME (e.g. AND, XOR)"
             value={name}
             onChange={(e) => {
               setName(e.target.value.toUpperCase());
