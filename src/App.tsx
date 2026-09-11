@@ -591,7 +591,6 @@ function App() {
           disabledChipIds={disabledChipIds}
           onAddChip={handleAddChipCenter}
           onOpenChip={handleOpenChipClick}
-          onRenameChip={() => toast.info("Rename coming soon!")}
           onDeleteChip={handleDeleteChipClick}
         />
 
@@ -630,11 +629,11 @@ function App() {
           onClose={() => setDeletingChipId(null)}
         />
 
-        {/* Rename Boundary Port Modal */}
+        {/* Customize Boundary Port Modal */}
         <CustomizePortModal
           isOpen={Boolean(renamingPortId && renamingPort)}
           initialName={renamingPort?.name ?? ""}
-          onRename={handleConfirmRenamePort}
+          onCustomize={handleConfirmRenamePort}
           onCancel={() => setRenamingPortId(null)}
         />
       </div>

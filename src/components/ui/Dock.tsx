@@ -1,24 +1,16 @@
 import "./Dock.css";
 import { DockChipMenu } from "./DockChipMenu";
-import type { ChipDefinition } from "../../core";
+import type { SavedChip } from "../../storage/chipStorage";
 
 interface DockProps {
-  readonly savedChips: readonly ChipDefinition[];
+  readonly savedChips: readonly SavedChip[];
   readonly disabledChipIds?: Set<string>;
   readonly onAddChip?: (chipType: string) => void;
   readonly onOpenChip?: (chipId: string) => void;
-  readonly onRenameChip?: (chipId: string) => void;
   readonly onDeleteChip?: (chipId: string) => void;
 }
 
-export function Dock({
-  savedChips,
-  disabledChipIds = new Set(),
-  onAddChip,
-  onOpenChip,
-  onRenameChip,
-  onDeleteChip,
-}: DockProps) {
+export function Dock({ savedChips, disabledChipIds = new Set(), onAddChip, onOpenChip, onDeleteChip }: DockProps) {
   const handleDragStart = (e: React.DragEvent, chipType: string) => {
     e.dataTransfer.setData("application/logicsim-chip", chipType);
     e.dataTransfer.effectAllowed = "copy";
@@ -26,7 +18,6 @@ export function Dock({
 
   return (
     <div className="dock-container">
-
       {/* Input / Output Primitives */}
       <button
         type="button"
@@ -73,7 +64,6 @@ export function Dock({
             onAddChip={onAddChip}
             onDragStart={handleDragStart}
             onOpen={() => onOpenChip?.(chip.id)}
-            onRename={() => onRenameChip?.(chip.id)}
             onDelete={() => onDeleteChip?.(chip.id)}
           />
         );

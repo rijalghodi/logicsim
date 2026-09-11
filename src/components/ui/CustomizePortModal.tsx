@@ -6,11 +6,11 @@ import { Input } from "./Input";
 interface CustomizePortModalProps {
   readonly isOpen: boolean;
   readonly initialName: string;
-  readonly onRename: (newName: string) => void;
+  readonly onCustomize: (newName: string) => void;
   readonly onCancel: () => void;
 }
 
-export function CustomizePortModal({ isOpen, initialName, onRename, onCancel }: CustomizePortModalProps) {
+export function CustomizePortModal({ isOpen, initialName, onCustomize, onCancel }: CustomizePortModalProps) {
   const [name, setName] = useState(initialName);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -34,7 +34,7 @@ export function CustomizePortModal({ isOpen, initialName, onRename, onCancel }: 
       toast.error("Port name cannot be empty");
       return;
     }
-    onRename(trimmed);
+    onCustomize(trimmed);
   };
 
   return (
