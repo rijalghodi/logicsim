@@ -1,6 +1,5 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./DropdownMenu";
 import { ChevronRightIcon } from "./icons/ChevronRightIcon";
-import { DotIcon } from "./icons/DotIcon";
 import { MoreHorizontalIcon } from "./icons/MoreHorizontalIcon";
 import "./Breadcrumbs.css";
 
@@ -25,12 +24,12 @@ export function Breadcrumbs({ items, onNavigate }: BreadcrumbsProps) {
       className={`breadcrumb-item ${isLast ? "breadcrumb-item-active" : "breadcrumb-item-link"}`}
       onClick={() => !isLast && onNavigate(index)}
     >
+      {item.name}
       {item.isDirty && (
         <span className="breadcrumb-dirty-dot">
-          <DotIcon color="var(--warning)" size={8} />
+          *
         </span>
       )}
-      {item.name}
     </button>
   );
 
@@ -73,7 +72,7 @@ export function Breadcrumbs({ items, onNavigate }: BreadcrumbsProps) {
                 {item.name}
                 {item.isDirty && (
                   <span className="breadcrumb-dirty-dot">
-                    <DotIcon color="var(--warning)" size={6} />
+                    *
                   </span>
                 )}
               </div>

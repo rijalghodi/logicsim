@@ -80,7 +80,7 @@
 }
 
 .dock-chip-composite:active {
-  transform: none; /* Let the inner button handle the scale or just disable it for the wrapper to prevent menu scale */
+  transform: none;
 }
 
 .dock-chip-main {
@@ -119,9 +119,7 @@
   border-left: 1px solid transparent;
   color: var(--fg-secondary);
   height: 100%;
-  width: 0;
-  opacity: 0;
-  padding: 0;
+  width: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
