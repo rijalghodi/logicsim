@@ -20,6 +20,7 @@ import type { Bit, CircuitDefinition, PortDefinition, PortRef } from "./core";
 import { loadSavedChips, saveCustomChip, deleteCustomChip } from "./storage/chipStorage";
 import type { SavedChip } from "./storage/chipStorage";
 import type { Layout, Position } from "./components/circuit/geometry";
+import { CHIP_FILL } from "./components/circuit/colors";
 
 function createBlankCircuit() {
   const IN = createPortDefinition("IN", "input");
@@ -183,7 +184,7 @@ function App() {
   const handleConfirmSave = useCallback(
     ({ id, name, color }: { id: string | null; name: string; color: string }) => {
       const chipDef = createChipDefinition({
-        id: id ?? undefined,
+        id: id || undefined,
         name,
         inputs: boundary.inputs,
         outputs: boundary.outputs,
@@ -620,7 +621,7 @@ function App() {
         {/* Save Chip Modal */}
         <SaveChipModal
           isOpen={saveModalOpen}
-          initialState={saveModalState ?? { id: "", name: currentChipName ?? "", color: "" }}
+          initialState={saveModalState ?? { id: null, name: currentChipName ?? "", color: CHIP_FILL }}
           onSave={handleConfirmSave}
           onCancel={() => setSaveModalOpen(false)}
         />

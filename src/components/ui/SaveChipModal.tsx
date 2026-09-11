@@ -7,7 +7,7 @@ import { Input } from "./Input";
 import { ColorPickerButton } from "./ColorPickerButton";
 
 export interface ChipSaveState {
-  readonly id: string;
+  readonly id: string | null;
   readonly name: string;
   readonly color: string;
 }

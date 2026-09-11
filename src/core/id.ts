@@ -5,6 +5,6 @@
  * depending on any storage layer to hand out sequential IDs.
  */
 export function createId(prefix?: string): string {
-  const uuid = crypto.randomUUID();
+  const uuid = crypto.randomUUID().replaceAll("-", "");
   return prefix ? `${prefix}_${uuid}` : uuid;
 }
