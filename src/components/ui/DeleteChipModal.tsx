@@ -24,7 +24,7 @@ export function DeleteChipModal({ chipId, savedChips, registry, onConfirm, onClo
   return (
     <Modal isOpen={!!chipId} onClose={onClose}>
       <ModalHeader>
-        <ModalTitle>Delete Chip</ModalTitle>
+        <ModalTitle>DELETE CHIP</ModalTitle>
         <ModalDescription>
           Are you sure you want to delete <strong style={{ color: "var(--fg)" }}>{targetChip.name}</strong>?
         </ModalDescription>
@@ -34,7 +34,7 @@ export function DeleteChipModal({ chipId, savedChips, registry, onConfirm, onClo
         {chipsToDelete.length > 1 && (
           <div
             style={{
-              background: "rgba(255, 0, 0, 0.1)",
+              background: "hsl(from var(--danger) h s l / 0.1)",
               padding: "12px",
               borderRadius: "8px",
               color: "var(--danger)",
@@ -58,12 +58,7 @@ export function DeleteChipModal({ chipId, savedChips, registry, onConfirm, onClo
           <button type="button" className="btn-secondary" onClick={onClose}>
             CANCEL
           </button>
-          <button
-            type="button"
-            className="btn-primary"
-            style={{ background: "var(--danger)", color: "var(--danger-fg)" }}
-            onClick={() => onConfirm(chipsToDelete)}
-          >
+          <button type="button" className="btn-danger" onClick={() => onConfirm(chipsToDelete)}>
             DELETE
           </button>
         </ModalActions>

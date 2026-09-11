@@ -5,7 +5,7 @@ import { SaveChipModal, SaveChipModalContext } from "./components/ui/SaveChipMod
 import type { ChipSaveState } from "./components/ui/SaveChipModal";
 import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
 import { DeleteChipModal } from "./components/ui/DeleteChipModal";
-import { RenamePortModal } from "./components/ui/RenamePortModal";
+import { CustomizePortModal } from "./components/ui/CustomizePortModal";
 import { Header } from "./components/ui/Header";
 import { Toast, toast } from "./components/ui/Toast";
 import {
@@ -631,7 +631,7 @@ function App() {
         />
 
         {/* Rename Boundary Port Modal */}
-        <RenamePortModal
+        <CustomizePortModal
           isOpen={Boolean(renamingPortId && renamingPort)}
           initialName={renamingPort?.name ?? ""}
           onRename={handleConfirmRenamePort}

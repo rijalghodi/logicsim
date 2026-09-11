@@ -3,14 +3,14 @@ import { toast } from "./Toast";
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
 import { Input } from "./Input";
 
-interface RenamePortModalProps {
+interface CustomizePortModalProps {
   readonly isOpen: boolean;
   readonly initialName: string;
   readonly onRename: (newName: string) => void;
   readonly onCancel: () => void;
 }
 
-export function RenamePortModal({ isOpen, initialName, onRename, onCancel }: RenamePortModalProps) {
+export function CustomizePortModal({ isOpen, initialName, onRename, onCancel }: CustomizePortModalProps) {
   const [name, setName] = useState(initialName);
   const inputRef = useRef<HTMLInputElement>(null);
 
