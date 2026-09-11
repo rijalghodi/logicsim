@@ -139,7 +139,7 @@ export function getDimmedColor(hex: string): string {
 
   // Dim the color (e.g., target around 20-30% lightness)
   // const newL = Math.max(l * 0.4, 0.17);
-  const newL = 0.12;
+  const newL = 0.4;
 
   return oklchToHex({ l: newL, c, h });
 }
