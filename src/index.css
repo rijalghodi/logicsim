@@ -6,12 +6,12 @@
   --bg-2: hsl(0, 0%, 23%);
   --bg-3: hsl(0, 0%, 30%);
   --primary: hsl(51, 75%, 60%);
-  --danger: hsl(8, 100%, 64%);
-  --danger-fg: hsl(0, 0%, 0%);
-  --success: hsl(85, 100%, 37%);
-  --success-fg: hsl(0, 0%, 0%);
+  --danger: hsl(8, 99%, 73%);
+  --danger-fg: hsl(0, 89%, 7%);
+  --success: hsl(85, 89%, 67%);
+  --success-fg: hsl(88, 95%, 8%);
   --warning: hsl(40, 100%, 50%);
-  --warning-fg: hsl(0, 0%, 0%);
+  --warning-fg: hsl(48, 96%, 9%);
   --border: hsla(0, 0%, 40%, 0.3);
   --fg: hsl(0, 0%, 96%);
   --fg-secondary: hsl(0, 0%, 80%);
