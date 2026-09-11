@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import { Dock } from "./components/ui/Dock";
-import { SaveChipModal } from "./components/ui/SaveChipModal";
+import { SaveChipModal, SaveChipModalContext } from "./components/ui/SaveChipModal";
+import type { ChipSaveState } from "./components/ui/SaveChipModal";
 import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
 import { DeleteChipModal } from "./components/ui/DeleteChipModal";
 import { RenamePortModal } from "./components/ui/RenamePortModal";
@@ -60,7 +61,8 @@ function App() {
   const [viewStack, setViewStack] = useState<ViewState[]>([]);
   const [pendingBreadcrumbIndex, setPendingBreadcrumbIndex] = useState<number | null>(null);
 
-  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [saveModalState, setSaveModalState] = useState<ChipSaveState | undefined>(undefined);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [pendingChipToOpen, setPendingChipToOpen] = useState<string | null>(null);
   const [deletingChipId, setDeletingChipId] = useState<string | null>(null);
@@ -114,10 +116,6 @@ function App() {
       resetToBlank();
     }
   }, [isDirty, circuit, resetToBlank]);
-
-  const handleSaveClick = useCallback(() => {
-    setShowSaveModal(true);
-  }, []);
 
   const getViewState = useCallback(
     (): ViewState => ({
@@ -176,9 +174,9 @@ function App() {
   );
 
   const handleConfirmSave = useCallback(
-    (name: string, color: string) => {
+    ({ id, name, color }: { id: string | null; name: string; color: string }) => {
       const chipDef = createChipDefinition({
-        id: currentChipId ?? undefined,
+        id: id ?? undefined,
         name,
         inputs: boundary.inputs,
         outputs: boundary.outputs,
@@ -198,7 +196,7 @@ function App() {
         setCurrentChipName(name);
         setCurrentChipId(chipDef.id);
         setIsDirty(false);
-        setShowSaveModal(false);
+        setSaveModalOpen(false);
         toast.success(`Chip "${name}" saved to library!`);
 
         if (pendingBreadcrumbIndex !== null) {
@@ -224,6 +222,34 @@ function App() {
       loadChipToCanvas,
     ],
   );
+
+  const openSaveModal = useCallback((state?: ChipSaveState) => {
+    setSaveModalState(state);
+    setSaveModalOpen(true);
+  }, []);
+
+  const handleSaveClick = useCallback(() => {
+    if (currentChipId && currentChipName) {
+      const chipDef = savedChips.find((c) => c.id === currentChipId);
+      const color = chipDef?.color || "#1A1A1A";
+      handleConfirmSave({ id: currentChipId, name: currentChipName, color });
+    } else {
+      openSaveModal();
+    }
+  }, [currentChipId, currentChipName, savedChips, handleConfirmSave, openSaveModal]);
+
+  const handleCustomizeClick = useCallback(() => {
+    if (currentChipId && currentChipName) {
+      const chipDef = savedChips.find((c) => c.id === currentChipId);
+      openSaveModal({ id: currentChipId, name: currentChipName, color: chipDef?.color ?? "#1A1A1A" });
+    }
+  }, [currentChipId, currentChipName, savedChips, openSaveModal]);
+
+  const handleDeleteCurrentClick = useCallback(() => {
+    if (currentChipId) {
+      setDeletingChipId(currentChipId);
+    }
+  }, [currentChipId]);
 
   const handleOpenChipClick = useCallback(
     (chipId: string) => {
@@ -523,12 +549,16 @@ function App() {
   }, [viewStack, currentChipName, isDirty]);
 
   return (
-    <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
+    <SaveChipModalContext.Provider value={{ openSaveModal }}>
+      <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
       <Header
         breadcrumbItems={breadcrumbItems}
         onNavigateBreadcrumb={handleBreadcrumbClick}
         onNew={handleNewClick}
         onSave={handleSaveClick}
+        onCustomize={handleCustomizeClick}
+        onDelete={handleDeleteCurrentClick}
+        isSaved={!!currentChipId}
       />
 
       {/* Circuit Canvas */}
@@ -569,10 +599,10 @@ function App() {
 
       {/* Save Chip Modal */}
       <SaveChipModal
-        isOpen={showSaveModal}
-        initialName={currentChipName ?? ""}
+        isOpen={saveModalOpen}
+        initialState={saveModalState ?? { id: "", name: currentChipName ?? "", color: "" }}
         onSave={handleConfirmSave}
-        onCancel={() => setShowSaveModal(false)}
+        onCancel={() => setSaveModalOpen(false)}
       />
 
       {/* Unsaved Changes Confirmation Modal */}
@@ -580,7 +610,7 @@ function App() {
         isOpen={showUnsavedModal}
         onSave={() => {
           setShowUnsavedModal(false);
-          setShowSaveModal(true);
+          openSaveModal();
         }}
         onDiscard={handleDiscardChanges}
         onCancel={() => {
@@ -607,6 +637,7 @@ function App() {
         onCancel={() => setRenamingPortId(null)}
       />
     </div>
+    </SaveChipModalContext.Provider>
   );
 }
 

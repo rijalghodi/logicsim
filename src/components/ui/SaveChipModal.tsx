@@ -1,30 +1,49 @@
-import { useEffect, useRef, useState } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { toast } from "./Toast";
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
 import { CHIP_FILL } from "../circuit/colors";
 import { Input } from "./Input";
 import { ColorPickerButton } from "./ColorPickerButton";
 
-interface SaveChipModalProps {
+export interface ChipSaveState {
+  readonly id: string;
+  readonly name: string;
+  readonly color: string;
+}
+
+export interface SaveChipModalContextType {
+  openSaveModal: (initialState?: ChipSaveState) => void;
+}
+
+export const SaveChipModalContext = createContext<SaveChipModalContextType | null>(null);
+
+export function useSaveChipModal() {
+  const ctx = useContext(SaveChipModalContext);
+  if (!ctx) throw new Error("useSaveChipModal must be used within a SaveChipModalProvider");
+  return ctx;
+}
+
+export interface SaveChipModalProps {
   readonly isOpen: boolean;
-  readonly initialName?: string;
-  readonly onSave: (name: string, color: string) => void;
+  readonly initialState?: ChipSaveState;
+  readonly onSave: (state: ChipSaveState) => void;
   readonly onCancel: () => void;
 }
 
-export function SaveChipModal({ isOpen, initialName = "", onSave, onCancel }: SaveChipModalProps) {
-  const [name, setName] = useState(initialName);
-  const [color, setColor] = useState(CHIP_FILL);
+export function SaveChipModal({ isOpen, initialState, onSave, onCancel }: SaveChipModalProps) {
+  const [name, setName] = useState(initialState?.name ?? "");
+  const [color, setColor] = useState(initialState?.color ?? CHIP_FILL);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setName(initialName);
-      setColor(CHIP_FILL);
+      setName(initialState?.name ?? "");
+      setColor(initialState?.color ?? CHIP_FILL);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [isOpen, initialName]);
+  }, [isOpen, initialState]);
 
   if (!isOpen) return null;
 
@@ -39,7 +58,7 @@ export function SaveChipModal({ isOpen, initialName = "", onSave, onCancel }: Sa
       toast.error("NAND is a reserved primitive chip name");
       return;
     }
-    onSave(trimmed, color);
+    onSave({ ...initialState, name: trimmed, color });
   };
 
   return (

@@ -1,26 +1,21 @@
-import type { ChipDefinition } from "../../core";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./DropdownMenu";
 import { MoreVerticalIcon } from "./icons/MoreVerticalIcon";
+import { useSaveChipModal } from "./SaveChipModal";
+import { CHIP_FILL } from "../circuit/colors";
+import type { SavedChip } from "../../storage/chipStorage";
 
 interface DockChipMenuProps {
-  readonly chip: ChipDefinition;
+  readonly chip: SavedChip;
   readonly isDisabled?: boolean;
   readonly onAddChip?: (chipId: string) => void;
   readonly onDragStart: (e: React.DragEvent, chipId: string) => void;
   readonly onOpen: () => void;
-  readonly onRename: () => void;
   readonly onDelete: () => void;
 }
 
-export function DockChipMenu({
-  chip,
-  isDisabled,
-  onAddChip,
-  onDragStart,
-  onOpen,
-  onRename,
-  onDelete,
-}: DockChipMenuProps) {
+export function DockChipMenu({ chip, isDisabled, onAddChip, onDragStart, onOpen, onDelete }: DockChipMenuProps) {
+  const { openSaveModal } = useSaveChipModal();
+
   return (
     <div className="dock-chip dock-chip-composite">
       <button
@@ -28,7 +23,7 @@ export function DockChipMenu({
         className="dock-chip-main"
         disabled={isDisabled}
         draggable={!isDisabled}
-        style={{ opacity: isDisabled ? 0.5 : 1, cursor: isDisabled ? "not-allowed" : "pointer" }}
+        style={{ opacity: isDisabled ? 0.5 : 1, cursor: isDisabled ? "not-allowed" : "grab" }}
         onDragStart={(e) => onDragStart(e, chip.id)}
         onClick={() => !isDisabled && onAddChip?.(chip.id)}
         title={
@@ -53,7 +48,9 @@ export function DockChipMenu({
           <DropdownMenuItem onClick={onOpen}>
             <span>VIEW</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={onRename}>
+          <DropdownMenuItem
+            onClick={() => openSaveModal({ id: chip.id, name: chip.name, color: chip.color ?? CHIP_FILL })}
+          >
             <span>CUSTOMIZE</span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onDelete} isDanger>

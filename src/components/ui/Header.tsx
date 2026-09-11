@@ -8,6 +8,9 @@ export interface HeaderProps {
   readonly onNavigateBreadcrumb: (index: number) => void;
   readonly onNew: () => void;
   readonly onSave: () => void;
+  readonly onCustomize: () => void;
+  readonly onDelete: () => void;
+  readonly isSaved: boolean;
 }
 
 export function Header({
@@ -15,10 +18,19 @@ export function Header({
   onNavigateBreadcrumb,
   onNew,
   onSave,
+  onCustomize,
+  onDelete,
+  isSaved,
 }: HeaderProps) {
   return (
     <header className="header-container">
-      <AppMenu onNew={onNew} onSave={onSave} />
+      <AppMenu
+        onNew={onNew}
+        onSave={onSave}
+        onCustomize={onCustomize}
+        onDelete={onDelete}
+        isSaved={isSaved}
+      />
       <Breadcrumbs items={breadcrumbItems} onNavigate={onNavigateBreadcrumb} />
     </header>
   );

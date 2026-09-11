@@ -9,11 +9,27 @@ type DropdownMenuContextType = {
 
 const DropdownMenuContext = createContext<DropdownMenuContextType | null>(null);
 
-export function DropdownMenu({ children }: { children: ReactNode }) {
+export function DropdownMenu({
+  children,
+  open,
+  onOpenChange,
+}: {
+  children: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const value = {
+    isOpen: open ?? isOpen,
+    setIsOpen: (value: boolean) => {
+      onOpenChange?.(value);
+      setIsOpen(value);
+    },
+  };
+
   return (
-    <DropdownMenuContext.Provider value={{ isOpen, setIsOpen }}>
+    <DropdownMenuContext.Provider value={value}>
       <div style={{ position: "relative", display: "inline-block" }}>{children}</div>
     </DropdownMenuContext.Provider>
   );
