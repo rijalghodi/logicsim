@@ -27,6 +27,8 @@ interface ChipProps {
   readonly isContextMenuOpen?: boolean;
   /** Fired when right clicking the chip */
   readonly onContextMenu?: (x: number, y: number) => void;
+  /** Fired when double clicking the chip */
+  readonly onDblClick?: () => void;
   /** Fired when clicking a port to start or finish a wire connection. */
   readonly onPortClick?: (portId: string, direction: "input" | "output", portPosition: Position) => void;
   /** Whether a wire is currently being drawn across the canvas. */
@@ -44,6 +46,7 @@ export function Chip({
   onMove,
   isContextMenuOpen,
   onContextMenu,
+  onDblClick,
   onPortClick,
   isWiringActive,
 }: ChipProps) {
@@ -77,6 +80,10 @@ export function Chip({
         onDragMove={(e) => onMove?.(e.target.position())}
         onDragEnd={(e) => onMove?.(e.target.position())}
         onContextMenu={handleContextMenu}
+        onDblClick={(e) => {
+          e.cancelBubble = true;
+          onDblClick?.();
+        }}
         onMouseEnter={(e) => {
           const stage = e.target.getStage();
           if (stage && draggable) stage.container().style.cursor = "grab";

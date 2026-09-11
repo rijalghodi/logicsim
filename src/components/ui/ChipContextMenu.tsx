@@ -4,10 +4,11 @@ import "./ChipContextMenu.css";
 interface ChipContextMenuProps {
   readonly position: { x: number; y: number };
   readonly onClose: () => void;
+  readonly onOpen: () => void;
   readonly onRemove: () => void;
 }
 
-export function ChipContextMenu({ position, onClose, onRemove }: ChipContextMenuProps) {
+export function ChipContextMenu({ position, onClose, onOpen, onRemove }: ChipContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,6 +45,17 @@ export function ChipContextMenu({ position, onClose, onRemove }: ChipContextMenu
         e.preventDefault(); // prevent native menu on the custom menu itself
       }}
     >
+      <button
+        type="button"
+        className="chip-context-menu-item"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpen();
+          onClose();
+        }}
+      >
+        Open
+      </button>
       <button
         type="button"
         className="chip-context-menu-item chip-context-menu-danger"

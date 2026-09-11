@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
-import type { Layout, Position } from "./components/circuit/geometry";
 import { Dock } from "./components/ui/Dock";
 import { SaveChipModal } from "./components/ui/SaveChipModal";
 import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
 import { DeleteChipModal } from "./components/ui/DeleteChipModal";
+import { Breadcrumbs } from "./components/ui/Breadcrumbs";
 import { Toast, toast } from "./components/ui/Toast";
 import {
   createDefaultRegistry,
@@ -16,6 +16,7 @@ import {
 import type { Bit, CircuitDefinition, PortDefinition, PortRef } from "./core";
 import { loadSavedChips, saveCustomChip, deleteCustomChip } from "./storage/chipStorage";
 import type { SavedChip } from "./storage/chipStorage";
+import type { Layout, Position } from "./components/circuit/geometry";
 
 function createBlankCircuit() {
   const IN = createPortDefinition("IN", "input");
@@ -26,6 +27,17 @@ function createBlankCircuit() {
     boundary: { inputs: [IN], outputs: [OUT] },
     boundaryLayout: {} as Record<string, number>,
   };
+}
+
+interface ViewState {
+  circuit: CircuitDefinition;
+  layout: Layout;
+  boundary: { inputs: PortDefinition[]; outputs: PortDefinition[] };
+  boundaryLayout: Record<string, number>;
+  boundaryInputs: Record<string, Bit>;
+  isDirty: boolean;
+  currentChipName: string | null;
+  currentChipId: string | null;
 }
 
 function App() {
@@ -42,6 +54,9 @@ function App() {
   const [isDirty, setIsDirty] = useState(false);
   const [currentChipName, setCurrentChipName] = useState<string | null>(null);
   const [currentChipId, setCurrentChipId] = useState<string | null>(null);
+
+  const [viewStack, setViewStack] = useState<ViewState[]>([]);
+  const [pendingBreadcrumbIndex, setPendingBreadcrumbIndex] = useState<number | null>(null);
 
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
@@ -85,6 +100,7 @@ function App() {
     setCurrentChipName(null);
     setCurrentChipId(null);
     setIsDirty(false);
+    setViewStack([]);
   }, []);
 
   const handleNewClick = useCallback(() => {
@@ -99,6 +115,62 @@ function App() {
   const handleSaveClick = useCallback(() => {
     setShowSaveModal(true);
   }, []);
+
+  const getViewState = useCallback(
+    (): ViewState => ({
+      circuit,
+      layout,
+      boundary,
+      boundaryLayout,
+      boundaryInputs,
+      isDirty,
+      currentChipName,
+      currentChipId,
+    }),
+    [circuit, layout, boundary, boundaryLayout, boundaryInputs, isDirty, currentChipName, currentChipId],
+  );
+
+  const restoreViewState = useCallback((state: ViewState) => {
+    setCircuit(state.circuit);
+    setLayout(state.layout);
+    setBoundary(state.boundary);
+    setBoundaryLayout(state.boundaryLayout);
+    setBoundaryInputs(state.boundaryInputs);
+    setIsDirty(state.isDirty);
+    setCurrentChipName(state.currentChipName);
+    setCurrentChipId(state.currentChipId);
+  }, []);
+
+  const executeBreadcrumbNavigation = useCallback(
+    (index: number) => {
+      if (index < 0) return;
+      setViewStack((prev) => {
+        const targetState = prev[index];
+        if (targetState) restoreViewState(targetState);
+        return prev.slice(0, index);
+      });
+      setPendingBreadcrumbIndex(null);
+    },
+    [restoreViewState],
+  );
+
+  const loadChipToCanvas = useCallback(
+    (chipId: string) => {
+      const chipDef = savedChips.find((g) => g.id === chipId);
+      if (!chipDef) return;
+
+      setCircuit(chipDef.circuit);
+      setBoundary({ inputs: [...chipDef.inputs], outputs: [...chipDef.outputs] });
+      setLayout(chipDef.layout || {});
+      setBoundaryLayout(chipDef.boundaryLayout || {});
+      setCurrentChipName(chipDef.name);
+      setCurrentChipId(chipDef.id);
+      setIsDirty(false);
+      setPendingChipToOpen(null);
+      setViewStack([]);
+    },
+    [savedChips],
+  );
 
   const handleConfirmSave = useCallback(
     (name: string, color: string) => {
@@ -125,28 +197,29 @@ function App() {
         setIsDirty(false);
         setShowSaveModal(false);
         toast.success(`Chip "${name}" saved to library!`);
+
+        if (pendingBreadcrumbIndex !== null) {
+          executeBreadcrumbNavigation(pendingBreadcrumbIndex);
+        } else if (pendingChipToOpen) {
+          loadChipToCanvas(pendingChipToOpen);
+        }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : String(err));
       }
     },
-    [boundary, circuit, registry, layout, boundaryLayout, currentChipId],
-  );
 
-  const loadChipToCanvas = useCallback(
-    (chipId: string) => {
-      const chipDef = savedChips.find((g) => g.id === chipId);
-      if (!chipDef) return;
-
-      setCircuit(chipDef.circuit);
-      setBoundary({ inputs: [...chipDef.inputs], outputs: [...chipDef.outputs] });
-      setLayout(chipDef.layout || {});
-      setBoundaryLayout(chipDef.boundaryLayout || {});
-      setCurrentChipName(chipDef.name);
-      setCurrentChipId(chipDef.id);
-      setIsDirty(false);
-      setPendingChipToOpen(null);
-    },
-    [savedChips],
+    [
+      boundary,
+      circuit,
+      registry,
+      layout,
+      boundaryLayout,
+      currentChipId,
+      pendingBreadcrumbIndex,
+      pendingChipToOpen,
+      executeBreadcrumbNavigation,
+      loadChipToCanvas,
+    ],
   );
 
   const handleOpenChipClick = useCallback(
@@ -190,12 +263,51 @@ function App() {
 
   const handleDiscardChanges = useCallback(() => {
     setShowUnsavedModal(false);
-    if (pendingChipToOpen) {
+    if (pendingBreadcrumbIndex !== null) {
+      executeBreadcrumbNavigation(pendingBreadcrumbIndex);
+    } else if (pendingChipToOpen) {
       loadChipToCanvas(pendingChipToOpen);
     } else {
       resetToBlank();
     }
-  }, [pendingChipToOpen, loadChipToCanvas, resetToBlank]);
+  }, [pendingBreadcrumbIndex, pendingChipToOpen, loadChipToCanvas, resetToBlank, executeBreadcrumbNavigation]);
+
+  const handleDiveIntoChip = useCallback(
+    (componentId: string) => {
+      const component = circuit.components.find((c) => c.id === componentId);
+      if (!component) return;
+
+      const targetDef = savedChips.find((c) => c.id === component.type);
+      if (!targetDef) {
+        toast.error("Cannot dive into primitive chip.");
+        return;
+      }
+
+      setViewStack((prev) => [...prev, getViewState()]);
+
+      setCircuit(targetDef.circuit);
+      setBoundary({ inputs: [...targetDef.inputs], outputs: [...targetDef.outputs] });
+      setLayout(targetDef.layout || {});
+      setBoundaryLayout(targetDef.boundaryLayout || {});
+      setBoundaryInputs({});
+      setCurrentChipName(targetDef.name);
+      setCurrentChipId(targetDef.id);
+      setIsDirty(false);
+    },
+    [savedChips, getViewState, circuit.components],
+  );
+
+  const handleBreadcrumbClick = useCallback(
+    (index: number) => {
+      if (isDirty) {
+        setPendingBreadcrumbIndex(index);
+        setShowUnsavedModal(true);
+      } else {
+        executeBreadcrumbNavigation(index);
+      }
+    },
+    [isDirty, executeBreadcrumbNavigation],
+  );
 
   const handleDropChip = useCallback(
     (chipType: string, position: Position) => {
@@ -324,21 +436,36 @@ function App() {
     return disabled;
   }, [currentChipId, savedChips, registry]);
 
+  const breadcrumbItems = useMemo(() => {
+    const items = viewStack.map((state, i) => ({
+      id: `stack-${i}`,
+      name: state.currentChipName ?? "Untitled Chip",
+      isDirty: state.isDirty,
+    }));
+    items.push({
+      id: "current",
+      name: currentChipName ?? "Untitled Chip",
+      isDirty: isDirty,
+    });
+    return items;
+  }, [viewStack, currentChipName, isDirty]);
+
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
+      <Breadcrumbs items={breadcrumbItems} onNavigate={handleBreadcrumbClick} />
+
       {/* Circuit Canvas */}
       <CircuitCanvas
         circuit={circuit}
         registry={registry}
         savedChips={savedChips}
-        currentChipName={currentChipName}
-        isDirty={isDirty}
         layout={layout}
         boundary={boundary}
         boundaryLayout={boundaryLayout}
         boundaryInputs={boundaryInputs}
         onToggleBoundaryInput={handleToggleBoundaryInput}
         onMoveComponent={handleMoveComponent}
+        onOpenComponent={handleDiveIntoChip}
         onMoveBoundaryPort={handleMoveBoundaryPort}
         onRemoveComponent={handleRemoveComponent}
         onDropChip={handleDropChip}
@@ -382,6 +509,7 @@ function App() {
         onCancel={() => {
           setShowUnsavedModal(false);
           setPendingChipToOpen(null);
+          setPendingBreadcrumbIndex(null);
         }}
       />
 

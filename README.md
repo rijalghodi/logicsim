@@ -31,3 +31,11 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 - React Compiler is enabled via `@rolldown/plugin-babel` + `reactCompilerPreset()` in `vite.config.ts` — avoid manual `useMemo`/`useCallback` micro-optimizations that fight the compiler.
 - Prettier config (`.prettierrc`): double quotes, semicolons, trailing commas, 120 print width.
 - ESLint (`eslint.config.js`) uses flat config with `typescript-eslint`, `eslint-plugin-react-hooks`, and `eslint-plugin-react-refresh` (Vite preset).
+
+## TODO
+
+- [x] Breadcrumbs
+- [ ] Rename boundary port
+- [ ] Wire Context Menu
+- [ ] Cornered Wire
+- [ ] Wire Color

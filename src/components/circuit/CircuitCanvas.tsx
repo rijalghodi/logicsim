@@ -18,8 +18,6 @@ export interface CircuitCanvasProps {
   readonly circuit: CircuitDefinition;
   readonly registry: ChipRegistry;
   readonly savedChips?: SavedChip[];
-  readonly currentChipName?: string | null;
-  readonly isDirty?: boolean;
   readonly layout: Layout;
   /** This circuit's own inputs/outputs, when it's being viewed as a chip's internals (see SPEC.md §4). */
   readonly boundary?: BoundaryPorts;
@@ -32,6 +30,7 @@ export interface CircuitCanvasProps {
   readonly onMoveBoundaryPort?: (portId: string, y: number) => void;
   /** Omit to make components fixed (non-draggable). */
   readonly onMoveComponent?: (componentId: string, position: Position) => void;
+  readonly onOpenComponent?: (componentId: string) => void;
   /** Triggered when a component should be removed. */
   readonly onRemoveComponent?: (componentId: string) => void;
   /** Triggered when a chip is dragged from the bottom toolbar and dropped onto the canvas. */
@@ -49,8 +48,6 @@ export function CircuitCanvas({
   circuit,
   registry,
   savedChips = [],
-  currentChipName,
-  isDirty,
   layout,
   boundary,
   boundaryLayout,
@@ -58,6 +55,7 @@ export function CircuitCanvas({
   onToggleBoundaryInput,
   onMoveBoundaryPort,
   onMoveComponent,
+  onOpenComponent,
   onRemoveComponent,
   onDropChip,
   onConnectWire,
@@ -217,6 +215,7 @@ export function CircuitCanvas({
                 onMove={onMoveComponent ? (next) => onMoveComponent(component.id, next) : undefined}
                 isContextMenuOpen={contextMenu?.componentId === component.id}
                 onContextMenu={(x, y) => setContextMenu({ componentId: component.id, x, y })}
+                onDblClick={() => onOpenComponent?.(component.id)}
                 onPortClick={(portId, _direction, portPos) =>
                   handlePortInteraction({ componentId: component.id, portId }, portPos)
                 }
@@ -272,27 +271,10 @@ export function CircuitCanvas({
         <ChipContextMenu
           position={{ x: contextMenu.x, y: contextMenu.y }}
           onClose={() => setContextMenu(null)}
+          onOpen={() => onOpenComponent?.(contextMenu.componentId)}
           onRemove={() => onRemoveComponent(contextMenu.componentId)}
         />
       )}
-
-      {/* Title / dirty state indicator */}
-      <div
-        style={{
-          position: "absolute",
-          top: 8,
-          left: "50%",
-          transform: "translateX(-50%)",
-          fontSize: "14px",
-          fontWeight: 600,
-          color: "var(--fg-secondary)",
-          pointerEvents: "none",
-          letterSpacing: "0.5px",
-        }}
-      >
-        {isDirty && <span style={{ color: "var(--warning)", marginRight: "6px" }}>&bull;</span>}
-        {currentChipName ?? "Untitled"}
-      </div>
     </div>
   );
 }

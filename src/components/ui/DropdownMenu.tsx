@@ -44,6 +44,25 @@ export function DropdownMenuTrigger({
 export function DropdownMenuContent({ children }: { children: ReactNode }) {
   const ctx = useContext(DropdownMenuContext);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<"top" | "bottom">("bottom");
+
+  useEffect(() => {
+    if (ctx?.isOpen && menuRef.current) {
+      const parent = menuRef.current.parentElement;
+      if (parent) {
+        const rect = parent.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const menuHeight = menuRef.current.offsetHeight || 150; // estimate if not fully rendered
+        
+        // If there's not enough space below, but there is space above, pop up
+        if (spaceBelow < menuHeight + 20 && rect.top > menuHeight + 20) {
+          setPosition("top");
+        } else {
+          setPosition("bottom");
+        }
+      }
+    }
+  }, [ctx?.isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -63,7 +82,7 @@ export function DropdownMenuContent({ children }: { children: ReactNode }) {
   if (!ctx?.isOpen) return null;
 
   return (
-    <div ref={menuRef} className="dropdown">
+    <div ref={menuRef} className={`dropdown dropdown-${position}`}>
       {children}
     </div>
   );

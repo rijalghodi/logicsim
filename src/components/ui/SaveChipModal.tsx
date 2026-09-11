@@ -55,6 +55,7 @@ export function SaveChipModal({ isOpen, initialName = "", onSave, onCancel }: Sa
           <Input
             type="text"
             placeholder="CHIP NAME (e.g. AND, XOR)"
+            autoFocus
             value={name}
             onChange={(e) => setName(e.target.value.toUpperCase())}
             style={{ flex: 1 }}
