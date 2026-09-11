@@ -34,9 +34,17 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 
 ## TODO
 
-- [x] Breadcrumbs
-- [ ] Rename boundary port
-- [ ] Wire Context Menu
-- [ ] Cornered Wire
-- [ ] Wire Color
-- [ ] Delete Boundary Port
+- [x] Core: circuit registry
+- [x] Core: simulation logic
+- [x] UI: Render Chip
+- [x] UI: Render Boundary Port
+- [x] UI: Render Wire
+- [x] UI: Simulate Circuit
+- [x] UI: Save, Edit, and Create New Circuit
+- [x] UI: Delete Chip
+- [x] UI: Chip Context Menu
+- [x] Breadcrumb and Detail Chip
+- [ ] UI: Delete Boundary Port
+- [ ] UI: Rename Boundary Port
+- [ ] UI: Cornered Wire
+- [ ] UI: Wire Color
