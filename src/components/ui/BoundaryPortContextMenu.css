@@ -1,0 +1,41 @@
+/* ==========================================================================
+   Boundary Port Context Menu
+   ========================================================================== */
+.boundary-port-context-menu {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+}
+
+.boundary-port-context-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  height: 28px;
+  padding: 0px 12px;
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.boundary-port-context-menu-item:hover {
+  background: var(--bg-2);
+}
+
+.boundary-port-context-menu-danger {
+  color: var(--danger);
+}
+
+.boundary-port-context-menu-danger:hover {
+  background: hsl(from var(--danger) h s l / 15%);
+}

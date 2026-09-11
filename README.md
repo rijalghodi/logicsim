@@ -44,7 +44,7 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 - [x] UI: Delete Chip
 - [x] UI: Chip Context Menu
 - [x] Breadcrumb and Detail Chip
-- [ ] UI: Delete Boundary Port
+- [x] UI: Delete Boundary Port
 - [ ] UI: Rename Boundary Port
 - [ ] UI: Cornered Wire
 - [ ] UI: Wire Color

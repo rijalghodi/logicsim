@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Circle, Group, Line, Rect } from "react-konva";
 import type Konva from "konva";
 import { PORT_RADIUS, getPortLabelWidth, PORT_LABEL_HEIGHT, BIT_CIRCLE_RADIUS } from "./geometry";
@@ -26,6 +26,10 @@ interface BoundaryPortProps {
   readonly isWiringActive?: boolean;
   /** Constrain vertical dragging within min/max bounds. */
   readonly bounds?: { minY: number; maxY: number };
+  /** Whether the context menu for this boundary port is open */
+  readonly isContextMenuOpen?: boolean;
+  /** Fired when right clicking the boundary port */
+  readonly onContextMenu?: (x: number, y: number) => void;
 }
 
 import {
@@ -57,10 +61,14 @@ export function BoundaryPort({
   isWiringActive,
   side,
   bounds,
+  isContextMenuOpen,
+  onContextMenu,
 }: BoundaryPortProps) {
   const [controllerHovered, setControllerHovered] = useState(false);
   const [bitHovered, setBitHovered] = useState(false);
   const [pinHovered, setPinHovered] = useState(false); // Used to conditionally show PortLabel
+  const [isHovered, setIsHovered] = useState(false);
+  const isDraggingRef = useRef(false);
 
   const isLeft = side === "left";
   const draggable = Boolean(onMove);
@@ -68,6 +76,31 @@ export function BoundaryPort({
   const setCursor = (e: Konva.KonvaEventObject<MouseEvent>, cursor: string) => {
     const stage = e.target.getStage();
     if (stage) stage.container().style.cursor = cursor;
+  };
+
+  const openContextMenu = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    if (onContextMenu) {
+      const stage = e.target.getStage();
+      const pointerPos = stage?.getPointerPosition();
+      if (pointerPos) {
+        onContextMenu(pointerPos.x, pointerPos.y);
+      } else {
+        onContextMenu(isLeft ? position.x + 20 : position.x - 120, position.y);
+      }
+    }
+  };
+
+  const handleContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    e.evt.preventDefault();
+    e.cancelBubble = true;
+    openContextMenu(e);
+  };
+
+  const handleClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    if ("button" in e.evt && e.evt.button !== 0) return;
+    if (isDraggingRef.current) return;
+    e.cancelBubble = true;
+    openContextMenu(e);
   };
 
   // 1. Position Controller (touches screen edge)
@@ -90,11 +123,14 @@ export function BoundaryPort({
   const badgeX = isLeft ? position.x + 14 : position.x - 14 - badgeWidth;
   const badgeY = -badgeHeight / 2;
 
+  const hitAreaX = isLeft ? edgeX : position.x - PORT_RADIUS;
+  const hitAreaWidth = isLeft ? position.x + PORT_RADIUS - edgeX : edgeX - (position.x - PORT_RADIUS);
+
   return (
     <Group
       x={0}
       y={position.y}
-      draggable={draggable}
+      draggable={draggable && !isContextMenuOpen}
       dragBoundFunc={(pos) => {
         let y = pos.y;
         if (bounds) {
@@ -102,9 +138,44 @@ export function BoundaryPort({
         }
         return { x: 0, y };
       }}
+      onDragStart={() => {
+        isDraggingRef.current = true;
+      }}
       onDragMove={(e) => onMove?.(e.target.y())}
-      onDragEnd={(e) => onMove?.(e.target.y())}
+      onDragEnd={(e) => {
+        onMove?.(e.target.y());
+        setTimeout(() => {
+          isDraggingRef.current = false;
+        }, 100);
+      }}
+      onClick={handleClick}
+      onTap={handleClick}
+      onContextMenu={handleContextMenu}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Halo Effect behind the boundary port assembly when hovered */}
+      {(isHovered || isContextMenuOpen) && (
+        <Rect
+          x={hitAreaX - 3}
+          y={-BIT_CIRCLE_RADIUS - 6}
+          width={hitAreaWidth + 6}
+          height={(BIT_CIRCLE_RADIUS + 6) * 2}
+          cornerRadius={6}
+          fill="hsl(0, 0%, 43%)"
+          opacity={0.5}
+          listening={false}
+        />
+      )}
+
+      {/* Invisible hit area covering the entire boundary port assembly */}
+      <Rect
+        x={hitAreaX}
+        y={-BIT_CIRCLE_RADIUS - 4}
+        width={hitAreaWidth}
+        height={(BIT_CIRCLE_RADIUS + 4) * 2}
+        fill="transparent"
+      />
       {/* 1. POSITION (Y) CONTROLLER — touches the screen edge */}
       <Group
         onMouseEnter={(e) => {
@@ -138,12 +209,16 @@ export function BoundaryPort({
       {/* 2. BIT INPUT / OUTPUT CIRCLE */}
       <Group
         onClick={(e) => {
-          e.cancelBubble = true;
-          if (onToggle) onToggle();
+          if (onToggle) {
+            e.cancelBubble = true;
+            onToggle();
+          }
         }}
         onTap={(e) => {
-          e.cancelBubble = true;
-          if (onToggle) onToggle();
+          if (onToggle) {
+            e.cancelBubble = true;
+            onToggle();
+          }
         }}
         onMouseEnter={(e) => {
           setBitHovered(true);
@@ -165,7 +240,7 @@ export function BoundaryPort({
       </Group>
 
       {/* 3. CONNECTING LINE BETWEEN BIT CIRCLE AND WIRE CONNECTION PIN */}
-      <Line points={[lineFromX, 0, lineToX, 0]} stroke={WIRE_INACTIVE_COLOR} strokeWidth={2.5} listening={false} />
+      <Line points={[lineFromX, 0, lineToX, 0]} stroke={WIRE_INACTIVE_COLOR} strokeWidth={2.5} hitStrokeWidth={16} />
 
       {/* 4. WIRE CONNECTION PIN (where circuit wires attach) */}
       <PortPin

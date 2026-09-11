@@ -12,6 +12,7 @@ import {
   createId,
   createPortDefinition,
   validateConnection,
+  BOUNDARY_ID,
 } from "./core";
 import type { Bit, CircuitDefinition, PortDefinition, PortRef } from "./core";
 import { loadSavedChips, saveCustomChip, deleteCustomChip } from "./storage/chipStorage";
@@ -409,6 +410,34 @@ function App() {
     setIsDirty(true);
   }, []);
 
+  const handleRemoveBoundaryPort = useCallback((portId: string) => {
+    setBoundary((prev) => ({
+      inputs: prev.inputs.filter((p) => p.id !== portId),
+      outputs: prev.outputs.filter((p) => p.id !== portId),
+    }));
+    setCircuit((prev) => ({
+      ...prev,
+      connections: prev.connections.filter(
+        (c) =>
+          !(
+            (c.from.componentId === BOUNDARY_ID && c.from.portId === portId) ||
+            (c.to.componentId === BOUNDARY_ID && c.to.portId === portId)
+          ),
+      ),
+    }));
+    setBoundaryLayout((prev) => {
+      const next = { ...prev };
+      delete next[portId];
+      return next;
+    });
+    setBoundaryInputs((prev) => {
+      const next = { ...prev };
+      delete next[portId];
+      return next;
+    });
+    setIsDirty(true);
+  }, []);
+
   // Keyboard shortcuts (Ctrl+S / Ctrl+N)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -473,6 +502,7 @@ function App() {
         onOpenComponent={handleDiveIntoChip}
         onMoveBoundaryPort={handleMoveBoundaryPort}
         onRemoveComponent={handleRemoveComponent}
+        onRemoveBoundaryPort={handleRemoveBoundaryPort}
         onDropChip={handleDropChip}
         onConnectWire={handleConnectWire}
         onDisconnectWire={handleDisconnectWire}

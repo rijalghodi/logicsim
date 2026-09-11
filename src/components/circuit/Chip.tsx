@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Group, Rect, Text } from "react-konva";
 import type { PortDefinition } from "../../core";
 import {
@@ -51,14 +51,14 @@ export function Chip({
   isWiringActive,
 }: ChipProps) {
   const [hoveredPortId, setHoveredPortId] = useState<string | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const isDraggingRef = useRef(false);
 
   const maxPortCount = Math.max(inputs.length, outputs.length);
   const box = getComponentBox({ x: 0, y: 0 }, maxPortCount);
   const draggable = Boolean(onMove);
 
-  const handleContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    e.evt.preventDefault();
-    e.cancelBubble = true;
+  const openContextMenu = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (onContextMenu) {
       const stage = e.target.getStage();
       const pointerPos = stage?.getPointerPosition();
@@ -70,6 +70,19 @@ export function Chip({
     }
   };
 
+  const handleContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    e.evt.preventDefault();
+    e.cancelBubble = true;
+    openContextMenu(e);
+  };
+
+  const handleClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    if ("button" in e.evt && e.evt.button !== 0) return;
+    if (isDraggingRef.current) return;
+    e.cancelBubble = true;
+    openContextMenu(e);
+  };
+
   return (
     <Group>
       {/* Draggable body group */}
@@ -77,36 +90,48 @@ export function Chip({
         x={position.x}
         y={position.y}
         draggable={draggable && !isContextMenuOpen}
+        onDragStart={() => {
+          isDraggingRef.current = true;
+        }}
         onDragMove={(e) => onMove?.(e.target.position())}
-        onDragEnd={(e) => onMove?.(e.target.position())}
+        onDragEnd={(e) => {
+          onMove?.(e.target.position());
+          setTimeout(() => {
+            isDraggingRef.current = false;
+          }, 100);
+        }}
+        onClick={handleClick}
+        onTap={handleClick}
         onContextMenu={handleContextMenu}
         onDblClick={(e) => {
           e.cancelBubble = true;
           onDblClick?.();
         }}
         onMouseEnter={(e) => {
+          setIsHovered(true);
           const stage = e.target.getStage();
           if (stage && draggable) stage.container().style.cursor = "grab";
         }}
         onMouseLeave={(e) => {
+          setIsHovered(false);
           const stage = e.target.getStage();
           if (stage) stage.container().style.cursor = "default";
         }}
       >
-        {/* Halo Effect behind the component when context menu is open */}
-        {isContextMenuOpen && (
+        {/* TODO: Halo Effect behind the component when hovered */}
+        {(isHovered || isContextMenuOpen) && (
           <Rect
             x={-6}
             y={-6}
             width={box.width + 12}
             height={box.height + 12}
             cornerRadius={8}
-            stroke="hsl(0, 0%, 43%)"
-            dash={[3, 3]}
-            strokeWidth={1}
+            fill="hsl(0, 0%, 43%)"
+            opacity={0.5}
             listening={false}
           />
         )}
+
         <Rect
           x={0}
           y={0}
