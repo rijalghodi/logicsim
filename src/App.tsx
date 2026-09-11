@@ -182,7 +182,7 @@ function App() {
   );
 
   const handleConfirmSave = useCallback(
-    ({ id, name, color }: { id: string | null; name: string; color: string }) => {
+    ({ id, name, color }: { id?: string | null; name: string; color: string }) => {
       const chipDef = createChipDefinition({
         id: id || undefined,
         name,

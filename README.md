@@ -50,3 +50,5 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 - [ ] UI: Clean App.tsx, use hooks.
 - [ ] UI: Cornered Wire
 - [ ] UI: Fix position in every screen
+- [ ] User Preference: Always show port label
+- [ ]

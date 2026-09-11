@@ -21,7 +21,7 @@ export function hexToOklch(hex: string): { l: number; c: number; h: number } {
   const b = parseInt(hex.slice(4, 6), 16) / 255;
 
   // sRGB → linear RGB
-  const toLinear = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  const toLinear = (c: number) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
 
   const R = toLinear(r);
   const G = toLinear(g);
@@ -55,7 +55,7 @@ export function hexToOklch(hex: string): { l: number; c: number; h: number } {
   };
 }
 
-export function oklchToHex({ l: L, c: C, h: H }) {
+export function oklchToHex({ l: L, c: C, h: H }: { l: number; c: number; h: number }): string {
   const hRad = H * (Math.PI / 180);
 
   // OKLCH → OKLab
@@ -79,7 +79,7 @@ export function oklchToHex({ l: L, c: C, h: H }) {
   const B = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
 
   // Linear RGB → sRGB
-  const toSrgb = (c) => {
+  const toSrgb = (c: number) => {
     const clamped = Math.max(0, Math.min(1, c));
 
     return clamped <= 0.0031308 ? 12.92 * clamped : 1.055 * Math.pow(clamped, 1 / 2.4) - 0.055;
@@ -137,20 +137,13 @@ export function getDimmedColor(hex: string): string {
 
   const { h, c } = hexToOklch(hex);
 
-  // Dim the color (e.g., target around 20-30% lightness)
-  // const newL = Math.max(l * 0.4, 0.17);
-  const newL = 0.4;
-
-  return oklchToHex({ l: newL, c, h });
+  return oklchToHex({ l: 0.4, c, h });
 }
 
 export function getBrightColor(hex: string) {
   if (!hex.startsWith("#")) return hex;
 
-  const { h, c, l } = hexToOklch(hex);
+  const { h, c } = hexToOklch(hex);
 
-  // Brighten the color (e.g., target around 70-90% lightness)
-  const newL = Math.min(Math.max(l * 1.5, 0.6), 0.8);
-
-  return oklchToHex({ l: newL, c, h });
+  return oklchToHex({ l: 0.8, c, h });
 }
