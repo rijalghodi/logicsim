@@ -4,14 +4,14 @@
 .dropdown {
   position: absolute;
   left: 0;
-  min-width: 164px;
+  width: 160px;
   background: var(--bg-1);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0px;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.7);
+  padding: 2px;
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -91,6 +91,7 @@
   padding: 0px 12px;
   height: 28px;
   border: none;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--fg);
   font-family: inherit;
@@ -108,4 +109,12 @@
 .dropdown-item-shortcut {
   font-size: 11px;
   color: var(--fg-muted);
+}
+
+.dropdown-item-danger {
+  color: var(--danger);
+}
+
+.dropdown-item-danger:hover {
+  background: hsl(from var(--danger) h s l / 10%);
 }

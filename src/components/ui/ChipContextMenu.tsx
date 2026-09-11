@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import "./ChipContextMenu.css";
 
 interface ChipContextMenuProps {
   readonly position: { x: number; y: number };
@@ -34,12 +33,13 @@ export function ChipContextMenu({ position, onClose, onOpen, onRemove }: ChipCon
   return (
     <div
       ref={menuRef}
-      className="chip-context-menu"
+      className="dropdown"
       style={{
         position: "absolute",
         left: position.x,
         top: position.y,
         zIndex: 1000,
+        width: 120,
       }}
       onContextMenu={(e) => {
         e.preventDefault(); // prevent native menu on the custom menu itself
@@ -47,25 +47,25 @@ export function ChipContextMenu({ position, onClose, onOpen, onRemove }: ChipCon
     >
       <button
         type="button"
-        className="chip-context-menu-item"
+        className="dropdown-item"
         onClick={(e) => {
           e.stopPropagation();
           onOpen();
           onClose();
         }}
       >
-        Open
+        VIEW
       </button>
       <button
         type="button"
-        className="chip-context-menu-item chip-context-menu-danger"
+        className="dropdown-item dropdown-item-danger"
         onClick={(e) => {
           e.stopPropagation();
           onRemove();
           onClose();
         }}
       >
-        Remove
+        REMOVE
       </button>
     </div>
   );

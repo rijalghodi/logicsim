@@ -30,11 +30,9 @@
 }
 
 .toast-success {
-  background: var(--success);
-  color: var(--success-fg);
+  background: hsl(from var(--success) h s l/ 50%);
 }
 
 .toast-error {
-  background: var(--danger);
-  color: var(--danger-fg);
+  background: hsl(from var(--danger) h s l/ 50%);
 }

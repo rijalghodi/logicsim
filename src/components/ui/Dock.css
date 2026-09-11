@@ -92,7 +92,7 @@
   font-weight: inherit;
   cursor: grab;
   height: 100%;
-  padding: 0 8px;
+  padding: 0 2px 0 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,12 +128,6 @@
   overflow: hidden;
   border-top-right-radius: var(--radius);
   border-bottom-right-radius: var(--radius);
-}
-
-.dock-chip-composite:hover .dock-chip-menu-btn {
-  width: 18px;
-  opacity: 1;
-  border-left-color: rgba(255, 255, 255, 0.1);
 }
 
 .dock-chip-menu-btn:hover {

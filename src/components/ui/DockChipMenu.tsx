@@ -41,18 +41,23 @@ export function DockChipMenu({
       <DropdownMenu>
         <DropdownMenuTrigger>
           <button type="button" className="dock-chip-menu-btn" aria-label="Chip Options">
-            <MoreVerticalIcon size={16} />
+            <MoreVerticalIcon size={12} />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent style={{ width: 120 }}>
+          {!isDisabled && (
+            <DropdownMenuItem onClick={() => onAddChip?.(chip.id)}>
+              <span>PLACE</span>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={onOpen}>
-            <span>OPEN</span>
+            <span>VIEW</span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onRename}>
-            <span>RENAME</span>
+            <span>CUSTOMIZE</span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onDelete} isDanger>
-            <span>DELETE CHIP</span>
+            <span>DELETE</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

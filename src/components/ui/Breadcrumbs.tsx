@@ -25,11 +25,7 @@ export function Breadcrumbs({ items, onNavigate }: BreadcrumbsProps) {
       onClick={() => !isLast && onNavigate(index)}
     >
       {item.name}
-      {item.isDirty && (
-        <span className="breadcrumb-dirty-dot">
-          *
-        </span>
-      )}
+      {item.isDirty && <span className="breadcrumb-dirty-dot">*</span>}
     </button>
   );
 
@@ -70,11 +66,7 @@ export function Breadcrumbs({ items, onNavigate }: BreadcrumbsProps) {
             <DropdownMenuItem key={item.id} onClick={() => onNavigate(originalIndexMinusOne + 1)}>
               <div style={{ display: "flex", alignItems: "center" }}>
                 {item.name}
-                {item.isDirty && (
-                  <span className="breadcrumb-dirty-dot">
-                    *
-                  </span>
-                )}
+                {item.isDirty && <span className="breadcrumb-dirty-dot">*</span>}
               </div>
             </DropdownMenuItem>
           ))}

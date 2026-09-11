@@ -44,9 +44,11 @@ export function DropdownMenuTrigger({
 export function DropdownMenuContent({
   children,
   align = "left",
+  style,
 }: {
   children: ReactNode;
   align?: "left" | "right";
+  style?: React.CSSProperties;
 }) {
   const ctx = useContext(DropdownMenuContext);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -96,7 +98,7 @@ export function DropdownMenuContent({
   if (!ctx?.isOpen) return null;
 
   return (
-    <div ref={menuRef} className={`dropdown dropdown-${position} dropdown-align-${effectiveAlign}`}>
+    <div ref={menuRef} className={`dropdown dropdown-${position} dropdown-align-${effectiveAlign}`} style={style}>
       {children}
     </div>
   );
@@ -115,12 +117,11 @@ export function DropdownMenuItem({
   return (
     <button
       type="button"
-      className="dropdown-item"
+      className={`dropdown-item ${isDanger ? " dropdown-item-danger" : ""}`}
       onClick={() => {
         ctx?.setIsOpen(false);
         onClick?.();
       }}
-      style={isDanger ? { color: "var(--danger)" } : {}}
     >
       {children}
     </button>

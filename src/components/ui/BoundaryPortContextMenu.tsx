@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import "./BoundaryPortContextMenu.css";
 
 interface BoundaryPortContextMenuProps {
   readonly position: { x: number; y: number };
@@ -8,12 +7,7 @@ interface BoundaryPortContextMenuProps {
   readonly onDelete: () => void;
 }
 
-export function BoundaryPortContextMenu({
-  position,
-  onClose,
-  onRename,
-  onDelete,
-}: BoundaryPortContextMenuProps) {
+export function BoundaryPortContextMenu({ position, onClose, onRename, onDelete }: BoundaryPortContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,12 +33,13 @@ export function BoundaryPortContextMenu({
   return (
     <div
       ref={menuRef}
-      className="boundary-port-context-menu"
+      className="dropdown"
       style={{
         position: "absolute",
         left: position.x,
         top: position.y,
         zIndex: 1000,
+        width: 120,
       }}
       onContextMenu={(e) => {
         e.preventDefault();
@@ -52,7 +47,7 @@ export function BoundaryPortContextMenu({
     >
       <button
         type="button"
-        className="boundary-port-context-menu-item"
+        className="dropdown-item"
         onClick={(e) => {
           e.stopPropagation();
           onRename();
@@ -63,7 +58,7 @@ export function BoundaryPortContextMenu({
       </button>
       <button
         type="button"
-        className="boundary-port-context-menu-item boundary-port-context-menu-danger"
+        className="dropdown-item dropdown-item-danger"
         onClick={(e) => {
           e.stopPropagation();
           onDelete();

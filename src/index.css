@@ -6,19 +6,22 @@
   --bg-2: hsl(0, 0%, 23%);
   --bg-3: hsl(0, 0%, 30%);
   --primary: hsl(51, 75%, 60%);
-  --danger: hsl(8, 99%, 69%);
+  --danger: hsl(8, 100%, 64%);
   --danger-fg: hsl(0, 0%, 0%);
-  --success: hsl(97, 75%, 60%);
+  --success: hsl(85, 100%, 50%);
   --success-fg: hsl(0, 0%, 0%);
-  --warning: hsl(40, 100%, 70%);
+  --warning: hsl(40, 100%, 50%);
   --warning-fg: hsl(0, 0%, 0%);
-  --border: hsl(0, 0%, 26%);
+  --border: hsla(0, 0%, 40%, 0.3);
   --fg: hsl(0, 0%, 96%);
   --fg-secondary: hsl(0, 0%, 65%);
   --fg-muted: hsl(0, 0%, 50%);
   --radius: 6px;
+  --radius-sm: calc(var(--radius) - 2px);
   --radius-lg: calc(var(--radius) + 4px);
   --radius-xl: calc(var(--radius) + 8px);
+  --shadow: 0 16px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 * {
@@ -45,7 +48,6 @@ html {
 input {
   font-family: inherit;
 }
-
 
 /* General Classes */
 
