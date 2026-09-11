@@ -40,7 +40,6 @@ export function DeleteChipModal({ chipId, savedChips, registry, onConfirm, onClo
               color: "var(--danger)",
               fontSize: "14px",
               lineHeight: 1.5,
-              marginBottom: "16px",
             }}
           >
             <strong>Warning:</strong> This will also delete {chipsToDelete.length - 1} other chip(s) that depend on it:
