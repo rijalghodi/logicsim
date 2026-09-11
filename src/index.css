@@ -16,8 +16,9 @@
   --fg: hsl(0, 0%, 96%);
   --fg-secondary: hsl(0, 0%, 65%);
   --fg-muted: hsl(0, 0%, 50%);
-  --radius-btn: 6px;
-  --radius-modal: 14px;
+  --radius: 6px;
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
 }
 
 * {

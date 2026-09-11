@@ -28,7 +28,7 @@
   max-width: 420px;
   background: var(--bg-0);
   border: 1px solid var(--border);
-  border-radius: var(--radius-modal);
+  border-radius: var(--radius-xl);
   padding: 24px;
   box-shadow:
     0 24px 48px rgba(0, 0, 0, 0.8),
@@ -86,7 +86,7 @@
   padding: 0 18px;
   background: hsl(from var(--primary) h s l / 86%);
   border: none;
-  border-radius: var(--radius-btn);
+  border-radius: var(--radius);
   color: #121214;
   font-family: inherit;
   font-size: 14px;
@@ -104,7 +104,7 @@
   padding: 0 16px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-btn);
+  border-radius: var(--radius);
   color: var(--fg);
   font-family: inherit;
   font-size: 14px;
@@ -122,7 +122,7 @@
   padding: 0 16px;
   background: hsl(from var(--danger) h s l / 15%);
   border: 1px solid hsl(from var(--danger) h s l / 30%);
-  border-radius: var(--radius-btn);
+  border-radius: var(--radius);
   color: var(--danger);
   font-family: inherit;
   font-size: 14px;
