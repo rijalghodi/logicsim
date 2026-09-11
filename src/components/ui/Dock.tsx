@@ -1,5 +1,6 @@
 import "./Dock.css";
 import { DockChipMenu } from "./DockChipMenu";
+import { DockPrimitiveChip } from "./DockPrimitiveChip";
 import type { SavedChip } from "../../storage/chipStorage";
 
 interface DockProps {
@@ -19,39 +20,26 @@ export function Dock({ savedChips, disabledChipIds = new Set(), onAddChip, onOpe
   return (
     <div className="dock-container">
       {/* Input / Output Primitives */}
-      <button
-        type="button"
-        className="dock-chip"
-        draggable
-        onDragStart={(e) => handleDragStart(e, "IN")}
-        onClick={() => onAddChip?.("IN")}
+      <DockPrimitiveChip
+        chipType="IN"
         title="Input Port: Drag to left edge or click to add"
-      >
-        <span>IN</span>
-      </button>
-
-      <button
-        type="button"
-        className="dock-chip"
-        draggable
-        onDragStart={(e) => handleDragStart(e, "OUT")}
-        onClick={() => onAddChip?.("OUT")}
+        onAddChip={onAddChip}
+        onDragStart={handleDragStart}
+      />
+      <DockPrimitiveChip
+        chipType="OUT"
         title="Output Port: Drag to right edge or click to add"
-      >
-        <span>OUT</span>
-      </button>
+        onAddChip={onAddChip}
+        onDragStart={handleDragStart}
+      />
 
       {/* NAND Primitive Chip */}
-      <button
-        type="button"
-        className="dock-chip"
-        draggable
-        onDragStart={(e) => handleDragStart(e, "NAND")}
-        onClick={() => onAddChip?.("NAND")}
+      <DockPrimitiveChip
+        chipType="NAND"
         title="NAND Chip: Drag to canvas or click to add"
-      >
-        <span>NAND</span>
-      </button>
+        onAddChip={onAddChip}
+        onDragStart={handleDragStart}
+      />
 
       {/* User-created Custom Chips */}
       {savedChips.map((chip) => {
