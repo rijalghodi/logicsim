@@ -6,8 +6,6 @@
   align-items: center;
   gap: 4px;
   z-index: 10;
-  /* padding: 4px; */
-  /* background: var(--bg-0); */
   transition:
     background 0.15s,
     border-color 0.15s;
@@ -17,13 +15,13 @@
 .breadcrumb-item {
   background: transparent;
   border: none;
-  font-size: 13px;
+  font-size: 15px;
   height: 32px;
   font-family: inherit;
   display: inline-flex;
   align-items: center;
   border-radius: var(--radius);
-  padding: 4px 8px;
+  padding: 4px 4px;
   transition:
     background 0.15s,
     color 0.15s;

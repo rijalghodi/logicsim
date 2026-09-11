@@ -40,7 +40,7 @@ export function RenamePortModal({ isOpen, initialName, onRename, onCancel }: Ren
   return (
     <Modal isOpen={isOpen} onClose={onCancel}>
       <ModalHeader>
-        <ModalTitle>Rename Port</ModalTitle>
+        <ModalTitle>CUSTOMIZE PORT</ModalTitle>
         <ModalDescription>Enter a new name for this boundary port.</ModalDescription>
       </ModalHeader>
 

@@ -303,7 +303,7 @@ export function CircuitCanvas({
         <BoundaryPortContextMenu
           position={{ x: boundaryContextMenu.x, y: boundaryContextMenu.y }}
           onClose={() => setBoundaryContextMenu(null)}
-          onRename={() => onRenameBoundaryPort?.(boundaryContextMenu.portId)}
+          onCustomize={() => onRenameBoundaryPort?.(boundaryContextMenu.portId)}
           onDelete={() => onRemoveBoundaryPort?.(boundaryContextMenu.portId)}
         />
       )}

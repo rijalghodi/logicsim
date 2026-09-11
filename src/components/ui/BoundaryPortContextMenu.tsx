@@ -3,11 +3,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "./DropdownM
 interface BoundaryPortContextMenuProps {
   readonly position: { x: number; y: number };
   readonly onClose: () => void;
-  readonly onRename: () => void;
+  readonly onCustomize: () => void;
   readonly onDelete: () => void;
 }
 
-export function BoundaryPortContextMenu({ position, onClose, onRename, onDelete }: BoundaryPortContextMenuProps) {
+export function BoundaryPortContextMenu({ position, onClose, onCustomize, onDelete }: BoundaryPortContextMenuProps) {
   return (
     <div
       style={{
@@ -24,11 +24,11 @@ export function BoundaryPortContextMenu({ position, onClose, onRename, onDelete 
         <DropdownMenuContent style={{ width: 120 }}>
           <DropdownMenuItem
             onClick={() => {
-              onRename();
+              onCustomize();
               onClose();
             }}
           >
-            <span>RENAME</span>
+            <span>CUSTOMIZE</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             isDanger

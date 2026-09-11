@@ -64,8 +64,8 @@ export function SaveChipModal({ isOpen, initialState, onSave, onCancel }: SaveCh
   return (
     <Modal isOpen={isOpen} onClose={onCancel}>
       <ModalHeader>
-        <ModalTitle>Save Chip</ModalTitle>
-        <ModalDescription>Enter a name and color for your custom chip.</ModalDescription>
+        <ModalTitle>{initialState?.name ? "CUSTOMIZE" : "SAVE"} CHIP</ModalTitle>
+        <ModalDescription>Enter a name and color for the chip.</ModalDescription>
       </ModalHeader>
 
       <ModalBody onSubmit={handleSubmit}>
