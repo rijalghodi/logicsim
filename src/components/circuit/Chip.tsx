@@ -25,7 +25,7 @@ interface ChipProps {
   readonly onMove?: (position: Position) => void;
   /** Whether the context menu for this chip is open */
   readonly isContextMenuOpen?: boolean;
-  /** Fired when right clicking the chip */
+  /** Fired when clicking the chip */
   readonly onContextMenu?: (x: number, y: number) => void;
   /** Fired when double clicking the chip */
   readonly onDblClick?: () => void;

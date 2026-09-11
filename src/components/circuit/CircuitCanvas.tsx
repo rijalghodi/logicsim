@@ -228,7 +228,10 @@ export function CircuitCanvas({
                   setBoundaryContextMenu(null);
                   setContextMenu({ componentId: component.id, x, y });
                 }}
-                onDblClick={() => onOpenComponent?.(component.id)}
+                onDblClick={() => {
+                  setContextMenu(null);
+                  onOpenComponent?.(component.id);
+                }}
                 onPortClick={(portId, _direction, portPos) =>
                   handlePortInteraction({ componentId: component.id, portId }, portPos)
                 }
