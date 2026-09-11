@@ -4,12 +4,14 @@ import "./BoundaryPortContextMenu.css";
 interface BoundaryPortContextMenuProps {
   readonly position: { x: number; y: number };
   readonly onClose: () => void;
+  readonly onRename: () => void;
   readonly onDelete: () => void;
 }
 
 export function BoundaryPortContextMenu({
   position,
   onClose,
+  onRename,
   onDelete,
 }: BoundaryPortContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
@@ -48,6 +50,17 @@ export function BoundaryPortContextMenu({
         e.preventDefault();
       }}
     >
+      <button
+        type="button"
+        className="boundary-port-context-menu-item"
+        onClick={(e) => {
+          e.stopPropagation();
+          onRename();
+          onClose();
+        }}
+      >
+        Rename
+      </button>
       <button
         type="button"
         className="boundary-port-context-menu-item boundary-port-context-menu-danger"

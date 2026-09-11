@@ -4,6 +4,7 @@ import { Dock } from "./components/ui/Dock";
 import { SaveChipModal } from "./components/ui/SaveChipModal";
 import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
 import { DeleteChipModal } from "./components/ui/DeleteChipModal";
+import { RenamePortModal } from "./components/ui/RenamePortModal";
 import { Header } from "./components/ui/Header";
 import { Toast, toast } from "./components/ui/Toast";
 import {
@@ -63,6 +64,7 @@ function App() {
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [pendingChipToOpen, setPendingChipToOpen] = useState<string | null>(null);
   const [deletingChipId, setDeletingChipId] = useState<string | null>(null);
+  const [renamingPortId, setRenamingPortId] = useState<string | null>(null);
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -438,6 +440,47 @@ function App() {
     setIsDirty(true);
   }, []);
 
+  const renamingPort = useMemo(() => {
+    if (!renamingPortId) return null;
+    return (
+      boundary.inputs.find((p) => p.id === renamingPortId) ??
+      boundary.outputs.find((p) => p.id === renamingPortId) ??
+      null
+    );
+  }, [renamingPortId, boundary]);
+
+  const handleRenameBoundaryPort = useCallback((portId: string) => {
+    setRenamingPortId(portId);
+  }, []);
+
+  const handleConfirmRenamePort = useCallback(
+    (newName: string) => {
+      if (!renamingPortId || !renamingPort) return;
+
+      if (renamingPort.name === newName) {
+        setRenamingPortId(null);
+        return;
+      }
+
+      const isInput = boundary.inputs.some((p) => p.id === renamingPortId);
+      const targetList = isInput ? boundary.inputs : boundary.outputs;
+      const duplicate = targetList.some((p) => p.id !== renamingPortId && p.name.toUpperCase() === newName);
+      if (duplicate) {
+        toast.error(`A port named "${newName}" already exists`);
+        return;
+      }
+
+      setBoundary((prev) => ({
+        inputs: prev.inputs.map((p) => (p.id === renamingPortId ? { ...p, name: newName } : p)),
+        outputs: prev.outputs.map((p) => (p.id === renamingPortId ? { ...p, name: newName } : p)),
+      }));
+      setIsDirty(true);
+      setRenamingPortId(null);
+      toast.success(`Port renamed to "${newName}"`);
+    },
+    [renamingPortId, renamingPort, boundary],
+  );
+
   // Keyboard shortcuts (Ctrl+S / Ctrl+N)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -503,6 +546,7 @@ function App() {
         onMoveBoundaryPort={handleMoveBoundaryPort}
         onRemoveComponent={handleRemoveComponent}
         onRemoveBoundaryPort={handleRemoveBoundaryPort}
+        onRenameBoundaryPort={handleRenameBoundaryPort}
         onDropChip={handleDropChip}
         onConnectWire={handleConnectWire}
         onDisconnectWire={handleDisconnectWire}
@@ -553,6 +597,14 @@ function App() {
         registry={registry}
         onConfirm={handleConfirmDelete}
         onClose={() => setDeletingChipId(null)}
+      />
+
+      {/* Rename Boundary Port Modal */}
+      <RenamePortModal
+        isOpen={Boolean(renamingPortId && renamingPort)}
+        initialName={renamingPort?.name ?? ""}
+        onRename={handleConfirmRenamePort}
+        onCancel={() => setRenamingPortId(null)}
       />
     </div>
   );

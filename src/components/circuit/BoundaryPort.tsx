@@ -117,7 +117,7 @@ export function BoundaryPort({
   // 4. Wire connection pin is at (position.x, 0)
 
   // 5. Label badge
-  const labelText = isLeft ? `in ${name}` : `out ${name}`;
+  const labelText = name;
   const badgeWidth = getPortLabelWidth(labelText);
   const badgeHeight = PORT_LABEL_HEIGHT;
   const badgeX = isLeft ? position.x + 14 : position.x - 14 - badgeWidth;
