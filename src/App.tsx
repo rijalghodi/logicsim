@@ -4,7 +4,7 @@ import { Dock } from "./components/ui/Dock";
 import { SaveChipModal } from "./components/ui/SaveChipModal";
 import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
 import { DeleteChipModal } from "./components/ui/DeleteChipModal";
-import { Breadcrumbs } from "./components/ui/Breadcrumbs";
+import { Header } from "./components/ui/Header";
 import { Toast, toast } from "./components/ui/Toast";
 import {
   createDefaultRegistry,
@@ -452,7 +452,12 @@ function App() {
 
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
-      <Breadcrumbs items={breadcrumbItems} onNavigate={handleBreadcrumbClick} />
+      <Header
+        breadcrumbItems={breadcrumbItems}
+        onNavigateBreadcrumb={handleBreadcrumbClick}
+        onNew={handleNewClick}
+        onSave={handleSaveClick}
+      />
 
       {/* Circuit Canvas */}
       <CircuitCanvas
@@ -479,8 +484,6 @@ function App() {
       <Dock
         savedChips={savedChips}
         disabledChipIds={disabledChipIds}
-        onNew={handleNewClick}
-        onSave={handleSaveClick}
         onAddChip={handleAddChipCenter}
         onOpenChip={handleOpenChipClick}
         onRenameChip={() => toast.info("Rename coming soon!")}

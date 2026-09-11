@@ -48,6 +48,19 @@
   animation: menuFadeInBottom 0.15s ease-out;
 }
 
+.dropdown-align-right {
+  left: auto;
+  right: 0;
+}
+
+.dropdown-top.dropdown-align-right {
+  transform-origin: bottom right;
+}
+
+.dropdown-bottom.dropdown-align-right {
+  transform-origin: top right;
+}
+
 @keyframes menuFadeInTop {
   from {
     opacity: 0;

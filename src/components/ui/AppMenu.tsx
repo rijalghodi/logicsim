@@ -7,20 +7,21 @@ import {
 } from "./DropdownMenu";
 import { MenuIcon } from "./icons/MenuIcon";
 
-interface DockMenuProps {
+interface AppMenuProps {
   readonly onNew: () => void;
   readonly onSave: () => void;
+  readonly align?: "left" | "right";
 }
 
-export function DockMenu({ onNew, onSave }: DockMenuProps) {
+export function AppMenu({ onNew, onSave, align = "left" }: AppMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <button type="button" className="dock-btn dock-btn-menu" title="Circuit & Chip Actions">
+        <button type="button" className="btn-secondary" title="Circuit & Chip Actions">
           <MenuIcon size={14} /> MENU
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent align={align}>
         <DropdownMenuItem onClick={onNew}>
           <span>NEW CHIP</span>
           <DropdownMenuShortcut>Ctrl+N</DropdownMenuShortcut>

@@ -1,4 +1,3 @@
-import { DockMenu } from "./DockMenu";
 import "./Dock.css";
 import { DockChipMenu } from "./DockChipMenu";
 import type { ChipDefinition } from "../../core";
@@ -6,8 +5,6 @@ import type { ChipDefinition } from "../../core";
 interface DockProps {
   readonly savedChips: readonly ChipDefinition[];
   readonly disabledChipIds?: Set<string>;
-  readonly onNew: () => void;
-  readonly onSave: () => void;
   readonly onAddChip?: (chipType: string) => void;
   readonly onOpenChip?: (chipId: string) => void;
   readonly onRenameChip?: (chipId: string) => void;
@@ -17,8 +14,6 @@ interface DockProps {
 export function Dock({
   savedChips,
   disabledChipIds = new Set(),
-  onNew,
-  onSave,
   onAddChip,
   onOpenChip,
   onRenameChip,
@@ -31,8 +26,6 @@ export function Dock({
 
   return (
     <div className="dock-container">
-      {/* Menu dropdown trigger */}
-      <DockMenu onNew={onNew} onSave={onSave} />
 
       {/* Input / Output Primitives */}
       <button

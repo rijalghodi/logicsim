@@ -41,10 +41,17 @@ export function DropdownMenuTrigger({
   });
 }
 
-export function DropdownMenuContent({ children }: { children: ReactNode }) {
+export function DropdownMenuContent({
+  children,
+  align = "left",
+}: {
+  children: ReactNode;
+  align?: "left" | "right";
+}) {
   const ctx = useContext(DropdownMenuContext);
   const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<"top" | "bottom">("bottom");
+  const [effectiveAlign, setEffectiveAlign] = useState<"left" | "right">(align);
 
   useEffect(() => {
     if (ctx?.isOpen && menuRef.current) {
@@ -53,16 +60,23 @@ export function DropdownMenuContent({ children }: { children: ReactNode }) {
         const rect = parent.getBoundingClientRect();
         const spaceBelow = window.innerHeight - rect.bottom;
         const menuHeight = menuRef.current.offsetHeight || 150; // estimate if not fully rendered
-        
+
         // If there's not enough space below, but there is space above, pop up
         if (spaceBelow < menuHeight + 20 && rect.top > menuHeight + 20) {
           setPosition("top");
         } else {
           setPosition("bottom");
         }
+
+        // Auto-detect or use explicit right alignment
+        if (align === "right" || rect.right > window.innerWidth - 100) {
+          setEffectiveAlign("right");
+        } else {
+          setEffectiveAlign("left");
+        }
       }
     }
-  }, [ctx?.isOpen]);
+  }, [ctx?.isOpen, align]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -82,7 +96,7 @@ export function DropdownMenuContent({ children }: { children: ReactNode }) {
   if (!ctx?.isOpen) return null;
 
   return (
-    <div ref={menuRef} className={`dropdown dropdown-${position}`}>
+    <div ref={menuRef} className={`dropdown dropdown-${position} dropdown-align-${effectiveAlign}`}>
       {children}
     </div>
   );

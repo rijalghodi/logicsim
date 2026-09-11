@@ -39,3 +39,4 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 - [ ] Wire Context Menu
 - [ ] Cornered Wire
 - [ ] Wire Color
+- [ ] Delete Boundary Port
