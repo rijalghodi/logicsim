@@ -2,28 +2,40 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "./Toast";
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
 import { Input } from "./Input";
+import { ColorPickerButton } from "./ColorPickerButton";
+import { BIT_ACTIVE_COLOR } from "../circuit/colors";
 
 interface CustomizePortModalProps {
   readonly isOpen: boolean;
   readonly initialName: string;
-  readonly onCustomize: (newName: string) => void;
+  readonly initialColor: string;
+  readonly onCustomize: (newName: string, newColor: string) => void;
   readonly onCancel: () => void;
 }
 
-export function CustomizePortModal({ isOpen, initialName, onCustomize, onCancel }: CustomizePortModalProps) {
+export function CustomizePortModal({
+  isOpen,
+  initialName,
+  initialColor,
+  onCustomize,
+  onCancel,
+}: CustomizePortModalProps) {
   const [name, setName] = useState(initialName);
+  const [color, setColor] = useState(initialColor || BIT_ACTIVE_COLOR);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(initialName);
+
+      setColor(initialColor || BIT_ACTIVE_COLOR);
       setTimeout(() => {
         inputRef.current?.focus();
         inputRef.current?.select();
       }, 50);
     }
-  }, [isOpen, initialName]);
+  }, [isOpen, initialName, initialColor]);
 
   if (!isOpen) return null;
 
@@ -34,7 +46,7 @@ export function CustomizePortModal({ isOpen, initialName, onCustomize, onCancel 
       toast.error("Port name cannot be empty");
       return;
     }
-    onCustomize(trimmed);
+    onCustomize(trimmed, color);
   };
 
   return (
@@ -45,22 +57,26 @@ export function CustomizePortModal({ isOpen, initialName, onCustomize, onCancel 
       </ModalHeader>
 
       <ModalBody onSubmit={handleSubmit}>
-        <Input
-          ref={inputRef}
-          type="text"
-          placeholder="PORT NAME (e.g. A, B, OUT)"
-          autoFocus
-          value={name}
-          onChange={(e) => setName(e.target.value.toUpperCase())}
-          maxLength={10}
-        />
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <ColorPickerButton color={color} onChange={setColor} />
+          <Input
+            ref={inputRef}
+            type="text"
+            placeholder="PORT NAME (e.g. A, B, OUT)"
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value.toUpperCase())}
+            maxLength={10}
+            style={{ flex: 1 }}
+          />
+        </div>
 
         <ModalActions>
           <button type="button" className="btn-secondary" onClick={onCancel}>
             CANCEL
           </button>
           <button type="submit" className="btn-primary">
-            RENAME
+            SAVE
           </button>
         </ModalActions>
       </ModalBody>

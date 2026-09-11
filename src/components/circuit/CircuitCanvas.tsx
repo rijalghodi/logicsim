@@ -24,6 +24,7 @@ export interface CircuitCanvasProps {
   readonly boundary?: BoundaryPorts;
   /** Per-boundary-port-id y override, from dragging — falls back to even spacing when absent. */
   readonly boundaryLayout?: Readonly<Record<string, number>>;
+  readonly portColors?: Readonly<Record<string, string>>;
   readonly boundaryInputs: Readonly<Record<string, Bit>>;
   /** Omit to render boundary inputs as read-only (e.g. viewing a nested chip driven by its parent). */
   readonly onToggleBoundaryInput?: (portId: string) => void;
@@ -56,6 +57,7 @@ export function CircuitCanvas({
   layout,
   boundary,
   boundaryLayout,
+  portColors = {},
   boundaryInputs,
   onToggleBoundaryInput,
   onMoveBoundaryPort,
@@ -190,6 +192,7 @@ export function CircuitCanvas({
                 from={resolvePortPosition(connection.from, ctx)}
                 to={resolvePortPosition(connection.to, ctx)}
                 active={Boolean(getPortValue(connection.from, ctx))}
+                color={connection.from.componentId === BOUNDARY_ID ? portColors[connection.from.portId] : undefined}
                 onDelete={onDisconnectWire ? () => onDisconnectWire(connection.from, connection.to) : undefined}
               />
             );
@@ -197,7 +200,13 @@ export function CircuitCanvas({
 
           {/* Active wire draft preview following mouse cursor */}
           {wiringDraft && mousePos && (
-            <WireLine from={wiringDraft.fromPos} to={mousePos} active={true} isDraft={true} />
+            <WireLine
+              from={wiringDraft.fromPos}
+              to={mousePos}
+              active={true}
+              isDraft={true}
+              color={wiringDraft.from.componentId === BOUNDARY_ID ? portColors[wiringDraft.from.portId] : undefined}
+            />
           )}
 
           {/* Placed chip components */}
@@ -251,6 +260,7 @@ export function CircuitCanvas({
                 edgeX={16}
                 side="left"
                 name={port.name}
+                color={portColors[port.id]}
                 active={Boolean(boundaryInputs[port.id])}
                 onToggle={onToggleBoundaryInput ? () => onToggleBoundaryInput(port.id) : undefined}
                 onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}
@@ -277,6 +287,7 @@ export function CircuitCanvas({
                 edgeX={width - 16}
                 side="right"
                 name={port.name}
+                color={portColors[port.id]}
                 active={Boolean(simulation.boundaryOutputs[port.id])}
                 onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}
                 onPortClick={(p) => handlePortInteraction({ componentId: BOUNDARY_ID, portId: port.id }, p)}

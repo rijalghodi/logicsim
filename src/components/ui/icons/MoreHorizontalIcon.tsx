@@ -1,4 +1,10 @@
-export function MoreHorizontalIcon({ color = "currentColor", size = 16 }: { readonly color?: string; readonly size?: number }) {
+export function MoreHorizontalIcon({
+  color = "currentColor",
+  size = 16,
+}: {
+  readonly color?: string;
+  readonly size?: number;
+}) {
   return (
     <svg
       width={size}

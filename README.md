@@ -46,5 +46,6 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 - [x] Breadcrumb and Detail Chip
 - [x] UI: Delete Boundary Port
 - [x] UI: Rename Boundary Port
-- [ ] UI: Color Boundary Port and wire connected
+- [x] UI: Color Boundary Port and wire connected
 - [ ] UI: Cornered Wire
+- [ ] UI: Clean App.tsx, use hooks.

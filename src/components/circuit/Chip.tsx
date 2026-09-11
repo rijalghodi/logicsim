@@ -11,7 +11,8 @@ import {
 import type { Position } from "./geometry";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
-import { CHIP_FILL, getBorderColor, getContrastColor } from "./colors";
+import { CHIP_FILL } from "./colors";
+import { getBorderColor, getContrastColor, getSafeColor } from "../../utils/colorHelper";
 import type Konva from "konva";
 
 interface ChipProps {
@@ -137,7 +138,7 @@ export function Chip({
           y={0}
           width={box.width}
           height={box.height}
-          fill={color ?? CHIP_FILL}
+          fill={color ? getSafeColor(color) : CHIP_FILL}
           stroke={getBorderColor(color ?? CHIP_FILL)}
           strokeWidth={1.5}
           cornerRadius={6}

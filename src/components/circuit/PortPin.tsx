@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Circle, Group } from "react-konva";
 import type Konva from "konva";
 import { PORT_RADIUS } from "./geometry";
-import { PORT_COLOR, WIRE_ACTIVE_COLOR } from "./colors";
+import { PORT_COLOR, BIT_ACTIVE_COLOR, PORT_COLOR_HOVER } from "./colors";
 
 interface PortPinProps {
   readonly x: number;
@@ -13,7 +13,7 @@ interface PortPinProps {
   readonly onHoverChange?: (isHovered: boolean) => void;
 }
 
-export function PortPin({ x, y, isWiringActive, onPortClick, onHoverChange }: PortPinProps) {
+export function PortPin({ x, y, active, isWiringActive, onPortClick, onHoverChange }: PortPinProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const setCursor = (e: Konva.KonvaEventObject<MouseEvent>, cursor: string) => {
@@ -55,7 +55,7 @@ export function PortPin({ x, y, isWiringActive, onPortClick, onHoverChange }: Po
           x={0}
           y={0}
           radius={PORT_RADIUS + 4}
-          stroke={WIRE_ACTIVE_COLOR}
+          stroke={active ? BIT_ACTIVE_COLOR : BIT_ACTIVE_COLOR}
           strokeWidth={1.5}
           dash={[3, 3]}
           listening={false}
@@ -63,7 +63,7 @@ export function PortPin({ x, y, isWiringActive, onPortClick, onHoverChange }: Po
       )}
 
       {/* Pin shape */}
-      <Circle x={0} y={0} radius={radius} fill={isHovered ? "hsl(0, 0%, 100%)" : PORT_COLOR} listening={false} />
+      <Circle x={0} y={0} radius={radius} fill={isHovered ? PORT_COLOR_HOVER : PORT_COLOR} listening={false} />
     </Group>
   );
 }

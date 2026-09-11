@@ -29,6 +29,7 @@ function createBlankCircuit() {
     layout: {} as Layout,
     boundary: { inputs: [IN], outputs: [OUT] },
     boundaryLayout: {} as Record<string, number>,
+    portColors: {} as Record<string, string>,
   };
 }
 
@@ -37,6 +38,7 @@ interface ViewState {
   layout: Layout;
   boundary: { inputs: PortDefinition[]; outputs: PortDefinition[] };
   boundaryLayout: Record<string, number>;
+  portColors: Record<string, string>;
   boundaryInputs: Record<string, Bit>;
   isDirty: boolean;
   currentChipName: string | null;
@@ -52,6 +54,7 @@ function App() {
   const [layout, setLayout] = useState<Layout>(initial.layout);
   const [boundary, setBoundary] = useState<{ inputs: PortDefinition[]; outputs: PortDefinition[] }>(initial.boundary);
   const [boundaryLayout, setBoundaryLayout] = useState<Record<string, number>>({});
+  const [portColors, setPortColors] = useState<Record<string, string>>({});
   const [boundaryInputs, setBoundaryInputs] = useState<Record<string, Bit>>({});
 
   const [isDirty, setIsDirty] = useState(false);
@@ -101,6 +104,7 @@ function App() {
     setLayout(blank.layout);
     setBoundary(blank.boundary);
     setBoundaryLayout(blank.boundaryLayout);
+    setPortColors(blank.portColors);
     setBoundaryInputs({});
     setCurrentChipName(null);
     setCurrentChipId(null);
@@ -123,12 +127,13 @@ function App() {
       layout,
       boundary,
       boundaryLayout,
+      portColors,
       boundaryInputs,
       isDirty,
       currentChipName,
       currentChipId,
     }),
-    [circuit, layout, boundary, boundaryLayout, boundaryInputs, isDirty, currentChipName, currentChipId],
+    [circuit, layout, boundary, boundaryLayout, portColors, boundaryInputs, isDirty, currentChipName, currentChipId],
   );
 
   const restoreViewState = useCallback((state: ViewState) => {
@@ -136,6 +141,7 @@ function App() {
     setLayout(state.layout);
     setBoundary(state.boundary);
     setBoundaryLayout(state.boundaryLayout);
+    setPortColors(state.portColors);
     setBoundaryInputs(state.boundaryInputs);
     setIsDirty(state.isDirty);
     setCurrentChipName(state.currentChipName);
@@ -164,6 +170,7 @@ function App() {
       setBoundary({ inputs: [...chipDef.inputs], outputs: [...chipDef.outputs] });
       setLayout(chipDef.layout || {});
       setBoundaryLayout(chipDef.boundaryLayout || {});
+      setPortColors(chipDef.portColors || {});
       setCurrentChipName(chipDef.name);
       setCurrentChipId(chipDef.id);
       setIsDirty(false);
@@ -188,6 +195,7 @@ function App() {
         color,
         layout,
         boundaryLayout,
+        portColors,
       };
 
       try {
@@ -216,6 +224,7 @@ function App() {
       registry,
       layout,
       boundaryLayout,
+      portColors,
       currentChipId,
       pendingBreadcrumbIndex,
       pendingChipToOpen,
@@ -319,6 +328,7 @@ function App() {
       setBoundary({ inputs: [...targetDef.inputs], outputs: [...targetDef.outputs] });
       setLayout(targetDef.layout || {});
       setBoundaryLayout(targetDef.boundaryLayout || {});
+      setPortColors(targetDef.portColors || {});
       setBoundaryInputs({});
       setCurrentChipName(targetDef.name);
       setCurrentChipId(targetDef.id);
@@ -459,6 +469,11 @@ function App() {
       delete next[portId];
       return next;
     });
+    setPortColors((prev) => {
+      const next = { ...prev };
+      delete next[portId];
+      return next;
+    });
     setBoundaryInputs((prev) => {
       const next = { ...prev };
       delete next[portId];
@@ -481,10 +496,10 @@ function App() {
   }, []);
 
   const handleConfirmRenamePort = useCallback(
-    (newName: string) => {
+    (newName: string, newColor: string) => {
       if (!renamingPortId || !renamingPort) return;
 
-      if (renamingPort.name === newName) {
+      if (renamingPort.name === newName && (portColors[renamingPortId] || "") === newColor) {
         setRenamingPortId(null);
         return;
       }
@@ -501,11 +516,15 @@ function App() {
         inputs: prev.inputs.map((p) => (p.id === renamingPortId ? { ...p, name: newName } : p)),
         outputs: prev.outputs.map((p) => (p.id === renamingPortId ? { ...p, name: newName } : p)),
       }));
+      setPortColors((prev) => ({
+        ...prev,
+        [renamingPortId]: newColor,
+      }));
       setIsDirty(true);
       setRenamingPortId(null);
-      toast.success(`Port renamed to "${newName}"`);
+      toast.success(`Port updated`);
     },
-    [renamingPortId, renamingPort, boundary],
+    [renamingPortId, renamingPort, boundary, portColors],
   );
 
   // Keyboard shortcuts (Ctrl+S / Ctrl+N)
@@ -570,6 +589,7 @@ function App() {
           layout={layout}
           boundary={boundary}
           boundaryLayout={boundaryLayout}
+          portColors={portColors}
           boundaryInputs={boundaryInputs}
           onToggleBoundaryInput={handleToggleBoundaryInput}
           onMoveComponent={handleMoveComponent}
@@ -633,6 +653,7 @@ function App() {
         <CustomizePortModal
           isOpen={Boolean(renamingPortId && renamingPort)}
           initialName={renamingPort?.name ?? ""}
+          initialColor={renamingPortId ? (portColors[renamingPortId] ?? "") : ""}
           onCustomize={handleConfirmRenamePort}
           onCancel={() => setRenamingPortId(null)}
         />

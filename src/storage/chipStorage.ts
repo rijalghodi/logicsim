@@ -7,6 +7,7 @@ export interface SavedChip extends ChipDefinition {
   readonly color: string;
   readonly layout: Layout;
   readonly boundaryLayout: Record<string, number>;
+  readonly portColors: Record<string, string>;
 }
 
 const STORAGE_KEY = "logicsim_custom_chips";
@@ -38,6 +39,7 @@ export function loadSavedChips(registry: ChipRegistry): SavedChip[] {
           color: item.ui?.color ?? CHIP_FILL,
           layout: item.ui?.layout ?? {},
           boundaryLayout: item.ui?.boundaryLayout ?? {},
+          portColors: item.ui?.portColors ?? {},
         });
       } catch (err) {
         console.warn("Failed to deserialize saved chip:", err);
@@ -78,6 +80,7 @@ export function saveCustomChip(savedChip: SavedChip, registry: ChipRegistry): vo
         color: chip.color,
         layout: chip.layout,
         boundaryLayout: chip.boundaryLayout,
+        portColors: chip.portColors,
       },
     });
 
@@ -89,6 +92,7 @@ export function saveCustomChip(savedChip: SavedChip, registry: ChipRegistry): vo
           color: savedChip.color,
           layout: savedChip.layout,
           boundaryLayout: savedChip.boundaryLayout,
+          portColors: savedChip.portColors,
         },
       },
     ];

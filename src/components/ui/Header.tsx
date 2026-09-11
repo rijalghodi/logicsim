@@ -24,13 +24,7 @@ export function Header({
 }: HeaderProps) {
   return (
     <header className="header-container">
-      <AppMenu
-        onNew={onNew}
-        onSave={onSave}
-        onCustomize={onCustomize}
-        onDelete={onDelete}
-        isSaved={isSaved}
-      />
+      <AppMenu onNew={onNew} onSave={onSave} onCustomize={onCustomize} onDelete={onDelete} isSaved={isSaved} />
       <Breadcrumbs items={breadcrumbItems} onNavigate={onNavigateBreadcrumb} />
     </header>
   );

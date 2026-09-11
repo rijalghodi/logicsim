@@ -3,9 +3,21 @@ import { Circle, Group, Line, Rect } from "react-konva";
 import type Konva from "konva";
 import { PORT_RADIUS, getPortLabelWidth, PORT_LABEL_HEIGHT, BIT_CIRCLE_RADIUS } from "./geometry";
 import type { Position } from "./geometry";
-import { WIRE_ACTIVE_COLOR, WIRE_INACTIVE_COLOR } from "./colors";
+
+import {
+  CONTROLLER_FILL,
+  CONTROLLER_FILL_HOVER,
+  CONTROLLER_STROKE,
+  CONTROLLER_STROKE_HOVER,
+  BIT_ACTIVE_COLOR,
+  BIT_INACTIVE_COLOR,
+  BIT_STROKE,
+  BIT_INACTIVE_HOVER_COLOR,
+} from "./colors";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
+
+import { getBrightColor, getDimmedColor, getHoverColor } from "../../utils/colorHelper";
 
 interface BoundaryPortProps {
   /** The position of the wire connection pin (where circuit wires attach). */
@@ -16,6 +28,7 @@ interface BoundaryPortProps {
   readonly side: "left" | "right";
   readonly name: string;
   readonly active: boolean;
+  readonly color?: string;
   /** Present only for boundary inputs — an output is read-only, driven by the circuit. */
   readonly onToggle?: () => void;
   /** Fired with the port's new y while/after dragging — x never changes. */
@@ -32,18 +45,6 @@ interface BoundaryPortProps {
   readonly onContextMenu?: (x: number, y: number) => void;
 }
 
-import {
-  CONTROLLER_FILL,
-  CONTROLLER_FILL_HOVER,
-  CONTROLLER_STROKE,
-  CONTROLLER_STROKE_HOVER,
-  BIT_FILL,
-  BIT_FILL_HOVER,
-  BIT_STROKE,
-  BIT_STROKE_HOVER,
-  BIT_STROKE_ACTIVE,
-} from "./colors";
-
 const CONTROLLER_WIDTH = 12;
 
 /**
@@ -55,6 +56,7 @@ export function BoundaryPort({
   edgeX,
   name,
   active,
+  color,
   onToggle,
   onMove,
   onPortClick,
@@ -233,14 +235,26 @@ export function BoundaryPort({
           x={bitCircleX}
           y={0}
           radius={BIT_CIRCLE_RADIUS}
-          fill={active ? WIRE_ACTIVE_COLOR : bitHovered && onToggle ? BIT_FILL_HOVER : BIT_FILL}
-          stroke={active ? BIT_STROKE_ACTIVE : bitHovered && onToggle ? BIT_STROKE_HOVER : BIT_STROKE}
+          fill={
+            active
+              ? color
+                ? getBrightColor(color)
+                : BIT_ACTIVE_COLOR
+              : bitHovered && onToggle
+                ? color
+                  ? getHoverColor(getDimmedColor(color))
+                  : BIT_INACTIVE_HOVER_COLOR
+                : color
+                  ? getDimmedColor(color)
+                  : BIT_INACTIVE_COLOR
+          }
+          stroke={BIT_STROKE}
           strokeWidth={2}
         />
       </Group>
 
       {/* 3. CONNECTING LINE BETWEEN BIT CIRCLE AND WIRE CONNECTION PIN */}
-      <Line points={[lineFromX, 0, lineToX, 0]} stroke={WIRE_INACTIVE_COLOR} strokeWidth={2.5} hitStrokeWidth={16} />
+      <Line points={[lineFromX, 0, lineToX, 0]} stroke={BIT_STROKE} strokeWidth={2.5} hitStrokeWidth={16} />
 
       {/* 4. WIRE CONNECTION PIN (where circuit wires attach) */}
       <PortPin

@@ -14,8 +14,8 @@
   --warning-fg: hsl(0, 0%, 0%);
   --border: hsla(0, 0%, 40%, 0.3);
   --fg: hsl(0, 0%, 96%);
-  --fg-secondary: hsl(0, 0%, 65%);
-  --fg-muted: hsl(0, 0%, 50%);
+  --fg-secondary: hsl(0, 0%, 80%);
+  --fg-muted: hsl(0, 0%, 65%);
   --radius: 6px;
   --radius-sm: calc(var(--radius) - 2px);
   --radius-lg: calc(var(--radius) + 4px);

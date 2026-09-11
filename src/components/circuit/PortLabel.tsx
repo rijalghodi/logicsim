@@ -18,9 +18,7 @@ export function PortLabel({ x, y, text }: PortLabelProps) {
         y={0}
         width={width}
         height={height}
-        fill="hsl(0, 0%, 0)"
-        stroke="hsl(0, 0%, 0)"
-        strokeWidth={1}
+        fill="hsl(0, 0%, 0%)"
         cornerRadius={4}
         shadowColor="hsl(0, 0%, 30)"
         shadowBlur={6}
@@ -32,8 +30,8 @@ export function PortLabel({ x, y, text }: PortLabelProps) {
         width={width}
         height={height}
         text={text}
-        fontSize={11}
-        fontStyle="600"
+        fontSize={12}
+        fontStyle="500"
         fontFamily="JetBrains Mono"
         fill="hsl(0, 0%, 100%)"
         align="center"
