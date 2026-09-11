@@ -9,8 +9,10 @@ interface ColorPickerButtonProps {
   readonly size?: number;
 }
 
-export function ColorPickerButton({ color, onChange, title = "Choose Color", size = 42 }: ColorPickerButtonProps) {
+export function ColorPickerButton({ color, onChange, title = "Choose Color", size = 36 }: ColorPickerButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  console.log(color);
 
   return (
     <>

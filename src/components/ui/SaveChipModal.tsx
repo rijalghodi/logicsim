@@ -32,15 +32,15 @@ export interface SaveChipModalProps {
 }
 
 export function SaveChipModal({ isOpen, initialState, onSave, onCancel }: SaveChipModalProps) {
-  const [name, setName] = useState(initialState?.name ?? "");
-  const [color, setColor] = useState(initialState?.color ?? CHIP_FILL);
+  const [name, setName] = useState(initialState?.name || "");
+  const [color, setColor] = useState(initialState?.color || CHIP_FILL);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setName(initialState?.name ?? "");
-      setColor(initialState?.color ?? CHIP_FILL);
+      setName(initialState?.name || "");
+      setColor(initialState?.color || CHIP_FILL);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen, initialState]);

@@ -209,6 +209,7 @@ function App() {
       }
     },
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       boundary,
       circuit,
@@ -551,92 +552,92 @@ function App() {
   return (
     <SaveChipModalContext.Provider value={{ openSaveModal }}>
       <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
-      <Header
-        breadcrumbItems={breadcrumbItems}
-        onNavigateBreadcrumb={handleBreadcrumbClick}
-        onNew={handleNewClick}
-        onSave={handleSaveClick}
-        onCustomize={handleCustomizeClick}
-        onDelete={handleDeleteCurrentClick}
-        isSaved={!!currentChipId}
-      />
+        <Header
+          breadcrumbItems={breadcrumbItems}
+          onNavigateBreadcrumb={handleBreadcrumbClick}
+          onNew={handleNewClick}
+          onSave={handleSaveClick}
+          onCustomize={handleCustomizeClick}
+          onDelete={handleDeleteCurrentClick}
+          isSaved={!!currentChipId}
+        />
 
-      {/* Circuit Canvas */}
-      <CircuitCanvas
-        circuit={circuit}
-        registry={registry}
-        savedChips={savedChips}
-        layout={layout}
-        boundary={boundary}
-        boundaryLayout={boundaryLayout}
-        boundaryInputs={boundaryInputs}
-        onToggleBoundaryInput={handleToggleBoundaryInput}
-        onMoveComponent={handleMoveComponent}
-        onOpenComponent={handleDiveIntoChip}
-        onMoveBoundaryPort={handleMoveBoundaryPort}
-        onRemoveComponent={handleRemoveComponent}
-        onRemoveBoundaryPort={handleRemoveBoundaryPort}
-        onRenameBoundaryPort={handleRenameBoundaryPort}
-        onDropChip={handleDropChip}
-        onConnectWire={handleConnectWire}
-        onDisconnectWire={handleDisconnectWire}
-        width={windowSize.width}
-        height={windowSize.height}
-      />
+        {/* Circuit Canvas */}
+        <CircuitCanvas
+          circuit={circuit}
+          registry={registry}
+          savedChips={savedChips}
+          layout={layout}
+          boundary={boundary}
+          boundaryLayout={boundaryLayout}
+          boundaryInputs={boundaryInputs}
+          onToggleBoundaryInput={handleToggleBoundaryInput}
+          onMoveComponent={handleMoveComponent}
+          onOpenComponent={handleDiveIntoChip}
+          onMoveBoundaryPort={handleMoveBoundaryPort}
+          onRemoveComponent={handleRemoveComponent}
+          onRemoveBoundaryPort={handleRemoveBoundaryPort}
+          onRenameBoundaryPort={handleRenameBoundaryPort}
+          onDropChip={handleDropChip}
+          onConnectWire={handleConnectWire}
+          onDisconnectWire={handleDisconnectWire}
+          width={windowSize.width}
+          height={windowSize.height}
+        />
 
-      {/* Floating Bottom Toolbar */}
-      <Dock
-        savedChips={savedChips}
-        disabledChipIds={disabledChipIds}
-        onAddChip={handleAddChipCenter}
-        onOpenChip={handleOpenChipClick}
-        onRenameChip={() => toast.info("Rename coming soon!")}
-        onDeleteChip={handleDeleteChipClick}
-      />
+        {/* Floating Bottom Toolbar */}
+        <Dock
+          savedChips={savedChips}
+          disabledChipIds={disabledChipIds}
+          onAddChip={handleAddChipCenter}
+          onOpenChip={handleOpenChipClick}
+          onRenameChip={() => toast.info("Rename coming soon!")}
+          onDeleteChip={handleDeleteChipClick}
+        />
 
-      {/* Toast Notification */}
-      <Toast />
+        {/* Toast Notification */}
+        <Toast />
 
-      {/* Save Chip Modal */}
-      <SaveChipModal
-        isOpen={saveModalOpen}
-        initialState={saveModalState ?? { id: "", name: currentChipName ?? "", color: "" }}
-        onSave={handleConfirmSave}
-        onCancel={() => setSaveModalOpen(false)}
-      />
+        {/* Save Chip Modal */}
+        <SaveChipModal
+          isOpen={saveModalOpen}
+          initialState={saveModalState ?? { id: "", name: currentChipName ?? "", color: "" }}
+          onSave={handleConfirmSave}
+          onCancel={() => setSaveModalOpen(false)}
+        />
 
-      {/* Unsaved Changes Confirmation Modal */}
-      <UnsavedChangesAlert
-        isOpen={showUnsavedModal}
-        onSave={() => {
-          setShowUnsavedModal(false);
-          openSaveModal();
-        }}
-        onDiscard={handleDiscardChanges}
-        onCancel={() => {
-          setShowUnsavedModal(false);
-          setPendingChipToOpen(null);
-          setPendingBreadcrumbIndex(null);
-        }}
-      />
+        {/* Unsaved Changes Confirmation Modal */}
+        <UnsavedChangesAlert
+          isOpen={showUnsavedModal}
+          onSave={() => {
+            setShowUnsavedModal(false);
+            openSaveModal();
+          }}
+          onDiscard={handleDiscardChanges}
+          onCancel={() => {
+            setShowUnsavedModal(false);
+            setPendingChipToOpen(null);
+            setPendingBreadcrumbIndex(null);
+          }}
+        />
 
-      {/* Delete Chip Confirmation Modal */}
-      <DeleteChipModal
-        chipId={deletingChipId}
-        savedChips={savedChips}
-        registry={registry}
-        onConfirm={handleConfirmDelete}
-        onClose={() => setDeletingChipId(null)}
-      />
+        {/* Delete Chip Confirmation Modal */}
+        <DeleteChipModal
+          chipId={deletingChipId}
+          savedChips={savedChips}
+          registry={registry}
+          onConfirm={handleConfirmDelete}
+          onClose={() => setDeletingChipId(null)}
+        />
 
-      {/* Rename Boundary Port Modal */}
-      <RenamePortModal
-        isOpen={Boolean(renamingPortId && renamingPort)}
-        initialName={renamingPort?.name ?? ""}
-        onRename={handleConfirmRenamePort}
-        onCancel={() => setRenamingPortId(null)}
-      />
-    </div>
+        {/* Rename Boundary Port Modal */}
+        <RenamePortModal
+          isOpen={Boolean(renamingPortId && renamingPort)}
+          initialName={renamingPort?.name ?? ""}
+          onRename={handleConfirmRenamePort}
+          onCancel={() => setRenamingPortId(null)}
+        />
+      </div>
     </SaveChipModalContext.Provider>
   );
 }
