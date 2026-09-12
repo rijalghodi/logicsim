@@ -54,4 +54,4 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 - [ ] Feat: Cap position in every screen
 - [ ] User Preference: show port label, show grid
 - [x] Fix sort ports in chip by y-position
-- [ ] Fix: place chips and port in non-occupied space
+- [x] Fix: place chips and port in non-occupied space

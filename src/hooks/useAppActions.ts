@@ -84,29 +84,29 @@ export function useAppActions(windowSize: { width: number; height: number }) {
         return Object.values(store.layout).some((pos) => Math.abs(pos.x - x) < 5 && Math.abs(pos.y - y) < 5);
       };
 
+      const ARCH_STEP = 40;
       let finalX = cx;
       let finalY = cy;
 
       if (isOccupied(cx, cy)) {
-        for (let d = 20; d < 2000; d += 20) {
-          if (!isOccupied(cx + d, cy + d)) {
-            finalX = cx + d;
-            finalY = cy + d;
-            break;
+        let found = false;
+        for (let r = ARCH_STEP; r < 2000; r += ARCH_STEP) {
+          const dTheta = ARCH_STEP / r;
+          const startTheta = Math.PI / 4; // 45 degree
+
+          for (let theta = startTheta; theta < startTheta + 2 * Math.PI; theta += dTheta) {
+            const px = Math.round(cx + r * Math.cos(theta));
+            const py = Math.round(cy + r * Math.sin(theta));
+
+            if (!isOccupied(px, py)) {
+              finalX = px;
+              finalY = py;
+              found = true;
+              break;
+            }
           }
-          if (!isOccupied(cx + d, cy - d)) {
-            finalX = cx + d;
-            finalY = cy - d;
-            break;
-          }
-          if (!isOccupied(cx - d, cy - d)) {
-            finalX = cx - d;
-            finalY = cy - d;
-            break;
-          }
-          if (!isOccupied(cx - d, cy + d)) {
-            finalX = cx - d;
-            finalY = cy + d;
+
+          if (found) {
             break;
           }
         }
