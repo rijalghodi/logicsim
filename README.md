@@ -36,19 +36,22 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 
 - [x] Core: circuit registry
 - [x] Core: simulation logic
-- [x] UI: Render Chip
-- [x] UI: Render Boundary Port
-- [x] UI: Render Wire
-- [x] UI: Simulate Circuit
-- [x] UI: Save, Edit, and Create New Circuit
-- [x] UI: Delete Chip
-- [x] UI: Chip Context Menu
-- [x] Breadcrumb and Detail Chip
-- [x] UI: Delete Boundary Port
-- [x] UI: Rename Boundary Port
-- [x] UI: Color Boundary Port and wire connected
-- [ ] UI: Clean App.tsx, use hooks.
-- [ ] UI: Cornered Wire
-- [ ] UI: Fix position in every screen
-- [ ] User Preference: Always show port label
-- [ ]
+- [x] Feat: Render Chip
+- [x] Feat: Render Boundary Port
+- [x] Feat: Render Wire
+- [x] Feat: Simulate Circuit
+- [x] Feat: Save, Edit, and Create New Circuit
+- [x] Feat: Delete Chip
+- [x] Feat: Chip Context Menu
+- [x] Feat: Breadcrumb and Detail Chip
+- [x] Feat: Delete Boundary Port
+- [x] Feat: Rename Boundary Port
+- [x] Feat: Color Boundary Port and wire connected
+- [ ] Feat: Clean App.tsx, use hooks.
+- [ ] Feat: Cornered Wire
+- [x] Feat: slider as color input
+- [x] Feat: Quick Customize Chip
+- [ ] Feat: Cap position in every screen
+- [ ] User Preference: show port label, show grid
+- [ ] Fix sort ports in chip by y-position
+- [ ] Fix: place chips and port in non-occupied space

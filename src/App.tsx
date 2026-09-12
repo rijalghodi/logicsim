@@ -3,7 +3,7 @@ import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import { Dock } from "./components/ui/Dock";
 import { SaveChipModal } from "./components/ui/SaveChipModal";
 import { saveChipModal, type ChipSaveState } from "./stores/saveChipModalStore";
-import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
+import { UnsavedAlert } from "./components/ui/UnsavedAlert";
 import { DeleteChipModal } from "./components/ui/DeleteChipModal";
 import { CustomizePortModal } from "./components/ui/CustomizePortModal";
 import { Header } from "./components/ui/Header";
@@ -22,6 +22,7 @@ import type { SavedChip } from "./storage/chipStorage";
 import type { Layout, Position } from "./components/circuit/geometry";
 import { CHIP_FILL } from "./components/circuit/colors";
 import { toast } from "./stores/toastStore";
+import { unsavedAlert } from "./stores/unsavedAlertStore";
 
 function createBlankCircuit() {
   const IN = createPortDefinition("IN", "input");
@@ -65,9 +66,6 @@ function App() {
 
   const [viewStack, setViewStack] = useState<ViewState[]>([]);
   const [pendingBreadcrumbIndex, setPendingBreadcrumbIndex] = useState<number | null>(null);
-
-  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
-  const [pendingChipToOpen, setPendingChipToOpen] = useState<string | null>(null);
   const [deletingChipId, setDeletingChipId] = useState<string | null>(null);
   const [renamingPortId, setRenamingPortId] = useState<string | null>(null);
 
@@ -114,12 +112,11 @@ function App() {
 
   const handleNewClick = useCallback(() => {
     if (isDirty && (circuit.components.length > 0 || circuit.connections.length > 0)) {
-      setPendingChipToOpen(null);
-      setShowUnsavedModal(true);
+      unsavedAlert.open(currentChipId!);
     } else {
       resetToBlank();
     }
-  }, [isDirty, circuit, resetToBlank]);
+  }, [isDirty, circuit, resetToBlank, currentChipId]);
 
   const getViewState = useCallback(
     (): ViewState => ({
@@ -174,7 +171,6 @@ function App() {
       setCurrentChipName(chipDef.name);
       setCurrentChipId(chipDef.id);
       setIsDirty(false);
-      setPendingChipToOpen(null);
       setViewStack([]);
     },
     [savedChips],
@@ -209,8 +205,6 @@ function App() {
 
         if (pendingBreadcrumbIndex !== null) {
           executeBreadcrumbNavigation(pendingBreadcrumbIndex);
-        } else if (pendingChipToOpen) {
-          loadChipToCanvas(pendingChipToOpen);
         }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : String(err));
@@ -227,7 +221,6 @@ function App() {
       portColors,
       currentChipId,
       pendingBreadcrumbIndex,
-      pendingChipToOpen,
       executeBreadcrumbNavigation,
       loadChipToCanvas,
     ],
@@ -272,8 +265,7 @@ function App() {
   const handleOpenChipClick = useCallback(
     (chipId: string) => {
       if (isDirty && (circuit.components.length > 0 || circuit.connections.length > 0)) {
-        setPendingChipToOpen(chipId);
-        setShowUnsavedModal(true);
+        unsavedAlert.open(chipId);
       } else {
         loadChipToCanvas(chipId);
       }
@@ -309,15 +301,13 @@ function App() {
   );
 
   const handleDiscardChanges = useCallback(() => {
-    setShowUnsavedModal(false);
+    unsavedAlert.close();
     if (pendingBreadcrumbIndex !== null) {
       executeBreadcrumbNavigation(pendingBreadcrumbIndex);
-    } else if (pendingChipToOpen) {
-      loadChipToCanvas(pendingChipToOpen);
     } else {
       resetToBlank();
     }
-  }, [pendingBreadcrumbIndex, pendingChipToOpen, loadChipToCanvas, resetToBlank, executeBreadcrumbNavigation]);
+  }, [pendingBreadcrumbIndex, resetToBlank, executeBreadcrumbNavigation]);
 
   const handleDiveIntoChip = useCallback(
     (componentId: string) => {
@@ -349,12 +339,12 @@ function App() {
     (index: number) => {
       if (isDirty) {
         setPendingBreadcrumbIndex(index);
-        setShowUnsavedModal(true);
+        unsavedAlert.open(currentChipId!);
       } else {
         executeBreadcrumbNavigation(index);
       }
     },
-    [isDirty, executeBreadcrumbNavigation],
+    [isDirty, executeBreadcrumbNavigation, currentChipId],
   );
 
   const handleDropChip = useCallback(
@@ -629,18 +619,20 @@ function App() {
 
       <SaveChipModal onSave={handleConfirmSave} />
 
-      <UnsavedChangesAlert
-        isOpen={showUnsavedModal}
-        onSave={() => {
-          setShowUnsavedModal(false);
-          openSaveModal();
+      <UnsavedAlert
+        onSave={(chipId: string) => {
+          let color = CHIP_FILL;
+          let name = "";
+          if (chipId) {
+            const chip = savedChips.find((chip) => chip.id === chipId);
+            if (chip) {
+              color = chip.color;
+              name = chip.name;
+            }
+          }
+          openSaveModal({ id: chipId, color, name });
         }}
         onDiscard={handleDiscardChanges}
-        onCancel={() => {
-          setShowUnsavedModal(false);
-          setPendingChipToOpen(null);
-          setPendingBreadcrumbIndex(null);
-        }}
       />
 
       <DeleteChipModal
