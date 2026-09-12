@@ -535,13 +535,13 @@ function App() {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
         handleSaveClick();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "n") {
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         handleNewClick();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "e") {
         e.preventDefault();
         handleCustomizeClick();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "del") {
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "backspace") {
         e.preventDefault();
         handleDeleteCurrentClick();
       }

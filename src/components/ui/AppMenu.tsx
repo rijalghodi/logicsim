@@ -26,22 +26,22 @@ export function AppMenu({ onNew, onSave, onCustomize, onDelete, isSaved, align =
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align}>
         <DropdownMenuItem onClick={onNew}>
-          <span>CREATE NEW</span>
-          <DropdownMenuShortcut>Ctrl+N</DropdownMenuShortcut>
+          <span>NEW CHIP</span>
+          <DropdownMenuShortcut>⌘ K</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onSave}>
           <span>SAVE CHIP</span>
-          <DropdownMenuShortcut>Ctrl+S</DropdownMenuShortcut>
+          <DropdownMenuShortcut>⌘ S</DropdownMenuShortcut>
         </DropdownMenuItem>
         {isSaved && (
           <>
             <DropdownMenuItem onClick={onCustomize}>
               <span>CUSTOMIZE</span>
-              <DropdownMenuShortcut>Ctrl+E</DropdownMenuShortcut>
+              <DropdownMenuShortcut>⌘ E</DropdownMenuShortcut>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onDelete} isDanger>
-              <span>DELETE</span>
-              <DropdownMenuShortcut>Ctrl+Del</DropdownMenuShortcut>
+              <span>DELETE CHIP</span>
+              <DropdownMenuShortcut>⌘ ⌫</DropdownMenuShortcut>
             </DropdownMenuItem>
           </>
         )}
