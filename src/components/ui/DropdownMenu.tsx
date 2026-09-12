@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from "react";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
+import { createPortal } from "react-dom";
 import "./DropdownMenu.css";
 
 type DropdownMenuContextType = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  /** The trigger's wrapper element — measured to position the portaled `DropdownMenuContent`. */
+  triggerRef: RefObject<HTMLDivElement | null>;
 };
 
 const DropdownMenuContext = createContext<DropdownMenuContextType | null>(null);
@@ -19,18 +22,22 @@ export function DropdownMenu({
   onOpenChange?: (open: boolean) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const triggerRef = useRef<HTMLDivElement>(null);
 
-  const value = {
+  const value: DropdownMenuContextType = {
     isOpen: open ?? isOpen,
     setIsOpen: (value: boolean) => {
       onOpenChange?.(value);
       setIsOpen(value);
     },
+    triggerRef,
   };
 
   return (
     <DropdownMenuContext.Provider value={value}>
-      <div style={{ position: "relative", display: "inline-block" }}>{children}</div>
+      <div ref={triggerRef} style={{ position: "relative", display: "inline-block" }}>
+        {children}
+      </div>
     </DropdownMenuContext.Provider>
   );
 }
@@ -57,6 +64,16 @@ export function DropdownMenuTrigger({
   });
 }
 
+/** Always sets every edge — the unused pair (e.g. `top` when anchored via `bottom`) is explicit
+ * `"auto"` rather than omitted, so it can't be left showing through from the `.dropdown`/
+ * `.dropdown-top`/`.dropdown-bottom` CSS classes' own `top`/`bottom`/`left` declarations. */
+interface FixedPosition {
+  readonly top: number | "auto";
+  readonly bottom: number | "auto";
+  readonly left: number | "auto";
+  readonly right: number | "auto";
+}
+
 export function DropdownMenuContent({
   children,
   align = "left",
@@ -70,31 +87,37 @@ export function DropdownMenuContent({
   const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<"top" | "bottom">("bottom");
   const [effectiveAlign, setEffectiveAlign] = useState<"left" | "right">(align);
+  const [fixedPos, setFixedPos] = useState<FixedPosition | null>(null);
 
+  // Rendered through a portal (see the return below), so its position can't come from CSS
+  // relative to a positioned ancestor anymore — it's computed here from the trigger's own
+  // on-screen rect instead, in viewport (`position: fixed`) coordinates.
   useEffect(() => {
-    if (ctx?.isOpen && menuRef.current) {
-      const parent = menuRef.current.parentElement;
-      if (parent) {
-        const rect = parent.getBoundingClientRect();
-        const spaceBelow = window.innerHeight - rect.bottom;
-        const menuHeight = menuRef.current.offsetHeight || 150; // estimate if not fully rendered
+    // No need to reset `fixedPos` on close — the render below already gates on `ctx.isOpen`.
+    if (!ctx?.isOpen) return;
+    const trigger = ctx.triggerRef.current;
+    if (!trigger) return;
 
-        // If there's not enough space below, but there is space above, pop up
-        if (spaceBelow < menuHeight + 20 && rect.top > menuHeight + 20) {
-          setPosition("top");
-        } else {
-          setPosition("bottom");
-        }
+    const rect = trigger.getBoundingClientRect();
+    // Estimates for a not-yet-mounted menu; only ever affect the flip decision below, never
+    // the on-screen edge itself — we anchor via whichever single edge (top/bottom, left/right)
+    // the browser can resolve from the menu's real rendered size, not our guess of it.
+    const menuHeight = menuRef.current?.offsetHeight || 150;
+    const menuWidth = menuRef.current?.offsetWidth || 160;
 
-        // Auto-detect or use explicit right alignment
-        if (align === "right" || rect.right > window.innerWidth - 100) {
-          setEffectiveAlign("right");
-        } else {
-          setEffectiveAlign("left");
-        }
-      }
-    }
-  }, [ctx?.isOpen, align]);
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUp = spaceBelow < menuHeight + 20 && rect.top > menuHeight + 20;
+    const openRight = align === "right" || rect.left + menuWidth > window.innerWidth - 16;
+
+    setPosition(openUp ? "top" : "bottom");
+    setEffectiveAlign(openRight ? "right" : "left");
+    setFixedPos({
+      top: openUp ? "auto" : rect.bottom + 12,
+      bottom: openUp ? window.innerHeight - rect.top + 12 : "auto",
+      left: openRight ? "auto" : rect.left,
+      right: openRight ? window.innerWidth - rect.right : "auto",
+    });
+  }, [ctx?.isOpen, ctx?.triggerRef, align]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -111,12 +134,17 @@ export function DropdownMenuContent({
     };
   }, [ctx]);
 
-  if (!ctx?.isOpen) return null;
+  if (!ctx?.isOpen || !fixedPos) return null;
 
-  return (
-    <div ref={menuRef} className={`dropdown dropdown-${position} dropdown-align-${effectiveAlign}`} style={style}>
+  return createPortal(
+    <div
+      ref={menuRef}
+      className={`dropdown dropdown-${position} dropdown-align-${effectiveAlign}`}
+      style={{ position: "fixed", ...fixedPos, ...style }}
+    >
       {children}
-    </div>
+    </div>,
+    document.body,
   );
 }
 

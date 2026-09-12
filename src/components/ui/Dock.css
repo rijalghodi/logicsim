@@ -9,7 +9,7 @@
   padding: 6px 16px;
   background: var(--bg-1);
   border: none;
-  z-index: 1000;
+  z-index: 700;
   height: 44px;
   transition: height 0.2s ease;
 }
