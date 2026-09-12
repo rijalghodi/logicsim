@@ -20,7 +20,7 @@ export function AppMenu({ onNew, onSave, onCustomize, onDelete, isSaved, align =
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <button type="button" className="btn-secondary" title="Circuit & Chip Actions">
+        <button type="button" className="btn-primary" title="Circuit & Chip Actions">
           <MenuIcon size={14} /> MENU
         </button>
       </DropdownMenuTrigger>
@@ -30,7 +30,7 @@ export function AppMenu({ onNew, onSave, onCustomize, onDelete, isSaved, align =
           <DropdownMenuShortcut>Ctrl+N</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onSave}>
-          <span>SAVE</span>
+          <span>SAVE CHIP</span>
           <DropdownMenuShortcut>Ctrl+S</DropdownMenuShortcut>
         </DropdownMenuItem>
         {isSaved && (

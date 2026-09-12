@@ -5,11 +5,12 @@
   --bg-1: hsl(0, 0%, 14%);
   --bg-2: hsl(0, 0%, 23%);
   --bg-3: hsl(0, 0%, 30%);
-  --primary: hsl(51, 75%, 60%);
-  --danger: hsl(8, 99%, 73%);
+  --primary: hsl(0, 0%, 100%);
+  --primary-fg: hsl(0, 0%, 10%);
+  --danger: hsl(8, 99%, 74%);
   --danger-fg: hsl(0, 89%, 7%);
-  --success: hsl(85, 89%, 67%);
-  --success-fg: hsl(88, 95%, 8%);
+  --success: hsl(121, 100%, 80%);
+  --success-fg: hsl(128, 95%, 8%);
   --warning: hsl(40, 100%, 50%);
   --warning-fg: hsl(48, 96%, 9%);
   --border: hsla(0, 0%, 40%, 0.3);
@@ -71,7 +72,7 @@ input {
   background: hsl(from var(--primary) h s l / 86%);
   border: none;
   border-radius: var(--radius);
-  color: #121214;
+  color: var(--primary-fg);
 }
 
 .btn-primary:hover {
