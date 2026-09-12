@@ -51,6 +51,8 @@ function App() {
         onMoveBoundaryPort={store.moveBoundaryPort}
         onRemoveComponent={store.removeComponent}
         onRemoveBoundaryPort={store.removeBoundaryPort}
+        onDuplicateComponent={store.duplicateComponent}
+        onDuplicateBoundaryPort={store.duplicateBoundaryPort}
         onCustomizeBoundaryPort={customizePortModal.open}
         onDropChip={store.dropChip}
         onConnectWire={store.connectWire}

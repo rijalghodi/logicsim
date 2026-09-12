@@ -55,6 +55,8 @@ interface CircuitActions {
   disconnectWire: (from: PortRef, to: PortRef) => void;
   removeComponent: (id: string) => void;
   removeBoundaryPort: (id: string) => void;
+  duplicateComponent: (id: string) => void;
+  duplicateBoundaryPort: (portId: string) => void;
   renameBoundaryPort: (portId: string, newName: string, newColor: string) => void;
   saveCurrentChip: (payload: { id?: string | null; name: string; color: string }) => void;
   deleteChips: (chipsToDelete: SavedChip[]) => void;
@@ -353,6 +355,51 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
         boundaryInputs: nextBoundaryInputs,
         isDirty: true,
       };
+    });
+  },
+
+  duplicateComponent: (id: string) => {
+    const state = get();
+    const component = state.circuit.components.find((c) => c.id === id);
+    if (!component) return;
+
+    const newId = createId("chip");
+    const original = state.layout[id] ?? { x: 0, y: 0 };
+
+    set({
+      circuit: {
+        ...state.circuit,
+        components: [...state.circuit.components, { id: newId, type: component.type }],
+      },
+      layout: { ...state.layout, [newId]: { x: original.x + 40, y: original.y + 40 } },
+      isDirty: true,
+    });
+  },
+
+  duplicateBoundaryPort: (portId: string) => {
+    const state = get();
+    const isInput = state.boundary.inputs.some((p) => p.id === portId);
+    const sourceList = isInput ? state.boundary.inputs : state.boundary.outputs;
+    const original = sourceList.find((p) => p.id === portId);
+    if (!original) return;
+
+    let name = `${original.name}-COPY`;
+    for (let suffix = 2; sourceList.some((p) => p.name.toUpperCase() === name); suffix++) {
+      name = `${original.name}-COPY-${suffix}`;
+    }
+
+    const newPort = createPortDefinition(name, isInput ? "input" : "output");
+    const originalY = state.boundaryLayout[portId];
+    const originalColor = state.portColors[portId];
+
+    set({
+      boundary: isInput
+        ? { ...state.boundary, inputs: [...state.boundary.inputs, newPort] }
+        : { ...state.boundary, outputs: [...state.boundary.outputs, newPort] },
+      boundaryLayout:
+        originalY !== undefined ? { ...state.boundaryLayout, [newPort.id]: originalY + 40 } : state.boundaryLayout,
+      portColors: originalColor ? { ...state.portColors, [newPort.id]: originalColor } : state.portColors,
+      isDirty: true,
     });
   },
 

@@ -7,6 +7,8 @@ export interface ContextMenuItem {
   readonly isDanger?: boolean;
   readonly shortcutKeys?: string[];
   readonly shortcutHint?: string;
+  /** When true, the shortcut only fires with Ctrl (or Cmd on Mac) held — e.g. Ctrl+D for DUPLICATE. */
+  readonly requireModifier?: boolean;
 }
 
 export interface ContextMenuProps {
@@ -19,12 +21,14 @@ export function ContextMenu({ position, onClose, items }: ContextMenuProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       for (const item of items) {
-        if (item.shortcutKeys?.includes(e.key)) {
-          e.preventDefault();
-          item.onClick();
-          onClose();
-          return;
-        }
+        const matchesKey = item.shortcutKeys?.some((key) => key.toLowerCase() === e.key.toLowerCase());
+        if (!matchesKey) continue;
+        if (item.requireModifier && !(e.ctrlKey || e.metaKey)) continue;
+
+        e.preventDefault();
+        item.onClick();
+        onClose();
+        return;
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -44,7 +48,7 @@ export function ContextMenu({ position, onClose, items }: ContextMenuProps) {
       }}
     >
       <DropdownMenu open={true} onOpenChange={(open) => !open && onClose()}>
-        <DropdownMenuContent style={{ width: 120 }}>
+        <DropdownMenuContent style={{ width: 132 }}>
           {items.map((item, index) => (
             <DropdownMenuItem
               key={index}

@@ -51,6 +51,10 @@ export interface CircuitCanvasProps {
   readonly onRemoveComponent?: (componentId: string) => void;
   /** Triggered when a boundary port should be removed. */
   readonly onRemoveBoundaryPort?: (portId: string) => void;
+  /** Triggered when a component should be duplicated. */
+  readonly onDuplicateComponent?: (componentId: string) => void;
+  /** Triggered when a boundary port should be duplicated. */
+  readonly onDuplicateBoundaryPort?: (portId: string) => void;
   /** Triggered when a boundary port should be renamed. */
   readonly onCustomizeBoundaryPort?: (portId: string) => void;
   /** Triggered when a chip is dragged from the bottom toolbar and dropped onto the canvas. */
@@ -84,6 +88,8 @@ export function CircuitCanvas({
   onViewComponent,
   onRemoveComponent,
   onRemoveBoundaryPort,
+  onDuplicateComponent,
+  onDuplicateBoundaryPort,
   onCustomizeBoundaryPort,
   onDropChip,
   onConnectWire,
@@ -216,6 +222,13 @@ export function CircuitCanvas({
       if (contextMenu.componentType === "NAND") {
         return [
           {
+            label: "DUPLICATE",
+            shortcutHint: "⌘ D",
+            shortcutKeys: ["d"],
+            requireModifier: true,
+            onClick: () => onDuplicateComponent?.(contextMenu.componentId),
+          },
+          {
             label: "REMOVE",
             shortcutHint: "⌫",
             shortcutKeys: ["Backspace", "Delete"],
@@ -230,6 +243,13 @@ export function CircuitCanvas({
           shortcutHint: "⏎",
           shortcutKeys: ["Enter"],
           onClick: () => onViewComponent?.(contextMenu.componentId),
+        },
+        {
+          label: "DUPLICATE",
+          shortcutHint: "⌘ D",
+          shortcutKeys: ["d"],
+          requireModifier: true,
+          onClick: () => onDuplicateComponent?.(contextMenu.componentId),
         },
         {
           label: "REMOVE",
@@ -248,6 +268,13 @@ export function CircuitCanvas({
           shortcutHint: "⏎",
           shortcutKeys: ["Enter"],
           onClick: () => onCustomizeBoundaryPort?.(contextMenu.portId),
+        },
+        {
+          label: "DUPLICATE",
+          shortcutHint: "⌘ D",
+          shortcutKeys: ["d"],
+          requireModifier: true,
+          onClick: () => onDuplicateBoundaryPort?.(contextMenu.portId),
         },
         {
           label: "REMOVE",
