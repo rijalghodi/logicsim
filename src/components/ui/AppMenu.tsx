@@ -1,3 +1,4 @@
+import { useMemo, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -17,6 +18,33 @@ interface AppMenuProps {
 }
 
 export function AppMenu({ onNew, onSave, onCustomize, onDelete, isSaved, align = "left" }: AppMenuProps) {
+  const menuItems = useMemo(
+    () => [
+      { label: "NEW CHIP", key: "k", displayKey: "⌘ K", action: onNew, show: true },
+      { label: "SAVE CHIP", key: "s", displayKey: "⌘ S", action: onSave, show: true },
+      { label: "CUSTOMIZE", key: "e", displayKey: "⌘ E", action: onCustomize, show: isSaved },
+      { label: "DELETE CHIP", key: "backspace", displayKey: "⌘ ⌫", action: onDelete, show: isSaved, isDanger: true },
+    ],
+    [onNew, onSave, onCustomize, onDelete, isSaved]
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      
+      const pressedKey = e.key.toLowerCase();
+      const item = menuItems.find((i) => i.key === pressedKey);
+      
+      if (item && item.show) {
+        e.preventDefault();
+        item.action();
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [menuItems]);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -25,26 +53,14 @@ export function AppMenu({ onNew, onSave, onCustomize, onDelete, isSaved, align =
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align}>
-        <DropdownMenuItem onClick={onNew}>
-          <span>NEW CHIP</span>
-          <DropdownMenuShortcut>⌘ K</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={onSave}>
-          <span>SAVE CHIP</span>
-          <DropdownMenuShortcut>⌘ S</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        {isSaved && (
-          <>
-            <DropdownMenuItem onClick={onCustomize}>
-              <span>CUSTOMIZE</span>
-              <DropdownMenuShortcut>⌘ E</DropdownMenuShortcut>
+        {menuItems
+          .filter((item) => item.show)
+          .map((item) => (
+            <DropdownMenuItem key={item.label} onClick={item.action} isDanger={item.isDanger}>
+              <span>{item.label}</span>
+              <DropdownMenuShortcut>{item.displayKey}</DropdownMenuShortcut>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onDelete} isDanger>
-              <span>DELETE CHIP</span>
-              <DropdownMenuShortcut>⌘ ⌫</DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </>
-        )}
+          ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -130,26 +130,6 @@ function App() {
     });
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        handleSaveClick();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        handleNewClick();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "e") {
-        e.preventDefault();
-        handleCustomizeClick();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "backspace") {
-        e.preventDefault();
-        handleDeleteCurrentClick();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleSaveClick, handleNewClick, handleCustomizeClick, handleDeleteCurrentClick]);
-
   const disabledChipIds = useMemo(() => {
     const disabled = new Set<string>();
     if (store.currentChipId) {
