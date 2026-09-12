@@ -425,7 +425,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
     let needsReset = false;
     if (state.currentChipId && chipsToDelete.some((c) => c.id === state.currentChipId)) {
       needsReset = true;
-      toast.info("Active chip was deleted. Canvas reset to blank.");
+      toast.info("Active chip was deleted. Circuit reset to blank.");
     } else {
       toast.success(`Deleted ${chipsToDelete.length} chip(s)`);
     }

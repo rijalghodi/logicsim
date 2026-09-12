@@ -32,13 +32,13 @@ export function Header({
       const chip = store.savedChips.find((c) => c.id === state.currentChipId);
       return {
         id: `stack-${i}`,
-        name: chip?.name ?? "Untitled Chip",
+        name: chip?.name ?? "Untitled",
         isDirty: state.isDirty,
       };
     });
     items.push({
       id: "current",
-      name: currentChip?.name ?? "Untitled Chip",
+      name: currentChip?.name ?? "Untitled",
       isDirty: store.isDirty,
     });
     return items;

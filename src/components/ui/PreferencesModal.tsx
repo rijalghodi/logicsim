@@ -19,7 +19,7 @@ export function PreferencesModal() {
     <Modal isOpen={isOpen} onClose={close}>
       <ModalHeader>
         <ModalTitle>PREFERENCES</ModalTitle>
-        <ModalDescription>Personalize how the canvas is displayed. Saved on this device.</ModalDescription>
+        <ModalDescription>Personalize how the circuit is displayed.</ModalDescription>
       </ModalHeader>
 
       <ModalBody>
