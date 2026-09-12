@@ -23,9 +23,9 @@ export const PORT_ROW_HEIGHT = 20;
 export const PORT_RADIUS = 8;
 export const BOUNDARY_PORT_RADIUS = 8;
 export const BOUNDARY_MARGIN = 72;
-export const BOUNDARY_LABEL_WIDTH = 100;
 export const BOUNDARY_LABEL_OFFSET_Y = 26;
 export const PORT_LABEL_HEIGHT = 16;
+export const PORT_LABEL_MAX_WIDTH = 100;
 
 /** Background grid dot spacing, shown when the "show grid" preference is on. */
 export const GRID_SIZE = 20;
@@ -34,7 +34,7 @@ export const GRID_SIZE = 20;
 export const WIRE_CORNER_RADIUS = 8;
 
 export function getPortLabelWidth(text: string): number {
-  return Math.max(24, text.length * 8);
+  return Math.min(PORT_LABEL_MAX_WIDTH, Math.max(22, text.length * 9));
 }
 
 /** Taller boxes for chips with more ports, so pins on a busy side don't crowd together. */

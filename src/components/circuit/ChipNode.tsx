@@ -165,6 +165,7 @@ export function ChipNode({
           wrap="word"
           padding={PORT_RADIUS}
           listening={false}
+          ellipsis
         />
       </Group>
 

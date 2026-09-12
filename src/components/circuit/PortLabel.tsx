@@ -36,6 +36,7 @@ export function PortLabel({ x, y, text }: PortLabelProps) {
         fill="hsl(0, 0%, 100%)"
         align="center"
         verticalAlign="middle"
+        ellipsis
       />
     </Group>
   );
