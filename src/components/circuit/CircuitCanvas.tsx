@@ -90,6 +90,15 @@ export function CircuitCanvas({
   const [mousePos, setMousePos] = useState<Position | null>(null);
   const [contextMenu, setContextMenu] = useState<MenuState>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<Konva.Stage>(null);
+
+  /** Ends the wire draft and restores the default cursor (elements the mouse is currently over will re-assert their own cursor as it moves). */
+  const clearWiringDraft = () => {
+    setWiringDraft(null);
+    setMousePos(null);
+    const stage = stageRef.current;
+    if (stage) stage.container().style.cursor = "default";
+  };
 
   const simulation = useMemo(
     () => evaluateCircuit(circuit, registry, { boundaryInputs }),
@@ -115,6 +124,8 @@ export function CircuitCanvas({
       if (e.key === "Escape") {
         setWiringDraft(null);
         setMousePos(null);
+        const stage = stageRef.current;
+        if (stage) stage.container().style.cursor = "default";
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -127,6 +138,12 @@ export function CircuitCanvas({
     const ptr = stage?.getPointerPosition();
     if (ptr) {
       setMousePos(ptr);
+    }
+
+    // Crosshair over empty canvas while wiring; ports/wires/chips manage their own cursor on hover.
+    const isBackground = e.target === stage || e.target.attrs.name === "canvas-bg";
+    if (isBackground && stage) {
+      stage.container().style.cursor = "crosshair";
     }
   };
 
@@ -155,14 +172,12 @@ export function CircuitCanvas({
     } else {
       // If clicking the exact same port, cancel
       if (wiringDraft.from.componentId === ref.componentId && wiringDraft.from.portId === ref.portId) {
-        setWiringDraft(null);
-        setMousePos(null);
+        clearWiringDraft();
         return;
       }
       // Complete connection, carrying over any corners placed along the way
       onConnectWire?.(wiringDraft.from, ref, [...wiringDraft.corners]);
-      setWiringDraft(null);
-      setMousePos(null);
+      clearWiringDraft();
     }
   };
 
@@ -247,6 +262,7 @@ export function CircuitCanvas({
       onDrop={handleDrop}
     >
       <Stage
+        ref={stageRef}
         width={width}
         height={height}
         onMouseMove={handleStageMouseMove}
