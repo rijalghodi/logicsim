@@ -129,7 +129,7 @@ export function getSafeColor(hex: string): string {
 
   const { h, c } = hexToOklch(hex);
 
-  return oklchToHex({ l: 0.5, c, h });
+  return oklchToHex({ l: 0.55, c, h });
 }
 
 export function getDimmedColor(hex: string): string {

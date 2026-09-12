@@ -3,7 +3,7 @@ import { toast } from "@/stores/toastStore";
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
 import { CHIP_FILL } from "../circuit/colors";
 import { Input } from "./Input";
-import { ColorPickerButton } from "./ColorPickerButton";
+import { ColorSliderInput } from "./ColorSliderInput";
 import { useSaveChipModalStore, type ChipSaveState } from "@/stores/saveChipModalStore";
 
 export interface SaveChipModalProps {
@@ -49,16 +49,16 @@ export function SaveChipModal({ onSave }: SaveChipModalProps) {
       </ModalHeader>
 
       <ModalBody onSubmit={handleSubmit}>
-        <div style={{ display: "flex", gap: "8px" }}>
-          <ColorPickerButton color={color} onChange={setColor} title="Choose Chip Color" />
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <Input
             type="text"
             placeholder="CHIP NAME (e.g. AND, XOR)"
             autoFocus
             value={name}
             onChange={(e) => setName(e.target.value.toUpperCase())}
-            style={{ flex: 1 }}
+            style={{ width: "100%" }}
           />
+          <ColorSliderInput color={color} onChange={setColor} />
         </div>
 
         <ModalActions>
