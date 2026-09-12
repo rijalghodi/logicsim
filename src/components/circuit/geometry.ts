@@ -27,6 +27,9 @@ export const BOUNDARY_LABEL_WIDTH = 100;
 export const BOUNDARY_LABEL_OFFSET_Y = 26;
 export const PORT_LABEL_HEIGHT = 16;
 
+/** Background grid dot spacing, shown when the "show grid" preference is on. */
+export const GRID_SIZE = 20;
+
 export function getPortLabelWidth(text: string): number {
   return Math.max(24, text.length * 8);
 }
@@ -71,7 +74,7 @@ export function getBoundaryPortPosition(
   const PADDING_TOP = 16;
   const PADDING_BOTTOM = 56;
   const SPACING = 60;
-  
+
   const centerY = (canvasHeight - PADDING_TOP - PADDING_BOTTOM) / 2 + PADDING_TOP;
 
   let offset = 0;

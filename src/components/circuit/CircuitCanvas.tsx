@@ -6,6 +6,7 @@ import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } fro
 import type { SavedChip } from "@/storage/chipStorage";
 import { BoundaryPort } from "./BoundaryPort";
 import { ChipNode } from "./ChipNode";
+import { CircuitGrid } from "./CircuitGrid";
 import { ContextMenu } from "../ui/ContextMenu";
 import { getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
 import type { Layout, Position } from "./geometry";
@@ -58,6 +59,10 @@ export interface CircuitCanvasProps {
   readonly onConnectWire?: (from: PortRef, to: PortRef, anchors?: Position[]) => void;
   /** Triggered when an existing wire is deleted. */
   readonly onDisconnectWire?: (from: PortRef, to: PortRef) => void;
+  /** Show a dotted background grid (the "show grid" preference). Default false. */
+  readonly showGrid?: boolean;
+  /** Show every port's label at all times, not just on hover (the "show port labels" preference). Default false. */
+  readonly showPortLabel?: boolean;
   readonly width: number;
   readonly height: number;
 }
@@ -83,6 +88,8 @@ export function CircuitCanvas({
   onDropChip,
   onConnectWire,
   onDisconnectWire,
+  showGrid = false,
+  showPortLabel = false,
   width,
   height,
 }: CircuitCanvasProps) {
@@ -272,6 +279,8 @@ export function CircuitCanvas({
         <Layer>
           <Rect name="canvas-bg" x={0} y={0} width={width} height={height} fill={CANVAS_BACKGROUND} listening={true} />
 
+          {showGrid && <CircuitGrid width={width} height={height} />}
+
           {/* Existing wires */}
           {circuit.connections.map((connection) => {
             const key = connectionKey(connection.from, connection.to);
@@ -362,6 +371,7 @@ export function CircuitCanvas({
                   handlePortInteraction({ componentId: component.id, portId }, portPos)
                 }
                 isWiringActive={Boolean(wiringDraft)}
+                showPortLabels={showPortLabel}
               />
             );
           })}
@@ -388,6 +398,7 @@ export function CircuitCanvas({
                 onContextMenu={(x, y) => {
                   setContextMenu({ type: "boundary", portId: port.id, x, y });
                 }}
+                showLabel={showPortLabel}
               />
             );
           })}
@@ -413,6 +424,7 @@ export function CircuitCanvas({
                 onContextMenu={(x, y) => {
                   setContextMenu({ type: "boundary", portId: port.id, x, y });
                 }}
+                showLabel={showPortLabel}
               />
             );
           })}

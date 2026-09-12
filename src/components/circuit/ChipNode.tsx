@@ -36,6 +36,8 @@ interface ChipNodeProps {
   readonly onPortClick?: (portId: string, direction: "input" | "output", portPosition: Position) => void;
   /** Whether a wire is currently being drawn across the canvas. */
   readonly isWiringActive?: boolean;
+  /** Show every port's label at all times, not just on hover (the "show port labels" preference). */
+  readonly showPortLabels?: boolean;
 }
 
 /** One chip instance: a box with its name centered, input pins on the left edge, output pins on the right. */
@@ -53,6 +55,7 @@ export function ChipNode({
   onDblClick,
   onPortClick,
   isWiringActive,
+  showPortLabels,
 }: ChipNodeProps) {
   const [hoveredPortId, setHoveredPortId] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -187,8 +190,8 @@ export function ChipNode({
               onHoverChange={(hovered) => setHoveredPortId(hovered ? port.id : null)}
             />
 
-            {/* Port label shown on hover */}
-            {isHovered && <PortLabel x={badgeX} y={badgeY} text={port.name} />}
+            {/* Port label shown on hover, or always when the "show port labels" preference is on */}
+            {(isHovered || showPortLabels) && <PortLabel x={badgeX} y={badgeY} text={port.name} />}
           </Group>
         );
       })}
@@ -214,8 +217,8 @@ export function ChipNode({
               onHoverChange={(hovered) => setHoveredPortId(hovered ? port.id : null)}
             />
 
-            {/* Port label shown on hover */}
-            {isHovered && <PortLabel x={badgeX} y={badgeY} text={port.name} />}
+            {/* Port label shown on hover, or always when the "show port labels" preference is on */}
+            {(isHovered || showPortLabels) && <PortLabel x={badgeX} y={badgeY} text={port.name} />}
           </Group>
         );
       })}

@@ -5,16 +5,20 @@ import { saveChipModal } from "./stores/saveChipModalStore";
 import { UnsavedAlert } from "./components/ui/UnsavedAlert";
 import { DeleteChipAlert } from "./components/ui/DeleteChipAlert";
 import { CustomizePortModal } from "./components/ui/CustomizePortModal";
+import { PreferencesModal } from "./components/ui/PreferencesModal";
 import { Header } from "./components/ui/Header";
 import { Toast } from "./components/ui/Toast";
 import { useCircuitStore } from "./stores/circuitStore";
 import { deleteChipAlert } from "./stores/deleteChipAlertStore";
 import { customizePortModal } from "./stores/customizePortModalStore";
+import { preferencesModal } from "./stores/preferencesModalStore";
+import { useUserPreferencesStore } from "./stores/userPreferencesStore";
 import { useWindowSize } from "./hooks/useWindowSize";
 import { useAppActions } from "./hooks/useAppActions";
 
 function App() {
   const store = useCircuitStore();
+  const preferences = useUserPreferencesStore();
 
   const windowSize = useWindowSize();
   const actions = useAppActions(windowSize);
@@ -27,6 +31,7 @@ function App() {
         onSave={actions.handleSaveClick}
         onCustomize={actions.handleCustomizeClick}
         onDelete={actions.handleDeleteCurrentClick}
+        onPreferences={preferencesModal.open}
         isSaved={!!store.currentChipId}
       />
 
@@ -50,6 +55,8 @@ function App() {
         onDropChip={store.dropChip}
         onConnectWire={store.connectWire}
         onDisconnectWire={store.disconnectWire}
+        showGrid={preferences.showGrid}
+        showPortLabel={preferences.showPortLabel}
         width={windowSize.width}
         height={windowSize.height}
       />
@@ -74,6 +81,8 @@ function App() {
       <DeleteChipAlert />
 
       <CustomizePortModal />
+
+      <PreferencesModal />
     </div>
   );
 }

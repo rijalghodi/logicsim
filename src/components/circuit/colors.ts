@@ -1,5 +1,6 @@
 // Canvas Background
 export const CANVAS_BACKGROUND = "#333333"; // oklch(0.321 0 0) // hsl(0, 0%, 20%)
+export const GRID_DOT_COLOR = "rgba(255, 255, 255, 0.12)";
 
 // Bit & Wire Colors
 export const BIT_COLOR = "#fef08b"; // oklch(0.945 0.123 101)

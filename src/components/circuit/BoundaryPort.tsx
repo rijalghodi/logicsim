@@ -34,6 +34,8 @@ interface BoundaryPortProps {
   readonly isContextMenuOpen?: boolean;
   /** Fired when right clicking the boundary port */
   readonly onContextMenu?: (x: number, y: number) => void;
+  /** Show the label at all times, not just on hover (the "show port labels" preference). */
+  readonly showLabel?: boolean;
 }
 
 const CONTROLLER_WIDTH = 12;
@@ -56,6 +58,7 @@ export function BoundaryPort({
   bounds,
   isContextMenuOpen,
   onContextMenu,
+  showLabel,
 }: BoundaryPortProps) {
   const [controllerHovered, setControllerHovered] = useState(false);
   const [bitHovered, setBitHovered] = useState(false);
@@ -247,8 +250,8 @@ export function BoundaryPort({
         onHoverChange={setPinHovered}
       />
 
-      {/* 5. LABEL BADGE */}
-      {pinHovered && <PortLabel x={badgeX} y={badgeY} text={labelText} />}
+      {/* 5. LABEL BADGE — shown on hover, or always when the "show port labels" preference is on */}
+      {(pinHovered || showLabel) && <PortLabel x={badgeX} y={badgeY} text={labelText} />}
     </Group>
   );
 }
