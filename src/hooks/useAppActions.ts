@@ -17,17 +17,13 @@ export function useAppActions(windowSize: { width: number; height: number }) {
         color: chipDef?.color || CHIP_FILL,
       });
     } else {
-      saveChipModal.open();
+      saveChipModal.open(null);
     }
   }, [store]);
 
   const handleNewClick = useCallback(() => {
-    if (
-      store.isDirty &&
-      (store.circuit.components.length > 0 || store.circuit.connections.length > 0) &&
-      store.currentChipId
-    ) {
-      unsavedAlert.open(store.currentChipId);
+    if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
+      unsavedAlert.open(null);
     } else {
       store.resetToBlank();
     }
@@ -68,10 +64,10 @@ export function useAppActions(windowSize: { width: number; height: number }) {
   );
 
   const handleDiscardChanges = useCallback(
-    (chipId?: string | null) => {
+    (chipIdToOpen?: string | null) => {
       unsavedAlert.close();
-      if (chipId) {
-        store.loadChipToCanvas(chipId);
+      if (chipIdToOpen) {
+        store.loadChipToCanvas(chipIdToOpen);
       } else {
         store.resetToBlank();
       }
@@ -79,12 +75,44 @@ export function useAppActions(windowSize: { width: number; height: number }) {
     [store],
   );
 
-  const handleAddChipCenter = useCallback(
+  const handleAddChipFreespace = useCallback(
     (chipType: string) => {
-      store.dropChip(chipType, {
-        x: Math.round(windowSize.width / 2 - 60),
-        y: Math.round(windowSize.height / 2 - 40),
-      });
+      const cx = Math.round(windowSize.width / 2 - 60);
+      const cy = Math.round(windowSize.height / 2 - 40);
+
+      const isOccupied = (x: number, y: number) => {
+        return Object.values(store.layout).some((pos) => Math.abs(pos.x - x) < 5 && Math.abs(pos.y - y) < 5);
+      };
+
+      let finalX = cx;
+      let finalY = cy;
+
+      if (isOccupied(cx, cy)) {
+        for (let d = 20; d < 2000; d += 20) {
+          if (!isOccupied(cx + d, cy + d)) {
+            finalX = cx + d;
+            finalY = cy + d;
+            break;
+          }
+          if (!isOccupied(cx + d, cy - d)) {
+            finalX = cx + d;
+            finalY = cy - d;
+            break;
+          }
+          if (!isOccupied(cx - d, cy - d)) {
+            finalX = cx - d;
+            finalY = cy - d;
+            break;
+          }
+          if (!isOccupied(cx - d, cy + d)) {
+            finalX = cx - d;
+            finalY = cy + d;
+            break;
+          }
+        }
+      }
+
+      store.dropChip(chipType, { x: finalX, y: finalY });
     },
     [store, windowSize],
   );
@@ -97,6 +125,6 @@ export function useAppActions(windowSize: { width: number; height: number }) {
     handleOpenChipClick,
     handleBreadcrumbClick,
     handleDiscardChanges,
-    handleAddChipCenter,
+    handleAddChipFreespace,
   };
 }

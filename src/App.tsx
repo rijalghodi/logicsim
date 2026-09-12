@@ -54,7 +54,7 @@ function App() {
       />
 
       <Dock
-        onAddChip={actions.handleAddChipCenter}
+        onAddChip={actions.handleAddChipFreespace}
         onOpenChip={actions.handleOpenChipClick}
         onDeleteChip={deleteChipAlert.open}
       />

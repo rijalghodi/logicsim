@@ -8,24 +8,24 @@ export function UnsavedAlert({
   onDiscard,
 }: {
   onSave: (chipId?: string | null) => void;
-  onDiscard: (chipId?: string | null) => void;
+  onDiscard: (chipIdToOpen?: string | null) => void;
 }) {
-  const { isOpen, close, chipId } = useUnsavedAlertStore();
+  const { isOpen, close, chipIdToOpen } = useUnsavedAlertStore();
   const { savedChips } = useCircuitStore();
 
-  const chip = useMemo(() => savedChips.find((c) => c.id === chipId), [savedChips, chipId]);
+  const chip = useMemo(() => savedChips.find((c) => c.id === chipIdToOpen), [savedChips, chipIdToOpen]);
 
   if (!isOpen) return null;
 
   const handleCancel = () => close();
 
   const handleDiscard = () => {
-    onDiscard(chipId);
+    onDiscard(chipIdToOpen);
     close();
   };
 
   const handleSave = () => {
-    onSave(chipId);
+    onSave(chipIdToOpen);
     close();
   };
 

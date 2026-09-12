@@ -1,15 +1,15 @@
 import { create } from "zustand";
 
 export interface ChipSaveState {
-  readonly id?: string | null;
+  readonly id: string | null;
   readonly name: string;
   readonly color: string;
 }
 
 export interface SaveChipModalStore {
   isOpen: boolean;
-  chipId?: string | null;
-  open: (chipId?: string | null) => void;
+  chipId: string | null;
+  open: (chipId: string | null) => void;
   close: () => void;
 }
 
@@ -21,7 +21,7 @@ export const useSaveChipModalStore = create<SaveChipModalStore>((set) => ({
 }));
 
 export const saveChipModal = {
-  open: (chipId?: string | null) => {
+  open: (chipId: string | null) => {
     useSaveChipModalStore.getState().open(chipId);
   },
   close: () => {
