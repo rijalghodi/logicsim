@@ -16,7 +16,5 @@ export const PORT_COLOR = "hsl(0, 0%, 4%)";
 export const PORT_COLOR_HOVER = "hsl(0, 0%, 90%)";
 
 // Boundary Port Controller Colors
-export const CONTROLLER_FILL = "hsl(0, 0%, 0%)";
-export const CONTROLLER_FILL_HOVER = "hsl(0, 0%, 10%)";
-export const CONTROLLER_STROKE = "hsl(0, 0%, 20%)";
-export const CONTROLLER_STROKE_HOVER = "hsl(0, 0%, 30%)";
+export const CONTROLLER_FILL = "hsl(0, 0%, 27%)";
+export const CONTROLLER_FILL_HOVER = "hsl(0, 0%, 27%)";

@@ -4,14 +4,7 @@ import type Konva from "konva";
 import { PORT_RADIUS, getPortLabelWidth, PORT_LABEL_HEIGHT, BIT_CIRCLE_RADIUS } from "./geometry";
 import type { Position } from "./geometry";
 
-import {
-  CONTROLLER_FILL,
-  CONTROLLER_FILL_HOVER,
-  CONTROLLER_STROKE,
-  CONTROLLER_STROKE_HOVER,
-  BIT_COLOR,
-  BIT_STROKE,
-} from "./colors";
+import { CONTROLLER_FILL, CONTROLLER_FILL_HOVER, BIT_COLOR, BIT_STROKE } from "./colors";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
 
@@ -162,7 +155,7 @@ export function BoundaryPort({
           width={hitAreaWidth + 6}
           height={(BIT_CIRCLE_RADIUS + 6) * 2}
           cornerRadius={6}
-          fill="hsl(0, 0%, 43%)"
+          fill="hsla(0, 0%, 43%)"
           opacity={0.5}
           listening={false}
         />
@@ -194,16 +187,6 @@ export function BoundaryPort({
           height={BIT_CIRCLE_RADIUS * 2}
           fill={controllerHovered ? CONTROLLER_FILL_HOVER : CONTROLLER_FILL}
         />
-        {/* Grip ridges */}
-        {[-6, 0, 6].map((offset) => (
-          <Line
-            key={offset}
-            points={[controllerX + 2, offset, controllerX + CONTROLLER_WIDTH - 2, offset]}
-            stroke={controllerHovered ? CONTROLLER_STROKE_HOVER : CONTROLLER_STROKE}
-            strokeWidth={1.5}
-            lineCap="round"
-          />
-        ))}
       </Group>
 
       {/* 2. BIT INPUT / OUTPUT CIRCLE */}
