@@ -17,6 +17,7 @@ import type Konva from "konva";
 
 interface ChipNodeProps {
   readonly position: Position;
+  /** chipType is NAND or chipDefinition.id. */
   readonly chipType: string;
   readonly label: string;
   readonly color?: string;

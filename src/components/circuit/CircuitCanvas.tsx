@@ -270,7 +270,17 @@ export function CircuitCanvas({
             const inputs = resolved.kind === "primitive" ? resolved.inputs : resolved.definition.inputs;
             const outputs = resolved.kind === "primitive" ? resolved.outputs : resolved.definition.outputs;
             const position = layout[component.id] ?? { x: 0, y: 0 };
-            const customChipColor = savedChips.find((c) => c.id === component.type)?.color;
+            const savedDef = savedChips.find((c) => c.id === component.type);
+            const customChipColor = savedDef?.color;
+            const boundaryLayout = savedDef?.boundaryLayout;
+
+            const sortedInputs = boundaryLayout
+              ? [...inputs].sort((a, b) => (boundaryLayout[a.id] ?? 0) - (boundaryLayout[b.id] ?? 0))
+              : inputs;
+
+            const sortedOutputs = boundaryLayout
+              ? [...outputs].sort((a, b) => (boundaryLayout[a.id] ?? 0) - (boundaryLayout[b.id] ?? 0))
+              : outputs;
 
             return (
               <ChipNode
@@ -279,8 +289,8 @@ export function CircuitCanvas({
                 position={position}
                 label={label}
                 color={customChipColor}
-                inputs={inputs}
-                outputs={outputs}
+                inputs={sortedInputs}
+                outputs={sortedOutputs}
                 getPortValue={(portId, direction) =>
                   direction === "output"
                     ? Boolean(simulation.componentOutputs[component.id]?.[portId])
