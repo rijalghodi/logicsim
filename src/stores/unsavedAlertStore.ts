@@ -2,8 +2,8 @@ import { create } from "zustand";
 
 export interface UnsavedAlertStore {
   isOpen: boolean;
-  chipIdToOpen?: string | null;
-  open: (chipIdToOpen: string) => void;
+  chipIdToOpen: string | null;
+  open: (chipIdToOpen: string | null) => void;
   close: () => void;
 }
 

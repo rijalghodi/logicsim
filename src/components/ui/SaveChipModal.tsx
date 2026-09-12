@@ -43,7 +43,7 @@ export function SaveChipModal({ onSave }: SaveChipModalProps) {
       toast.error("NAND is a reserved primitive chip name");
       return;
     }
-    onSave({ id: chip?.id, name: trimmed, color });
+    onSave({ id: chip?.id ?? null, name: trimmed, color });
   };
 
   return (

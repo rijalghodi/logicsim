@@ -7,8 +7,8 @@ export function UnsavedAlert({
   onSave,
   onDiscard,
 }: {
-  onSave: (chipId?: string | null) => void;
-  onDiscard: (chipIdToOpen?: string | null) => void;
+  onSave: (chipIdToOpen: string | null) => void;
+  onDiscard: (chipIdToOpen: string | null) => void;
 }) {
   const { isOpen, close, chipIdToOpen } = useUnsavedAlertStore();
   const { savedChips } = useCircuitStore();

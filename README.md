@@ -55,3 +55,4 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 - [ ] User Preference: show port label, show grid
 - [x] Fix sort ports in chip by y-position
 - [x] Fix: place chips and port in non-occupied space
+- [ ] Feat: add slider in dock
