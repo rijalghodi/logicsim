@@ -605,7 +605,7 @@ function App() {
         boundaryInputs={boundaryInputs}
         onToggleBoundaryInput={handleToggleBoundaryInput}
         onMoveComponent={handleMoveComponent}
-        onOpenComponent={handleDiveIntoChip}
+        onViewComponent={handleDiveIntoChip}
         onMoveBoundaryPort={handleMoveBoundaryPort}
         onRemoveComponent={handleRemoveComponent}
         onRemoveBoundaryPort={handleRemoveBoundaryPort}

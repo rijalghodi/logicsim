@@ -14,6 +14,11 @@ import type { CircuitViewContext } from "./portResolution";
 import { WireLine } from "./WireLine";
 import { CANVAS_BACKGROUND } from "./colors";
 
+type MenuState =
+  | { type: "chip"; componentId: string; componentType: string; x: number; y: number }
+  | { type: "boundary"; portId: string; x: number; y: number }
+  | null;
+
 export interface CircuitCanvasProps {
   readonly circuit: CircuitDefinition;
   readonly registry: ChipRegistry;
@@ -31,7 +36,7 @@ export interface CircuitCanvasProps {
   readonly onMoveBoundaryPort?: (portId: string, y: number) => void;
   /** Omit to make components fixed (non-draggable). */
   readonly onMoveComponent?: (componentId: string, position: Position) => void;
-  readonly onOpenComponent?: (componentId: string) => void;
+  readonly onViewComponent?: (componentId: string) => void;
   /** Triggered when a component should be removed. */
   readonly onRemoveComponent?: (componentId: string) => void;
   /** Triggered when a boundary port should be removed. */
@@ -61,7 +66,7 @@ export function CircuitCanvas({
   onToggleBoundaryInput,
   onMoveBoundaryPort,
   onMoveComponent,
-  onOpenComponent,
+  onViewComponent,
   onRemoveComponent,
   onRemoveBoundaryPort,
   onRenameBoundaryPort,
@@ -73,8 +78,7 @@ export function CircuitCanvas({
 }: CircuitCanvasProps) {
   const [wiringDraft, setWiringDraft] = useState<{ from: PortRef; fromPos: Position } | null>(null);
   const [mousePos, setMousePos] = useState<Position | null>(null);
-  const [contextMenu, setContextMenu] = useState<{ componentId: string; x: number; y: number } | null>(null);
-  const [boundaryContextMenu, setBoundaryContextMenu] = useState<{ portId: string; x: number; y: number } | null>(null);
+  const [contextMenu, setContextMenu] = useState<MenuState>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const simulation = useMemo(
@@ -117,7 +121,6 @@ export function CircuitCanvas({
 
   const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (contextMenu) setContextMenu(null);
-    if (boundaryContextMenu) setBoundaryContextMenu(null);
     // If clicking the canvas background, cancel wiring draft
     if (e.target === e.target.getStage() || e.target.attrs.name === "canvas-bg") {
       setWiringDraft(null);
@@ -163,6 +166,58 @@ export function CircuitCanvas({
     };
 
     onDropChip(chipType, dropPos);
+  };
+
+  const getContextMenuItems = () => {
+    if (!contextMenu) return [];
+
+    if (contextMenu.type === "chip") {
+      if (contextMenu.componentType === "NAND") {
+        return [
+          {
+            label: "REMOVE",
+            shortcutHint: "⌫",
+            shortcutKeys: ["Backspace", "Delete"],
+            isDanger: true,
+            onClick: () => onRemoveComponent?.(contextMenu.componentId),
+          },
+        ];
+      }
+      return [
+        {
+          label: "VIEW",
+          shortcutHint: "⏎",
+          shortcutKeys: ["Enter"],
+          onClick: () => onViewComponent?.(contextMenu.componentId),
+        },
+        {
+          label: "REMOVE",
+          shortcutHint: "⌫",
+          shortcutKeys: ["Backspace", "Delete"],
+          isDanger: true,
+          onClick: () => onRemoveComponent?.(contextMenu.componentId),
+        },
+      ];
+    }
+
+    if (contextMenu.type === "boundary") {
+      return [
+        {
+          label: "CUSTOMIZE",
+          shortcutHint: "⏎",
+          shortcutKeys: ["Enter"],
+          onClick: () => onRenameBoundaryPort?.(contextMenu.portId),
+        },
+        {
+          label: "REMOVE",
+          shortcutHint: "⌫",
+          shortcutKeys: ["Backspace", "Delete"],
+          isDanger: true,
+          onClick: () => onRemoveBoundaryPort?.(contextMenu.portId),
+        },
+      ];
+    }
+    return [];
   };
 
   return (
@@ -220,6 +275,7 @@ export function CircuitCanvas({
             return (
               <Chip
                 key={component.id}
+                chipType={component.type}
                 position={position}
                 label={label}
                 color={customChipColor}
@@ -231,14 +287,13 @@ export function CircuitCanvas({
                     : Boolean(getComponentInputValue(component.id, portId, ctx))
                 }
                 onMove={onMoveComponent ? (next) => onMoveComponent(component.id, next) : undefined}
-                isContextMenuOpen={contextMenu?.componentId === component.id}
+                isContextMenuOpen={contextMenu?.type === "chip" && contextMenu.componentId === component.id}
                 onContextMenu={(x, y) => {
-                  setBoundaryContextMenu(null);
-                  setContextMenu({ componentId: component.id, x, y });
+                  setContextMenu({ type: "chip", componentId: component.id, componentType: component.type, x, y });
                 }}
                 onDblClick={() => {
                   setContextMenu(null);
-                  onOpenComponent?.(component.id);
+                  onViewComponent?.(component.id);
                 }}
                 onPortClick={(portId, _direction, portPos) =>
                   handlePortInteraction({ componentId: component.id, portId }, portPos)
@@ -266,10 +321,9 @@ export function CircuitCanvas({
                 onPortClick={(p) => handlePortInteraction({ componentId: BOUNDARY_ID, portId: port.id }, p)}
                 isWiringActive={Boolean(wiringDraft)}
                 bounds={{ minY: 16, maxY: height - 56 }}
-                isContextMenuOpen={boundaryContextMenu?.portId === port.id}
+                isContextMenuOpen={contextMenu?.type === "boundary" && contextMenu.portId === port.id}
                 onContextMenu={(x, y) => {
-                  setContextMenu(null);
-                  setBoundaryContextMenu({ portId: port.id, x, y });
+                  setContextMenu({ type: "boundary", portId: port.id, x, y });
                 }}
               />
             );
@@ -292,10 +346,9 @@ export function CircuitCanvas({
                 onPortClick={(p) => handlePortInteraction({ componentId: BOUNDARY_ID, portId: port.id }, p)}
                 isWiringActive={Boolean(wiringDraft)}
                 bounds={{ minY: 16, maxY: height - 56 }}
-                isContextMenuOpen={boundaryContextMenu?.portId === port.id}
+                isContextMenuOpen={contextMenu?.type === "boundary" && contextMenu.portId === port.id}
                 onContextMenu={(x, y) => {
-                  setContextMenu(null);
-                  setBoundaryContextMenu({ portId: port.id, x, y });
+                  setContextMenu({ type: "boundary", portId: port.id, x, y });
                 }}
               />
             );
@@ -303,47 +356,11 @@ export function CircuitCanvas({
         </Layer>
       </Stage>
 
-      {contextMenu && onRemoveComponent && (
+      {contextMenu && (
         <ContextMenu
           position={{ x: contextMenu.x, y: contextMenu.y }}
           onClose={() => setContextMenu(null)}
-          items={[
-            {
-              label: "VIEW",
-              shortcutHint: "⏎",
-              shortcutKeys: ["Enter"],
-              onClick: () => onOpenComponent?.(contextMenu.componentId),
-            },
-            {
-              label: "REMOVE",
-              shortcutHint: "⌫",
-              shortcutKeys: ["Backspace", "Delete"],
-              isDanger: true,
-              onClick: () => onRemoveComponent(contextMenu.componentId),
-            },
-          ]}
-        />
-      )}
-
-      {boundaryContextMenu && (onRemoveBoundaryPort || onRenameBoundaryPort) && (
-        <ContextMenu
-          position={{ x: boundaryContextMenu.x, y: boundaryContextMenu.y }}
-          onClose={() => setBoundaryContextMenu(null)}
-          items={[
-            {
-              label: "CUSTOMIZE",
-              shortcutHint: "⏎",
-              shortcutKeys: ["Enter"],
-              onClick: () => onRenameBoundaryPort?.(boundaryContextMenu.portId),
-            },
-            {
-              label: "REMOVE",
-              shortcutHint: "⌫",
-              shortcutKeys: ["Backspace", "Delete"],
-              isDanger: true,
-              onClick: () => onRemoveBoundaryPort?.(boundaryContextMenu.portId),
-            },
-          ]}
+          items={getContextMenuItems()}
         />
       )}
     </div>

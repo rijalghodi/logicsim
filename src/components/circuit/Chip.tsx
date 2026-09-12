@@ -17,6 +17,7 @@ import type Konva from "konva";
 
 interface ChipProps {
   readonly position: Position;
+  readonly chipType: string;
   readonly label: string;
   readonly color?: string;
   readonly inputs: readonly PortDefinition[];
@@ -39,6 +40,7 @@ interface ChipProps {
 /** One chip instance: a box with its name centered, input pins on the left edge, output pins on the right. */
 export function Chip({
   position,
+  chipType,
   label,
   color,
   inputs,
@@ -105,6 +107,7 @@ export function Chip({
         onTap={handleClick}
         onContextMenu={handleContextMenu}
         onDblClick={(e) => {
+          if (chipType === "NAND") return;
           e.cancelBubble = true;
           onDblClick?.();
         }}
