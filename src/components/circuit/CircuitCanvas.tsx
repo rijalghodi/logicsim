@@ -89,6 +89,7 @@ export function CircuitCanvas({
   const ctx: CircuitViewContext = {
     circuit,
     registry,
+    savedChips,
     boundary,
     layout,
     boundaryLayout,
