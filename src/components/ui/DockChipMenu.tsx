@@ -1,7 +1,5 @@
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./DropdownMenu";
 import { MoreVerticalIcon } from "./icons/MoreVerticalIcon";
-import { useSaveChipModal } from "./SaveChipModal";
-import { CHIP_FILL } from "../circuit/colors";
 import type { SavedChip } from "../../storage/chipStorage";
 
 interface DockChipMenuProps {
@@ -14,8 +12,6 @@ interface DockChipMenuProps {
 }
 
 export function DockChipMenu({ chip, isDisabled, onAddChip, onDragStart, onOpen, onDelete }: DockChipMenuProps) {
-  const { openSaveModal } = useSaveChipModal();
-
   return (
     <div className="dock-chip dock-chip-composite">
       <button
@@ -47,11 +43,6 @@ export function DockChipMenu({ chip, isDisabled, onAddChip, onDragStart, onOpen,
           )}
           <DropdownMenuItem onClick={onOpen}>
             <span>VIEW</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => openSaveModal({ id: chip.id, name: chip.name, color: chip.color ?? CHIP_FILL })}
-          >
-            <span>CUSTOMIZE</span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onDelete} isDanger>
             <span>DELETE</span>
