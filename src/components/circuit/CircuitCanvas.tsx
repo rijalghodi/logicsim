@@ -6,7 +6,7 @@ import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } fro
 import type { SavedChip } from "../../storage/chipStorage";
 import { BoundaryPort } from "./BoundaryPort";
 import { Chip } from "./Chip";
-import { ChipContextMenu } from "../ui/ChipContextMenu";
+import { ChipMenu } from "../ui/ChipMenu";
 import { BoundaryPortContextMenu } from "../ui/BoundaryPortContextMenu";
 import { getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
 import type { Layout, Position } from "./geometry";
@@ -305,7 +305,7 @@ export function CircuitCanvas({
       </Stage>
 
       {contextMenu && onRemoveComponent && (
-        <ChipContextMenu
+        <ChipMenu
           position={{ x: contextMenu.x, y: contextMenu.y }}
           onClose={() => setContextMenu(null)}
           onOpen={() => onOpenComponent?.(contextMenu.componentId)}
