@@ -48,11 +48,11 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 - [x] Feat: Rename Boundary Port
 - [x] Feat: Color Boundary Port and wire connected
 - [x] Feat: Clean App.tsx, use hooks.
-- [ ] Feat: Cornered Wire
+- [x] Feat: Cornered Wire
 - [x] Feat: slider as color input
 - [ ] Feat: Quick Customize Chip
 - [ ] Feat: Cap position in every screen
-- [ ] User Preference: show port label, show grid
+- [x] User Preference: show port label, show grid
 - [x] Fix sort ports in chip by y-position
 - [x] Fix: place chips and port in non-occupied space
-- [ ] Feat: add slider in dock
+- [x] Feat: add slider in dock

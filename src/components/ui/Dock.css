@@ -5,11 +5,57 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   padding: 6px 16px;
   background: var(--bg-1);
   border: none;
   z-index: 1000;
+  height: 44px;
+  transition: height 0.2s ease;
+}
+
+.dock-container-expanded {
+  height: 80px;
+}
+
+/* Chip strip: wraps to further rows when there's no more horizontal room. Collapsed, only
+   the first row is visible; expanded, the taller container reveals more rows and scrolls
+   vertically if chips still overflow it. */
+.dock-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.dock-container-expanded .dock-chips {
+  overflow-y: auto;
+}
+
+.dock-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: center;
+  width: 32px;
+  height: 32px;
+  background: var(--bg-2);
+  border: none;
+  border-radius: var(--radius);
+  color: var(--fg-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dock-expand-btn:hover {
+  background: var(--bg-3);
+  color: var(--fg);
 }
 
 .dock-btn-menu {
