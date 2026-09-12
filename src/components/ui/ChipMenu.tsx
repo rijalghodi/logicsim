@@ -1,4 +1,5 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "./DropdownMenu";
+import { useEffect } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuShortcut } from "./DropdownMenu";
 
 interface ChipMenuProps {
   readonly position: { x: number; y: number };
@@ -8,6 +9,22 @@ interface ChipMenuProps {
 }
 
 export function ChipMenu({ position, onClose, onOpen, onRemove }: ChipMenuProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        onRemove();
+        onClose();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        onOpen();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onRemove, onOpen, onClose]);
+
   return (
     <div
       style={{
@@ -29,6 +46,7 @@ export function ChipMenu({ position, onClose, onOpen, onRemove }: ChipMenuProps)
             }}
           >
             <span>VIEW</span>
+            <DropdownMenuShortcut>⏎</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem
             isDanger
@@ -38,6 +56,7 @@ export function ChipMenu({ position, onClose, onOpen, onRemove }: ChipMenuProps)
             }}
           >
             <span>REMOVE</span>
+            <DropdownMenuShortcut>⌫</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
