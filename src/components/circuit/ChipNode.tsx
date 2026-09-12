@@ -141,7 +141,7 @@ export function ChipNode({
           y={0}
           width={box.width}
           height={box.height}
-          fill={color ? getSafeColor(color) : CHIP_FILL}
+          fill={getSafeColor(color ?? CHIP_FILL)}
           stroke={getBorderColor(color ?? CHIP_FILL)}
           strokeWidth={1.5}
           cornerRadius={6}
