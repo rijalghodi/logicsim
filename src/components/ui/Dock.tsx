@@ -1,17 +1,29 @@
 import "./Dock.css";
 import { DockChipMenu } from "./DockChipMenu";
 import { DockPrimitiveChip } from "./DockPrimitiveChip";
-import type { SavedChip } from "@/storage/chipStorage";
+import { useCircuitStore } from "@/stores/circuitStore";
+import { useMemo } from "react";
 
 interface DockProps {
-  readonly savedChips: readonly SavedChip[];
-  readonly disabledChipIds?: Set<string>;
   readonly onAddChip?: (chipType: string) => void;
   readonly onOpenChip?: (chipId: string) => void;
   readonly onDeleteChip?: (chipId: string) => void;
 }
 
-export function Dock({ savedChips, disabledChipIds = new Set(), onAddChip, onOpenChip, onDeleteChip }: DockProps) {
+export function Dock({ onAddChip, onOpenChip, onDeleteChip }: DockProps) {
+  const { savedChips, currentChipId, registry } = useCircuitStore();
+
+  const disabledChipIds = useMemo(() => {
+    const disabled = new Set<string>();
+    if (currentChipId) {
+      for (const chip of savedChips) {
+        if (registry.dependsOn(chip.id, currentChipId)) {
+          disabled.add(chip.id);
+        }
+      }
+    }
+    return disabled;
+  }, [currentChipId, savedChips, registry]);
   const handleDragStart = (e: React.DragEvent, chipType: string) => {
     e.dataTransfer.setData("application/logicsim-chip", chipType);
     e.dataTransfer.effectAllowed = "copy";

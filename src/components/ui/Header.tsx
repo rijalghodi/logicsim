@@ -1,10 +1,10 @@
 import { Breadcrumbs } from "./Breadcrumbs";
-import type { BreadcrumbItem } from "./Breadcrumbs";
 import { AppMenu } from "./AppMenu";
+import { useCircuitStore, useCurrentChip } from "@/stores/circuitStore";
+import { useMemo } from "react";
 import "./Header.css";
 
 export interface HeaderProps {
-  readonly breadcrumbItems: readonly BreadcrumbItem[];
   readonly onNavigateBreadcrumb: (index: number) => void;
   readonly onNew: () => void;
   readonly onSave: () => void;
@@ -14,7 +14,6 @@ export interface HeaderProps {
 }
 
 export function Header({
-  breadcrumbItems,
   onNavigateBreadcrumb,
   onNew,
   onSave,
@@ -22,6 +21,27 @@ export function Header({
   onDelete,
   isSaved,
 }: HeaderProps) {
+  const store = useCircuitStore();
+  const currentChip = useCurrentChip();
+
+  const breadcrumbItems = useMemo(() => {
+    const items = store.viewStack.map((state, i) => {
+      // In viewStack, state corresponds to a saved chip, so we find it to get the name
+      const chip = store.savedChips.find((c) => c.id === state.currentChipId);
+      return {
+        id: `stack-${i}`,
+        name: chip?.name ?? "Untitled Chip",
+        isDirty: state.isDirty,
+      };
+    });
+    items.push({
+      id: "current",
+      name: currentChip?.name ?? "Untitled Chip",
+      isDirty: store.isDirty,
+    });
+    return items;
+  }, [store.viewStack, store.savedChips, currentChip, store.isDirty]);
+
   return (
     <header className="header-container">
       <AppMenu onNew={onNew} onSave={onSave} onCustomize={onCustomize} onDelete={onDelete} isSaved={isSaved} />
