@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import { Dock } from "./components/ui/Dock";
 import { SaveChipModal } from "./components/ui/SaveChipModal";
@@ -12,6 +12,7 @@ import { CHIP_FILL } from "./components/circuit/colors";
 import { unsavedAlert } from "./stores/unsavedAlertStore";
 import { useCircuitStore, useCurrentChip } from "./stores/circuitStore";
 import type { SavedChip } from "./storage/chipStorage";
+import { useWindowSize } from "./hooks/useWindowSize";
 
 function App() {
   const store = useCircuitStore();
@@ -20,26 +21,15 @@ function App() {
   const [deletingChipId, setDeletingChipId] = useState<string | null>(null);
   const [renamingPortId, setRenamingPortId] = useState<string | null>(null);
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const windowSize = useWindowSize();
 
   const handleSaveClick = useCallback(() => {
     if (store.currentChipId) {
       const chipDef = store.savedChips.find((c) => c.id === store.currentChipId);
       store.saveCurrentChip({
         id: store.currentChipId,
-        name: chipDef?.name ?? "",
-        color: chipDef?.color ?? CHIP_FILL,
+        name: chipDef?.name || "",
+        color: chipDef?.color || CHIP_FILL,
       });
     } else {
       saveChipModal.open();
@@ -47,8 +37,12 @@ function App() {
   }, [store]);
 
   const handleNewClick = useCallback(() => {
-    if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
-      unsavedAlert.open(store.currentChipId ?? "");
+    if (
+      store.isDirty &&
+      (store.circuit.components.length > 0 || store.circuit.connections.length > 0) &&
+      store.currentChipId
+    ) {
+      unsavedAlert.open(store.currentChipId);
     } else {
       store.resetToBlank();
     }
@@ -75,16 +69,8 @@ function App() {
   };
 
   const handleBreadcrumbClick = (index: number) => {
-    if (store.isDirty) {
-      // In a real app we'd need to store pendingBreadcrumbIndex.
-      // For now we'll just block navigating if dirty or you could just let the alert handle it.
-      // Wait, let's keep it simple: if dirty, open alert.
-      // We will need a way to pass pending index to alert, or let unsavedAlert have custom callbacks.
-      // The user modified UnsavedAlert to just take chipId. We will pass a special string for breadcrumbs?
-      // Since the user modified UnsavedAlert to just take chipId and call openSaveModal/handleDiscardChanges,
-      // discarding will resetToBlank instead of executing breadcrumb.
-      // For now, let's just trigger the alert.
-      unsavedAlert.open(store.currentChipId ?? "");
+    if (store.isDirty && store.currentChipId) {
+      unsavedAlert.open(store.currentChipId);
     } else {
       store.executeBreadcrumbNavigation(index);
     }
