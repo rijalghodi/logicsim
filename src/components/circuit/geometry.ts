@@ -33,6 +33,9 @@ export const GRID_SIZE = 20;
 /** Wire corner radius, applied to a wire's interior corner anchors (no effect on a plain 2-point wire, which has none). */
 export const WIRE_CORNER_RADIUS = 8;
 
+/** Konva node name for the canvas background rect, used to distinguish "clicked empty canvas" from "clicked a shape". */
+export const CANVAS_BG_NAME = "canvas-bg";
+
 export function getPortLabelWidth(text: string): number {
   return Math.min(PORT_LABEL_MAX_WIDTH, Math.max(22, text.length * 9));
 }

@@ -8,7 +8,7 @@ import { BoundaryPort } from "./BoundaryPort";
 import { ChipNode } from "./ChipNode";
 import { CircuitGrid } from "./CircuitGrid";
 import { ContextMenu } from "../ui/ContextMenu";
-import { getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
+import { CANVAS_BG_NAME, getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
 import type { Layout, Position } from "./geometry";
 import { connectionKey, getComponentInputValue, getPortValue, resolvePortPosition } from "./portResolution";
 import type { CircuitViewContext } from "./portResolution";
@@ -134,12 +134,7 @@ export function CircuitCanvas({
   // Cancel wiring on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setWiringDraft(null);
-        setMousePos(null);
-        const stage = stageRef.current;
-        if (stage) stage.container().style.cursor = "default";
-      }
+      if (e.key === "Escape") clearWiringDraft();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -154,7 +149,7 @@ export function CircuitCanvas({
     }
 
     // Crosshair over empty canvas while wiring; ports/wires/chips manage their own cursor on hover.
-    const isBackground = e.target === stage || e.target.attrs.name === "canvas-bg";
+    const isBackground = e.target === stage || e.target.attrs.name === CANVAS_BG_NAME;
     if (isBackground && stage) {
       stage.container().style.cursor = "crosshair";
     }
@@ -163,7 +158,7 @@ export function CircuitCanvas({
   const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (contextMenu) setContextMenu(null);
 
-    const isBackground = e.target === e.target.getStage() || e.target.attrs.name === "canvas-bg";
+    const isBackground = e.target === e.target.getStage() || e.target.attrs.name === CANVAS_BG_NAME;
     if (!isBackground) return;
 
     // While actively wiring, a click on empty canvas commits another corner anchor instead of canceling.
@@ -219,7 +214,8 @@ export function CircuitCanvas({
     if (!contextMenu) return [];
 
     if (contextMenu.type === "chip") {
-      if (contextMenu.componentType === "NAND") {
+      const isPrimitive = registry.resolve(contextMenu.componentType).kind === "primitive";
+      if (isPrimitive) {
         return [
           {
             label: "DUPLICATE",
@@ -304,7 +300,7 @@ export function CircuitCanvas({
         onTap={handleStageClick}
       >
         <Layer>
-          <Rect name="canvas-bg" x={0} y={0} width={width} height={height} fill={CANVAS_BACKGROUND} listening={true} />
+          <Rect name={CANVAS_BG_NAME} x={0} y={0} width={width} height={height} fill={CANVAS_BACKGROUND} listening={true} />
 
           {showGrid && <CircuitGrid width={width} height={height} />}
 
@@ -347,14 +343,14 @@ export function CircuitCanvas({
             const position = layout[component.id] ?? { x: 0, y: 0 };
             const savedDef = savedChips.find((c) => c.id === component.type);
             const customChipColor = savedDef?.color;
-            const boundaryLayout = savedDef?.boundaryLayout;
+            const portOrder = savedDef?.boundaryLayout;
 
-            const sortedInputs = boundaryLayout
-              ? [...inputs].sort((a, b) => (boundaryLayout[a.id] ?? 0) - (boundaryLayout[b.id] ?? 0))
+            const sortedInputs = portOrder
+              ? [...inputs].sort((a, b) => (portOrder[a.id] ?? 0) - (portOrder[b.id] ?? 0))
               : inputs;
 
-            const sortedOutputs = boundaryLayout
-              ? [...outputs].sort((a, b) => (boundaryLayout[a.id] ?? 0) - (boundaryLayout[b.id] ?? 0))
+            const sortedOutputs = portOrder
+              ? [...outputs].sort((a, b) => (portOrder[a.id] ?? 0) - (portOrder[b.id] ?? 0))
               : outputs;
 
             return (
