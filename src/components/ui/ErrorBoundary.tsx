@@ -42,7 +42,7 @@ export class ErrorBoundary extends Component<Props, State> {
             alignItems: "center",
             justifyContent: "center",
             width: "100%",
-            height: "100vh",
+            height: "100%",
             color: "var(--fg)",
             padding: "24px",
             textAlign: "center",
