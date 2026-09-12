@@ -42,7 +42,7 @@ export interface CircuitCanvasProps {
   /** Triggered when a boundary port should be removed. */
   readonly onRemoveBoundaryPort?: (portId: string) => void;
   /** Triggered when a boundary port should be renamed. */
-  readonly onRenameBoundaryPort?: (portId: string) => void;
+  readonly onCustomizeBoundaryPort?: (portId: string) => void;
   /** Triggered when a chip is dragged from the bottom toolbar and dropped onto the canvas. */
   readonly onDropChip?: (chipType: string, position: Position) => void;
   /** Triggered when a wire is connected from source to destination. */
@@ -69,7 +69,7 @@ export function CircuitCanvas({
   onViewComponent,
   onRemoveComponent,
   onRemoveBoundaryPort,
-  onRenameBoundaryPort,
+  onCustomizeBoundaryPort,
   onDropChip,
   onConnectWire,
   onDisconnectWire,
@@ -206,7 +206,7 @@ export function CircuitCanvas({
           label: "CUSTOMIZE",
           shortcutHint: "⏎",
           shortcutKeys: ["Enter"],
-          onClick: () => onRenameBoundaryPort?.(contextMenu.portId),
+          onClick: () => onCustomizeBoundaryPort?.(contextMenu.portId),
         },
         {
           label: "REMOVE",

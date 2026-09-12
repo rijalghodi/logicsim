@@ -1,17 +1,12 @@
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
-import type { SavedChip } from "@/storage/chipStorage";
-import type { ChipRegistry } from "@/core";
 import { useMemo } from "react";
+import { useDeleteChipAlertStore } from "@/stores/deleteChipAlertStore";
+import { useCircuitStore } from "@/stores/circuitStore";
 
-interface DeleteChipModalProps {
-  readonly chipId: string | null;
-  readonly savedChips: readonly SavedChip[];
-  readonly registry: ChipRegistry;
-  readonly onConfirm: (chipsToDelete: SavedChip[]) => void;
-  readonly onClose: () => void;
-}
+export function DeleteChipAlert() {
+  const { isOpen, chipId, close } = useDeleteChipAlertStore();
+  const { savedChips, registry, deleteChips } = useCircuitStore();
 
-export function DeleteChipModal({ chipId, savedChips, registry, onConfirm, onClose }: DeleteChipModalProps) {
   const chipsToDelete = useMemo(() => {
     if (!chipId) return [];
     return savedChips.filter((c) => c.id === chipId || registry.dependsOn(c.id, chipId));
@@ -19,10 +14,15 @@ export function DeleteChipModal({ chipId, savedChips, registry, onConfirm, onClo
 
   const targetChip = savedChips.find((c) => c.id === chipId);
 
-  if (!chipId || !targetChip) return null;
+  if (!isOpen || !chipId || !targetChip) return null;
+
+  const handleConfirm = () => {
+    deleteChips(chipsToDelete);
+    close();
+  };
 
   return (
-    <Modal isOpen={!!chipId} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={close}>
       <ModalHeader>
         <ModalTitle>DELETE CHIP</ModalTitle>
         <ModalDescription>
@@ -55,10 +55,10 @@ export function DeleteChipModal({ chipId, savedChips, registry, onConfirm, onClo
         <p style={{ color: "var(--text)", fontSize: "14px" }}>This action cannot be undone.</p>
 
         <ModalActions>
-          <button type="button" className="btn-secondary" onClick={onClose}>
+          <button type="button" className="btn-secondary" onClick={close}>
             CANCEL
           </button>
-          <button type="button" className="btn-danger" onClick={() => onConfirm(chipsToDelete)}>
+          <button type="button" className="btn-danger" onClick={handleConfirm}>
             DELETE
           </button>
         </ModalActions>

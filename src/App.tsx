@@ -1,25 +1,23 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import { Dock } from "./components/ui/Dock";
 import { SaveChipModal } from "./components/ui/SaveChipModal";
 import { saveChipModal } from "./stores/saveChipModalStore";
 import { UnsavedAlert } from "./components/ui/UnsavedAlert";
-import { DeleteChipModal } from "./components/ui/DeleteChipModal";
+import { DeleteChipAlert } from "./components/ui/DeleteChipAlert";
 import { CustomizePortModal } from "./components/ui/CustomizePortModal";
 import { Header } from "./components/ui/Header";
 import { Toast } from "./components/ui/Toast";
 import { CHIP_FILL } from "./components/circuit/colors";
 import { unsavedAlert } from "./stores/unsavedAlertStore";
 import { useCircuitStore, useCurrentChip } from "./stores/circuitStore";
-import type { SavedChip } from "./storage/chipStorage";
+import { deleteChipAlert } from "./stores/deleteChipAlertStore";
+import { customizePortModal } from "./stores/customizePortModalStore";
 import { useWindowSize } from "./hooks/useWindowSize";
 
 function App() {
   const store = useCircuitStore();
   const currentChip = useCurrentChip();
-
-  const [deletingChipId, setDeletingChipId] = useState<string | null>(null);
-  const [renamingPortId, setRenamingPortId] = useState<string | null>(null);
 
   const windowSize = useWindowSize();
 
@@ -56,7 +54,7 @@ function App() {
 
   const handleDeleteCurrentClick = useCallback(() => {
     if (store.currentChipId) {
-      setDeletingChipId(store.currentChipId);
+      deleteChipAlert.open(store.currentChipId);
     }
   }, [store]);
 
@@ -87,27 +85,6 @@ function App() {
     },
     [store],
   );
-
-  const handleConfirmDelete = (chipsToDelete: SavedChip[]) => {
-    store.deleteChips(chipsToDelete);
-    setDeletingChipId(null);
-  };
-
-  const renamingPort = useMemo(() => {
-    if (!renamingPortId) return null;
-    return (
-      store.boundary.inputs.find((p) => p.id === renamingPortId) ??
-      store.boundary.outputs.find((p) => p.id === renamingPortId) ??
-      null
-    );
-  }, [renamingPortId, store.boundary]);
-
-  const handleConfirmRenamePort = (newName: string, newColor: string) => {
-    if (renamingPortId) {
-      store.renameBoundaryPort(renamingPortId, newName, newColor);
-      setRenamingPortId(null);
-    }
-  };
 
   const handleAddChipCenter = (chipType: string) => {
     store.dropChip(chipType, {
@@ -173,7 +150,7 @@ function App() {
         onMoveBoundaryPort={store.moveBoundaryPort}
         onRemoveComponent={store.removeComponent}
         onRemoveBoundaryPort={store.removeBoundaryPort}
-        onRenameBoundaryPort={setRenamingPortId}
+        onCustomizeBoundaryPort={customizePortModal.open}
         onDropChip={store.dropChip}
         onConnectWire={store.connectWire}
         onDisconnectWire={store.disconnectWire}
@@ -186,7 +163,7 @@ function App() {
         disabledChipIds={disabledChipIds}
         onAddChip={handleAddChipCenter}
         onOpenChip={handleOpenChipClick}
-        onDeleteChip={setDeletingChipId}
+        onDeleteChip={deleteChipAlert.open}
       />
 
       <Toast />
@@ -200,21 +177,9 @@ function App() {
 
       <UnsavedAlert onSave={saveChipModal.open} onDiscard={handleDiscardChanges} />
 
-      <DeleteChipModal
-        chipId={deletingChipId}
-        savedChips={store.savedChips}
-        registry={store.registry}
-        onConfirm={handleConfirmDelete}
-        onClose={() => setDeletingChipId(null)}
-      />
+      <DeleteChipAlert />
 
-      <CustomizePortModal
-        isOpen={Boolean(renamingPortId && renamingPort)}
-        initialName={renamingPort?.name ?? ""}
-        initialColor={renamingPortId ? (store.portColors[renamingPortId] ?? "") : ""}
-        onCustomize={handleConfirmRenamePort}
-        onCancel={() => setRenamingPortId(null)}
-      />
+      <CustomizePortModal />
     </div>
   );
 }

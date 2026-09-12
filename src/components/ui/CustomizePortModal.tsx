@@ -1,25 +1,28 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { toast } from "@/stores/toastStore";
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
 import { Input } from "./Input";
 import { ColorPickerButton } from "./ColorPickerButton";
 import { BIT_COLOR } from "../circuit/colors";
+import { useCircuitStore } from "@/stores/circuitStore";
+import { useCustomizePortModalStore } from "@/stores/customizePortModalStore";
 
-interface CustomizePortModalProps {
-  readonly isOpen: boolean;
-  readonly initialName: string;
-  readonly initialColor: string;
-  readonly onCustomize: (newName: string, newColor: string) => void;
-  readonly onCancel: () => void;
-}
+export function CustomizePortModal() {
+  const { isOpen, portId, close } = useCustomizePortModalStore();
+  const { boundary, portColors, renameBoundaryPort } = useCircuitStore();
 
-export function CustomizePortModal({
-  isOpen,
-  initialName,
-  initialColor,
-  onCustomize,
-  onCancel,
-}: CustomizePortModalProps) {
+  const port = useMemo(() => {
+    if (!portId) return null;
+    return (
+      boundary.inputs.find((p) => p.id === portId) ??
+      boundary.outputs.find((p) => p.id === portId) ??
+      null
+    );
+  }, [portId, boundary]);
+
+  const initialName = port?.name ?? "";
+  const initialColor = portId ? (portColors[portId] ?? "") : "";
+
   const [name, setName] = useState(initialName);
   const [color, setColor] = useState(initialColor || BIT_COLOR);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -46,11 +49,14 @@ export function CustomizePortModal({
       toast.error("Port name cannot be empty");
       return;
     }
-    onCustomize(trimmed, color);
+    if (portId) {
+      renameBoundaryPort(portId, trimmed, color);
+    }
+    close();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onCancel}>
+    <Modal isOpen={isOpen} onClose={close}>
       <ModalHeader>
         <ModalTitle>CUSTOMIZE PORT</ModalTitle>
         <ModalDescription>Enter a new name for this boundary port.</ModalDescription>
@@ -72,7 +78,7 @@ export function CustomizePortModal({
         </div>
 
         <ModalActions>
-          <button type="button" className="btn-secondary" onClick={onCancel}>
+          <button type="button" className="btn-secondary" onClick={close}>
             CANCEL
           </button>
           <button type="submit" className="btn-primary">

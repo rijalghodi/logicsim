@@ -34,8 +34,8 @@ export function UnsavedAlert({
       <ModalHeader>
         <ModalTitle>UNSAVED CHANGES</ModalTitle>
         <ModalDescription>
-          The "<strong>{chip?.name ?? "Untitled"}</strong>" circuit has unsaved changes. Do you want to save this
-          circuit before proceeding?
+          The <strong style={{ color: "var(--fg)" }}>{chip?.name ?? "Untitled"}</strong> circuit has unsaved changes. Do
+          you want to save this circuit before proceeding?
         </ModalDescription>
       </ModalHeader>
 
