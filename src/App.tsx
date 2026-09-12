@@ -21,6 +21,7 @@ import { loadSavedChips, saveCustomChip, deleteCustomChip } from "./storage/chip
 import type { SavedChip } from "./storage/chipStorage";
 import type { Layout, Position } from "./components/circuit/geometry";
 import { CHIP_FILL } from "./components/circuit/colors";
+import { ErrorBoundary } from "./components/ui/ErrorBoundary";
 
 function createBlankCircuit() {
   const IN = createPortDefinition("IN", "input");
@@ -583,28 +584,30 @@ function App() {
         />
 
         {/* Circuit Canvas */}
-        <CircuitCanvas
-          circuit={circuit}
-          registry={registry}
-          savedChips={savedChips}
-          layout={layout}
-          boundary={boundary}
-          boundaryLayout={boundaryLayout}
-          portColors={portColors}
-          boundaryInputs={boundaryInputs}
-          onToggleBoundaryInput={handleToggleBoundaryInput}
-          onMoveComponent={handleMoveComponent}
-          onOpenComponent={handleDiveIntoChip}
-          onMoveBoundaryPort={handleMoveBoundaryPort}
-          onRemoveComponent={handleRemoveComponent}
-          onRemoveBoundaryPort={handleRemoveBoundaryPort}
-          onRenameBoundaryPort={handleRenameBoundaryPort}
-          onDropChip={handleDropChip}
-          onConnectWire={handleConnectWire}
-          onDisconnectWire={handleDisconnectWire}
-          width={windowSize.width}
-          height={windowSize.height}
-        />
+        <ErrorBoundary>
+          <CircuitCanvas
+            circuit={circuit}
+            registry={registry}
+            savedChips={savedChips}
+            layout={layout}
+            boundary={boundary}
+            boundaryLayout={boundaryLayout}
+            portColors={portColors}
+            boundaryInputs={boundaryInputs}
+            onToggleBoundaryInput={handleToggleBoundaryInput}
+            onMoveComponent={handleMoveComponent}
+            onOpenComponent={handleDiveIntoChip}
+            onMoveBoundaryPort={handleMoveBoundaryPort}
+            onRemoveComponent={handleRemoveComponent}
+            onRemoveBoundaryPort={handleRemoveBoundaryPort}
+            onRenameBoundaryPort={handleRenameBoundaryPort}
+            onDropChip={handleDropChip}
+            onConnectWire={handleConnectWire}
+            onDisconnectWire={handleDisconnectWire}
+            width={windowSize.width}
+            height={windowSize.height}
+          />
+        </ErrorBoundary>
 
         {/* Floating Bottom Toolbar */}
         <Dock
