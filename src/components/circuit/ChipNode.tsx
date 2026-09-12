@@ -159,7 +159,7 @@ export function ChipNode({
           align="center"
           verticalAlign="middle"
           wrap="word"
-          padding={6}
+          padding={PORT_RADIUS}
           listening={false}
         />
       </Group>

@@ -47,7 +47,7 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 - [x] Feat: Delete Boundary Port
 - [x] Feat: Rename Boundary Port
 - [x] Feat: Color Boundary Port and wire connected
-- [ ] Feat: Clean App.tsx, use hooks.
+- [x] Feat: Clean App.tsx, use hooks.
 - [ ] Feat: Cornered Wire
 - [x] Feat: slider as color input
 - [x] Feat: Quick Customize Chip
