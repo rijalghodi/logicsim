@@ -8,21 +8,21 @@ export interface ChipSaveState {
 
 export interface SaveChipModalStore {
   isOpen: boolean;
-  initialState?: ChipSaveState;
-  open: (state?: ChipSaveState) => void;
+  chipId?: string | null;
+  open: (chipId?: string | null) => void;
   close: () => void;
 }
 
 export const useSaveChipModalStore = create<SaveChipModalStore>((set) => ({
   isOpen: false,
-  initialState: undefined,
-  open: (state) => set({ isOpen: true, initialState: state }),
-  close: () => set({ isOpen: false }),
+  chipId: null,
+  open: (chipId) => set({ isOpen: true, chipId }),
+  close: () => set({ isOpen: false, chipId: null }),
 }));
 
 export const saveChipModal = {
-  open: (state: ChipSaveState) => {
-    useSaveChipModalStore.getState().open(state);
+  open: (chipId?: string | null) => {
+    useSaveChipModalStore.getState().open(chipId);
   },
   close: () => {
     useSaveChipModalStore.getState().close();

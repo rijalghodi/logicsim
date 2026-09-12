@@ -50,6 +50,10 @@ input {
   font-family: inherit;
 }
 
+strong {
+  font-weight: 700;
+}
+
 /* General Classes */
 
 .btn-primary,

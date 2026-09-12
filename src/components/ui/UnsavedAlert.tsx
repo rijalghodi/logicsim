@@ -1,5 +1,7 @@
+import { useCircuitStore } from "@/stores/circuitStore";
 import { Modal, ModalHeader, ModalTitle, ModalDescription, ModalBody, ModalActions } from "./Modal";
 import { useUnsavedAlertStore } from "@/stores/unsavedAlertStore";
+import { useMemo } from "react";
 
 export function UnsavedAlert({
   onSave,
@@ -9,6 +11,9 @@ export function UnsavedAlert({
   onDiscard: (chipId?: string | null) => void;
 }) {
   const { isOpen, close, chipId } = useUnsavedAlertStore();
+  const { savedChips } = useCircuitStore();
+
+  const chip = useMemo(() => savedChips.find((c) => c.id === chipId), [savedChips, chipId]);
 
   if (!isOpen) return null;
 
@@ -29,8 +34,8 @@ export function UnsavedAlert({
       <ModalHeader>
         <ModalTitle>UNSAVED CHANGES</ModalTitle>
         <ModalDescription>
-          The current circuit has unsaved changes. Do you want to save this circuit as a chip before opening a new one,
-          or discard changes?
+          The "<strong>{chip?.name ?? "Untitled"}</strong>" circuit has unsaved changes. Do you want to save this
+          circuit before proceeding?
         </ModalDescription>
       </ModalHeader>
 

@@ -1,29 +1,34 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "@/stores/toastStore";
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
 import { CHIP_FILL } from "../circuit/colors";
 import { Input } from "./Input";
 import { ColorSliderInput } from "./ColorSliderInput";
 import { useSaveChipModalStore, type ChipSaveState } from "@/stores/saveChipModalStore";
+import { useCircuitStore } from "@/stores/circuitStore";
 
 export interface SaveChipModalProps {
   readonly onSave: (state: ChipSaveState) => void;
 }
 
 export function SaveChipModal({ onSave }: SaveChipModalProps) {
-  const { isOpen, initialState, close } = useSaveChipModalStore();
-  const [name, setName] = useState(initialState?.name || "");
-  const [color, setColor] = useState(initialState?.color || CHIP_FILL);
+  const { isOpen, chipId, close } = useSaveChipModalStore();
+  const { savedChips } = useCircuitStore();
+
+  const chip = useMemo(() => savedChips.find((c) => c.id === chipId), [savedChips, chipId]);
+
+  const [name, setName] = useState(chip?.name || "");
+  const [color, setColor] = useState(chip?.color || CHIP_FILL);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setName(initialState?.name || "");
-      setColor(initialState?.color || CHIP_FILL);
+      setName(chip?.name || "");
+      setColor(chip?.color || CHIP_FILL);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [isOpen, initialState]);
+  }, [isOpen, chip]);
 
   if (!isOpen) return null;
 
@@ -38,13 +43,13 @@ export function SaveChipModal({ onSave }: SaveChipModalProps) {
       toast.error("NAND is a reserved primitive chip name");
       return;
     }
-    onSave({ ...initialState, name: trimmed, color });
+    onSave({ id: chip?.id, name: trimmed, color });
   };
 
   return (
     <Modal isOpen={isOpen} onClose={close}>
       <ModalHeader>
-        <ModalTitle>{initialState?.name ? "CUSTOMIZE" : "SAVE"} CHIP</ModalTitle>
+        <ModalTitle>{chip ? "CUSTOMIZE" : "SAVE"} CHIP</ModalTitle>
         <ModalDescription>Enter a name and color for the chip.</ModalDescription>
       </ModalHeader>
 
