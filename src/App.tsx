@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import { Dock } from "./components/ui/Dock";
 import { SaveChipModal } from "./components/ui/SaveChipModal";
@@ -8,90 +8,18 @@ import { DeleteChipAlert } from "./components/ui/DeleteChipAlert";
 import { CustomizePortModal } from "./components/ui/CustomizePortModal";
 import { Header } from "./components/ui/Header";
 import { Toast } from "./components/ui/Toast";
-import { CHIP_FILL } from "./components/circuit/colors";
-import { unsavedAlert } from "./stores/unsavedAlertStore";
 import { useCircuitStore, useCurrentChip } from "./stores/circuitStore";
 import { deleteChipAlert } from "./stores/deleteChipAlertStore";
 import { customizePortModal } from "./stores/customizePortModalStore";
 import { useWindowSize } from "./hooks/useWindowSize";
+import { useAppActions } from "./hooks/useAppActions";
 
 function App() {
   const store = useCircuitStore();
   const currentChip = useCurrentChip();
 
   const windowSize = useWindowSize();
-
-  const handleSaveClick = useCallback(() => {
-    if (store.currentChipId) {
-      const chipDef = store.savedChips.find((c) => c.id === store.currentChipId);
-      store.saveCurrentChip({
-        id: store.currentChipId,
-        name: chipDef?.name || "",
-        color: chipDef?.color || CHIP_FILL,
-      });
-    } else {
-      saveChipModal.open();
-    }
-  }, [store]);
-
-  const handleNewClick = useCallback(() => {
-    if (
-      store.isDirty &&
-      (store.circuit.components.length > 0 || store.circuit.connections.length > 0) &&
-      store.currentChipId
-    ) {
-      unsavedAlert.open(store.currentChipId);
-    } else {
-      store.resetToBlank();
-    }
-  }, [store]);
-
-  const handleCustomizeClick = useCallback(() => {
-    if (store.currentChipId) {
-      saveChipModal.open(store.currentChipId);
-    }
-  }, [store.currentChipId]);
-
-  const handleDeleteCurrentClick = useCallback(() => {
-    if (store.currentChipId) {
-      deleteChipAlert.open(store.currentChipId);
-    }
-  }, [store]);
-
-  const handleOpenChipClick = (chipId: string) => {
-    if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
-      unsavedAlert.open(chipId);
-    } else {
-      store.loadChipToCanvas(chipId);
-    }
-  };
-
-  const handleBreadcrumbClick = (index: number) => {
-    if (store.isDirty && store.currentChipId) {
-      unsavedAlert.open(store.currentChipId);
-    } else {
-      store.executeBreadcrumbNavigation(index);
-    }
-  };
-
-  const handleDiscardChanges = useCallback(
-    (chipId?: string | null) => {
-      unsavedAlert.close();
-      if (chipId) {
-        store.loadChipToCanvas(chipId);
-      } else {
-        store.resetToBlank();
-      }
-    },
-    [store],
-  );
-
-  const handleAddChipCenter = (chipType: string) => {
-    store.dropChip(chipType, {
-      x: Math.round(windowSize.width / 2 - 60),
-      y: Math.round(windowSize.height / 2 - 40),
-    });
-  };
+  const actions = useAppActions(windowSize);
 
   const disabledChipIds = useMemo(() => {
     const disabled = new Set<string>();
@@ -127,11 +55,11 @@ function App() {
     <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
       <Header
         breadcrumbItems={breadcrumbItems}
-        onNavigateBreadcrumb={handleBreadcrumbClick}
-        onNew={handleNewClick}
-        onSave={handleSaveClick}
-        onCustomize={handleCustomizeClick}
-        onDelete={handleDeleteCurrentClick}
+        onNavigateBreadcrumb={actions.handleBreadcrumbClick}
+        onNew={actions.handleNewClick}
+        onSave={actions.handleSaveClick}
+        onCustomize={actions.handleCustomizeClick}
+        onDelete={actions.handleDeleteCurrentClick}
         isSaved={!!store.currentChipId}
       />
 
@@ -161,8 +89,8 @@ function App() {
       <Dock
         savedChips={store.savedChips}
         disabledChipIds={disabledChipIds}
-        onAddChip={handleAddChipCenter}
-        onOpenChip={handleOpenChipClick}
+        onAddChip={actions.handleAddChipCenter}
+        onOpenChip={actions.handleOpenChipClick}
         onDeleteChip={deleteChipAlert.open}
       />
 
@@ -175,7 +103,7 @@ function App() {
         }}
       />
 
-      <UnsavedAlert onSave={saveChipModal.open} onDiscard={handleDiscardChanges} />
+      <UnsavedAlert onSave={saveChipModal.open} onDiscard={actions.handleDiscardChanges} />
 
       <DeleteChipAlert />
 
