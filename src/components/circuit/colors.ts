@@ -1,11 +1,9 @@
 // Canvas Background
-export const CANVAS_BACKGROUND = "hsl(0, 0%, 20%)";
+export const CANVAS_BACKGROUND = "#333333"; // oklch(0.321 0 0) // hsl(0, 0%, 20%)
 
 // Bit & Wire Colors
-export const BIT_ACTIVE_COLOR = "#fef08b";
-export const BIT_INACTIVE_COLOR = "#625707";
-export const BIT_INACTIVE_HOVER_COLOR = "#766909";
-export const BIT_STROKE = "hsl(0, 0%, 6%)";
+export const BIT_COLOR = "#fef08b"; // oklch(0.945 0.123 101)
+export const BIT_STROKE = "#0f0f0f"; // "hsl(0, 0%, 6%)";
 export const WIRE_DELETE_HOVER_COLOR = "#f95c5c";
 
 // Component Node Colors

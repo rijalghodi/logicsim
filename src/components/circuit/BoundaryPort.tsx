@@ -9,10 +9,8 @@ import {
   CONTROLLER_FILL_HOVER,
   CONTROLLER_STROKE,
   CONTROLLER_STROKE_HOVER,
-  BIT_ACTIVE_COLOR,
-  BIT_INACTIVE_COLOR,
+  BIT_COLOR,
   BIT_STROKE,
-  BIT_INACTIVE_HOVER_COLOR,
 } from "./colors";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
@@ -239,14 +237,14 @@ export function BoundaryPort({
             active
               ? color
                 ? getBrightColor(color)
-                : BIT_ACTIVE_COLOR
+                : getBrightColor(BIT_COLOR)
               : bitHovered && onToggle
                 ? color
                   ? getHoverColor(getDimmedColor(color))
-                  : BIT_INACTIVE_HOVER_COLOR
+                  : getHoverColor(getDimmedColor(BIT_COLOR))
                 : color
                   ? getDimmedColor(color)
-                  : BIT_INACTIVE_COLOR
+                  : getDimmedColor(BIT_COLOR)
           }
           stroke={BIT_STROKE}
           strokeWidth={2}

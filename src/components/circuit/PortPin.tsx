@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Circle, Group } from "react-konva";
 import type Konva from "konva";
 import { PORT_RADIUS } from "./geometry";
-import { PORT_COLOR, BIT_ACTIVE_COLOR, PORT_COLOR_HOVER } from "./colors";
+import { PORT_COLOR, BIT_COLOR, PORT_COLOR_HOVER } from "./colors";
 
 interface PortPinProps {
   readonly x: number;
@@ -55,7 +55,7 @@ export function PortPin({ x, y, active, isWiringActive, onPortClick, onHoverChan
           x={0}
           y={0}
           radius={PORT_RADIUS + 4}
-          stroke={active ? BIT_ACTIVE_COLOR : BIT_ACTIVE_COLOR}
+          stroke={active ? BIT_COLOR : BIT_COLOR}
           strokeWidth={1.5}
           dash={[3, 3]}
           listening={false}

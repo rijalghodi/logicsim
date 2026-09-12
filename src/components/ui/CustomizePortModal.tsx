@@ -3,7 +3,7 @@ import { toast } from "./Toast";
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
 import { Input } from "./Input";
 import { ColorPickerButton } from "./ColorPickerButton";
-import { BIT_ACTIVE_COLOR } from "../circuit/colors";
+import { BIT_COLOR } from "../circuit/colors";
 
 interface CustomizePortModalProps {
   readonly isOpen: boolean;
@@ -21,7 +21,7 @@ export function CustomizePortModal({
   onCancel,
 }: CustomizePortModalProps) {
   const [name, setName] = useState(initialName);
-  const [color, setColor] = useState(initialColor || BIT_ACTIVE_COLOR);
+  const [color, setColor] = useState(initialColor || BIT_COLOR);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function CustomizePortModal({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(initialName);
 
-      setColor(initialColor || BIT_ACTIVE_COLOR);
+      setColor(initialColor || BIT_COLOR);
       setTimeout(() => {
         inputRef.current?.focus();
         inputRef.current?.select();

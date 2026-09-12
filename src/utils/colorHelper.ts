@@ -135,15 +135,15 @@ export function getSafeColor(hex: string): string {
 export function getDimmedColor(hex: string): string {
   if (!hex.startsWith("#")) return hex;
 
-  const { h, c } = hexToOklch(hex);
+  const { h } = hexToOklch(hex);
 
-  return oklchToHex({ l: 0.4, c, h });
+  return oklchToHex({ l: 0.185, c: 0.123, h });
 }
 
 export function getBrightColor(hex: string) {
   if (!hex.startsWith("#")) return hex;
 
-  const { h, c } = hexToOklch(hex);
+  const { h } = hexToOklch(hex);
 
-  return oklchToHex({ l: 0.8, c, h });
+  return oklchToHex({ l: 0.833, c: 0.123, h });
 }

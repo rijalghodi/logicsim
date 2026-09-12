@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Line } from "react-konva";
 import type { Position } from "./geometry";
-import { BIT_ACTIVE_COLOR, BIT_INACTIVE_COLOR, WIRE_DELETE_HOVER_COLOR } from "./colors";
+import { BIT_COLOR, WIRE_DELETE_HOVER_COLOR } from "./colors";
 import { getBrightColor, getDimmedColor } from "../../utils/colorHelper";
 
 interface WireLineProps {
@@ -17,8 +17,8 @@ interface WireLineProps {
 export function WireLine({ from, to, active, color, isDraft, onDelete }: WireLineProps) {
   const [hovered, setHovered] = useState(false);
 
-  let activeColor = BIT_ACTIVE_COLOR;
-  let inactiveColor = BIT_INACTIVE_COLOR;
+  let activeColor = getBrightColor(BIT_COLOR);
+  let inactiveColor = getDimmedColor(BIT_COLOR);
   if (color) {
     activeColor = getBrightColor(color);
     inactiveColor = getDimmedColor(color);
