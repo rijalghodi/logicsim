@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import { Dock } from "./components/ui/Dock";
-import { SaveChipModal, SaveChipModalContext } from "./components/ui/SaveChipModal";
-import type { ChipSaveState } from "./components/ui/SaveChipModal";
+import { SaveChipModal } from "./components/ui/SaveChipModal";
+import { saveChipModal, type ChipSaveState } from "./stores/saveChipModalStore";
 import { UnsavedChangesAlert } from "./components/ui/UnsavedChangesAlert";
 import { DeleteChipModal } from "./components/ui/DeleteChipModal";
 import { CustomizePortModal } from "./components/ui/CustomizePortModal";
 import { Header } from "./components/ui/Header";
-import { Toast, toast } from "./components/ui/Toast";
+import { Toast } from "./components/ui/Toast";
 import {
   createDefaultRegistry,
   createChipDefinition,
@@ -21,7 +21,7 @@ import { loadSavedChips, saveCustomChip, deleteCustomChip } from "./storage/chip
 import type { SavedChip } from "./storage/chipStorage";
 import type { Layout, Position } from "./components/circuit/geometry";
 import { CHIP_FILL } from "./components/circuit/colors";
-import { ErrorBoundary } from "./components/ui/ErrorBoundary";
+import { toast } from "./stores/toastStore";
 
 function createBlankCircuit() {
   const IN = createPortDefinition("IN", "input");
@@ -66,8 +66,6 @@ function App() {
   const [viewStack, setViewStack] = useState<ViewState[]>([]);
   const [pendingBreadcrumbIndex, setPendingBreadcrumbIndex] = useState<number | null>(null);
 
-  const [saveModalOpen, setSaveModalOpen] = useState(false);
-  const [saveModalState, setSaveModalState] = useState<ChipSaveState | undefined>(undefined);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [pendingChipToOpen, setPendingChipToOpen] = useState<string | null>(null);
   const [deletingChipId, setDeletingChipId] = useState<string | null>(null);
@@ -206,7 +204,7 @@ function App() {
         setCurrentChipName(name);
         setCurrentChipId(chipDef.id);
         setIsDirty(false);
-        setSaveModalOpen(false);
+        saveChipModal.close();
         toast.success(`Chip "${name}" saved to library!`);
 
         if (pendingBreadcrumbIndex !== null) {
@@ -235,10 +233,18 @@ function App() {
     ],
   );
 
-  const openSaveModal = useCallback((state?: ChipSaveState) => {
-    setSaveModalState(state);
-    setSaveModalOpen(true);
-  }, []);
+  const openSaveModal = useCallback(
+    (state?: ChipSaveState) => {
+      saveChipModal.open(
+        state ?? {
+          id: currentChipId,
+          name: currentChipName ?? "",
+          color: CHIP_FILL,
+        },
+      );
+    },
+    [currentChipId, currentChipName],
+  );
 
   const handleSaveClick = useCallback(() => {
     if (currentChipId && currentChipName) {
@@ -577,98 +583,82 @@ function App() {
   }, [viewStack, currentChipName, isDirty]);
 
   return (
-    <SaveChipModalContext.Provider value={{ openSaveModal }}>
-      <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
-        <Header
-          breadcrumbItems={breadcrumbItems}
-          onNavigateBreadcrumb={handleBreadcrumbClick}
-          onNew={handleNewClick}
-          onSave={handleSaveClick}
-          onCustomize={handleCustomizeClick}
-          onDelete={handleDeleteCurrentClick}
-          isSaved={!!currentChipId}
-        />
+    <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
+      <Header
+        breadcrumbItems={breadcrumbItems}
+        onNavigateBreadcrumb={handleBreadcrumbClick}
+        onNew={handleNewClick}
+        onSave={handleSaveClick}
+        onCustomize={handleCustomizeClick}
+        onDelete={handleDeleteCurrentClick}
+        isSaved={!!currentChipId}
+      />
 
-        {/* Circuit Canvas */}
-        <ErrorBoundary>
-          <CircuitCanvas
-            circuit={circuit}
-            registry={registry}
-            savedChips={savedChips}
-            layout={layout}
-            boundary={boundary}
-            boundaryLayout={boundaryLayout}
-            portColors={portColors}
-            boundaryInputs={boundaryInputs}
-            onToggleBoundaryInput={handleToggleBoundaryInput}
-            onMoveComponent={handleMoveComponent}
-            onOpenComponent={handleDiveIntoChip}
-            onMoveBoundaryPort={handleMoveBoundaryPort}
-            onRemoveComponent={handleRemoveComponent}
-            onRemoveBoundaryPort={handleRemoveBoundaryPort}
-            onRenameBoundaryPort={handleRenameBoundaryPort}
-            onDropChip={handleDropChip}
-            onConnectWire={handleConnectWire}
-            onDisconnectWire={handleDisconnectWire}
-            width={windowSize.width}
-            height={windowSize.height}
-          />
-        </ErrorBoundary>
+      <CircuitCanvas
+        circuit={circuit}
+        registry={registry}
+        savedChips={savedChips}
+        layout={layout}
+        boundary={boundary}
+        boundaryLayout={boundaryLayout}
+        portColors={portColors}
+        boundaryInputs={boundaryInputs}
+        onToggleBoundaryInput={handleToggleBoundaryInput}
+        onMoveComponent={handleMoveComponent}
+        onOpenComponent={handleDiveIntoChip}
+        onMoveBoundaryPort={handleMoveBoundaryPort}
+        onRemoveComponent={handleRemoveComponent}
+        onRemoveBoundaryPort={handleRemoveBoundaryPort}
+        onRenameBoundaryPort={handleRenameBoundaryPort}
+        onDropChip={handleDropChip}
+        onConnectWire={handleConnectWire}
+        onDisconnectWire={handleDisconnectWire}
+        width={windowSize.width}
+        height={windowSize.height}
+      />
 
-        {/* Floating Bottom Toolbar */}
-        <Dock
-          savedChips={savedChips}
-          disabledChipIds={disabledChipIds}
-          onAddChip={handleAddChipCenter}
-          onOpenChip={handleOpenChipClick}
-          onDeleteChip={handleDeleteChipClick}
-        />
+      <Dock
+        savedChips={savedChips}
+        disabledChipIds={disabledChipIds}
+        onAddChip={handleAddChipCenter}
+        onOpenChip={handleOpenChipClick}
+        onDeleteChip={handleDeleteChipClick}
+      />
 
-        {/* Toast Notification */}
-        <Toast />
+      <Toast />
 
-        {/* Save Chip Modal */}
-        <SaveChipModal
-          isOpen={saveModalOpen}
-          initialState={saveModalState ?? { id: null, name: currentChipName ?? "", color: CHIP_FILL }}
-          onSave={handleConfirmSave}
-          onCancel={() => setSaveModalOpen(false)}
-        />
+      <SaveChipModal onSave={handleConfirmSave} />
 
-        {/* Unsaved Changes Confirmation Modal */}
-        <UnsavedChangesAlert
-          isOpen={showUnsavedModal}
-          onSave={() => {
-            setShowUnsavedModal(false);
-            openSaveModal();
-          }}
-          onDiscard={handleDiscardChanges}
-          onCancel={() => {
-            setShowUnsavedModal(false);
-            setPendingChipToOpen(null);
-            setPendingBreadcrumbIndex(null);
-          }}
-        />
+      <UnsavedChangesAlert
+        isOpen={showUnsavedModal}
+        onSave={() => {
+          setShowUnsavedModal(false);
+          openSaveModal();
+        }}
+        onDiscard={handleDiscardChanges}
+        onCancel={() => {
+          setShowUnsavedModal(false);
+          setPendingChipToOpen(null);
+          setPendingBreadcrumbIndex(null);
+        }}
+      />
 
-        {/* Delete Chip Confirmation Modal */}
-        <DeleteChipModal
-          chipId={deletingChipId}
-          savedChips={savedChips}
-          registry={registry}
-          onConfirm={handleConfirmDelete}
-          onClose={() => setDeletingChipId(null)}
-        />
+      <DeleteChipModal
+        chipId={deletingChipId}
+        savedChips={savedChips}
+        registry={registry}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeletingChipId(null)}
+      />
 
-        {/* Customize Boundary Port Modal */}
-        <CustomizePortModal
-          isOpen={Boolean(renamingPortId && renamingPort)}
-          initialName={renamingPort?.name ?? ""}
-          initialColor={renamingPortId ? (portColors[renamingPortId] ?? "") : ""}
-          onCustomize={handleConfirmRenamePort}
-          onCancel={() => setRenamingPortId(null)}
-        />
-      </div>
-    </SaveChipModalContext.Provider>
+      <CustomizePortModal
+        isOpen={Boolean(renamingPortId && renamingPort)}
+        initialName={renamingPort?.name ?? ""}
+        initialColor={renamingPortId ? (portColors[renamingPortId] ?? "") : ""}
+        onCustomize={handleConfirmRenamePort}
+        onCancel={() => setRenamingPortId(null)}
+      />
+    </div>
   );
 }
 

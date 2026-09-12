@@ -1,37 +1,17 @@
-/* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { toast } from "./Toast";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "../../stores/toastStore";
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
 import { CHIP_FILL } from "../circuit/colors";
 import { Input } from "./Input";
 import { ColorPickerButton } from "./ColorPickerButton";
-
-export interface ChipSaveState {
-  readonly id?: string | null;
-  readonly name: string;
-  readonly color: string;
-}
-
-export interface SaveChipModalContextType {
-  openSaveModal: (initialState?: ChipSaveState) => void;
-}
-
-export const SaveChipModalContext = createContext<SaveChipModalContextType | null>(null);
-
-export function useSaveChipModal() {
-  const ctx = useContext(SaveChipModalContext);
-  if (!ctx) throw new Error("useSaveChipModal must be used within a SaveChipModalProvider");
-  return ctx;
-}
+import { useSaveChipModalStore, type ChipSaveState } from "../../stores/saveChipModalStore";
 
 export interface SaveChipModalProps {
-  readonly isOpen: boolean;
-  readonly initialState?: ChipSaveState;
   readonly onSave: (state: ChipSaveState) => void;
-  readonly onCancel: () => void;
 }
 
-export function SaveChipModal({ isOpen, initialState, onSave, onCancel }: SaveChipModalProps) {
+export function SaveChipModal({ onSave }: SaveChipModalProps) {
+  const { isOpen, initialState, close } = useSaveChipModalStore();
   const [name, setName] = useState(initialState?.name || "");
   const [color, setColor] = useState(initialState?.color || CHIP_FILL);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +42,7 @@ export function SaveChipModal({ isOpen, initialState, onSave, onCancel }: SaveCh
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onCancel}>
+    <Modal isOpen={isOpen} onClose={close}>
       <ModalHeader>
         <ModalTitle>{initialState?.name ? "CUSTOMIZE" : "SAVE"} CHIP</ModalTitle>
         <ModalDescription>Enter a name and color for the chip.</ModalDescription>
@@ -82,7 +62,7 @@ export function SaveChipModal({ isOpen, initialState, onSave, onCancel }: SaveCh
         </div>
 
         <ModalActions>
-          <button type="button" className="btn-secondary" onClick={onCancel}>
+          <button type="button" className="btn-secondary" onClick={close}>
             CANCEL
           </button>
           <button type="submit" className="btn-primary">
