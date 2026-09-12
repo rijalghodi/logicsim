@@ -5,7 +5,7 @@ import { BOUNDARY_ID, evaluateCircuit } from "@/core";
 import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } from "@/core";
 import type { SavedChip } from "@/storage/chipStorage";
 import { BoundaryPort } from "./BoundaryPort";
-import { Chip } from "./Chip";
+import { ChipNode } from "./ChipNode";
 import { ContextMenu } from "../ui/ContextMenu";
 import { getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
 import type { Layout, Position } from "./geometry";
@@ -273,7 +273,7 @@ export function CircuitCanvas({
             const customChipColor = savedChips.find((c) => c.id === component.type)?.color;
 
             return (
-              <Chip
+              <ChipNode
                 key={component.id}
                 chipType={component.type}
                 position={position}

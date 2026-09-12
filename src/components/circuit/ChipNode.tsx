@@ -15,7 +15,7 @@ import { CHIP_FILL } from "./colors";
 import { getBorderColor, getContrastColor, getSafeColor } from "@/utils/colorHelper";
 import type Konva from "konva";
 
-interface ChipProps {
+interface ChipNodeProps {
   readonly position: Position;
   readonly chipType: string;
   readonly label: string;
@@ -38,7 +38,7 @@ interface ChipProps {
 }
 
 /** One chip instance: a box with its name centered, input pins on the left edge, output pins on the right. */
-export function Chip({
+export function ChipNode({
   position,
   chipType,
   label,
@@ -52,7 +52,7 @@ export function Chip({
   onDblClick,
   onPortClick,
   isWiringActive,
-}: ChipProps) {
+}: ChipNodeProps) {
   const [hoveredPortId, setHoveredPortId] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const isDraggingRef = useRef(false);
