@@ -2,6 +2,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ChevronRightIcon } from "./icons/ChevronRightIcon";
 import { MoreHorizontalIcon } from "./icons/MoreHorizontalIcon";
 import "./Breadcrumbs.css";
+import { DotIcon } from "./icons/DotIcon";
 
 export interface BreadcrumbItem {
   readonly id: string;
@@ -25,7 +26,11 @@ export function Breadcrumbs({ items, onNavigate }: BreadcrumbsProps) {
       onClick={() => !isLast && onNavigate(index)}
     >
       {item.name}
-      {item.isDirty && <span className="breadcrumb-dirty-dot">*</span>}
+      {item.isDirty && (
+        <span className="breadcrumb-dirty-dot">
+          <DotIcon size={5} />
+        </span>
+      )}
     </button>
   );
 
