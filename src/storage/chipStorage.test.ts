@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { createDefaultRegistry, createChipDefinition, createPortDefinition } from "../core";
-import { deleteCustomChip, loadSavedChips, saveCustomChip } from "./chipStorage";
+import { deleteCustomChip, loadSavedChips, saveCustomChip, SavedChip } from "./chipStorage";
 
 const store = new Map<string, string>();
 const mockLocalStorage = {
@@ -25,14 +25,20 @@ describe("chipStorage", () => {
     const inA = createPortDefinition("A", "input");
     const outY = createPortDefinition("Y", "output");
 
-    const chip = createChipDefinition({
+    const chipDef = createChipDefinition({
       id: "CUSTOM_BUFFER",
       name: "BUFFER",
       inputs: [inA],
       outputs: [outY],
       circuit: { components: [], connections: [] },
     });
-
+    const chip: SavedChip = {
+      ...chipDef,
+      color: "#ff0000",
+      layout: {},
+      boundaryLayout: {},
+      portColors: {},
+    };
     saveCustomChip(chip, registry);
 
     const freshRegistry = createDefaultRegistry();
@@ -49,13 +55,20 @@ describe("chipStorage", () => {
     const inA = createPortDefinition("A", "input");
     const outY = createPortDefinition("Y", "output");
 
-    const chip = createChipDefinition({
+    const chipDef = createChipDefinition({
       id: "TO_DELETE",
       name: "DEL",
       inputs: [inA],
       outputs: [outY],
       circuit: { components: [], connections: [] },
     });
+    const chip: SavedChip = {
+      ...chipDef,
+      color: "#ff0000",
+      layout: {},
+      boundaryLayout: {},
+      portColors: {},
+    };
 
     saveCustomChip(chip, registry);
     expect(loadSavedChips(registry).length).toBe(1);
