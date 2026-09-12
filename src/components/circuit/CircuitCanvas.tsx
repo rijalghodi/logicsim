@@ -6,8 +6,7 @@ import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } fro
 import type { SavedChip } from "@/storage/chipStorage";
 import { BoundaryPort } from "./BoundaryPort";
 import { Chip } from "./Chip";
-import { ChipMenu } from "../ui/ChipMenu";
-import { BoundaryPortContextMenu } from "../ui/BoundaryPortContextMenu";
+import { ContextMenu } from "../ui/ContextMenu";
 import { getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
 import type { Layout, Position } from "./geometry";
 import { getComponentInputValue, getPortValue, resolvePortPosition } from "./portResolution";
@@ -305,20 +304,46 @@ export function CircuitCanvas({
       </Stage>
 
       {contextMenu && onRemoveComponent && (
-        <ChipMenu
+        <ContextMenu
           position={{ x: contextMenu.x, y: contextMenu.y }}
           onClose={() => setContextMenu(null)}
-          onOpen={() => onOpenComponent?.(contextMenu.componentId)}
-          onRemove={() => onRemoveComponent(contextMenu.componentId)}
+          items={[
+            {
+              label: "VIEW",
+              shortcutHint: "⏎",
+              shortcutKeys: ["Enter"],
+              onClick: () => onOpenComponent?.(contextMenu.componentId),
+            },
+            {
+              label: "REMOVE",
+              shortcutHint: "⌫",
+              shortcutKeys: ["Backspace", "Delete"],
+              isDanger: true,
+              onClick: () => onRemoveComponent(contextMenu.componentId),
+            },
+          ]}
         />
       )}
 
       {boundaryContextMenu && (onRemoveBoundaryPort || onRenameBoundaryPort) && (
-        <BoundaryPortContextMenu
+        <ContextMenu
           position={{ x: boundaryContextMenu.x, y: boundaryContextMenu.y }}
           onClose={() => setBoundaryContextMenu(null)}
-          onCustomize={() => onRenameBoundaryPort?.(boundaryContextMenu.portId)}
-          onDelete={() => onRemoveBoundaryPort?.(boundaryContextMenu.portId)}
+          items={[
+            {
+              label: "CUSTOMIZE",
+              shortcutHint: "⏎",
+              shortcutKeys: ["Enter"],
+              onClick: () => onRenameBoundaryPort?.(boundaryContextMenu.portId),
+            },
+            {
+              label: "REMOVE",
+              shortcutHint: "⌫",
+              shortcutKeys: ["Backspace", "Delete"],
+              isDanger: true,
+              onClick: () => onRemoveBoundaryPort?.(boundaryContextMenu.portId),
+            },
+          ]}
         />
       )}
     </div>
