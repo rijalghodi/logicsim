@@ -23,6 +23,11 @@ export interface CircuitViewContext {
   readonly canvasHeight: number;
 }
 
+/** Stable string identity for a connection, used to key per-wire UI state (e.g. corner anchors) that isn't part of the core `Connection` itself. */
+export function connectionKey(from: PortRef, to: PortRef): string {
+  return `${from.componentId}:${from.portId}->${to.componentId}:${to.portId}`;
+}
+
 export function resolvePortPosition(ref: PortRef, ctx: CircuitViewContext): Position {
   if (ref.componentId === BOUNDARY_ID) {
     const inputs = ctx.boundary?.inputs ?? [];

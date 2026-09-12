@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Layer, Rect, Stage } from "react-konva";
+import { Circle, Layer, Rect, Stage } from "react-konva";
 import type Konva from "konva";
 import { BOUNDARY_ID, evaluateCircuit } from "@/core";
 import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } from "@/core";
@@ -9,10 +9,17 @@ import { ChipNode } from "./ChipNode";
 import { ContextMenu } from "../ui/ContextMenu";
 import { getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
 import type { Layout, Position } from "./geometry";
-import { getComponentInputValue, getPortValue, resolvePortPosition } from "./portResolution";
+import { connectionKey, getComponentInputValue, getPortValue, resolvePortPosition } from "./portResolution";
 import type { CircuitViewContext } from "./portResolution";
 import { WireLine } from "./WireLine";
 import { CANVAS_BACKGROUND } from "./colors";
+
+/** A wire being drawn: the starting port, plus any corner anchors committed so far by clicking empty canvas space. */
+interface WiringDraft {
+  readonly from: PortRef;
+  readonly fromPos: Position;
+  readonly corners: readonly Position[];
+}
 
 type MenuState =
   | { type: "chip"; componentId: string; componentType: string; x: number; y: number }
@@ -29,6 +36,8 @@ export interface CircuitCanvasProps {
   /** Per-boundary-port-id y override, from dragging — falls back to even spacing when absent. */
   readonly boundaryLayout?: Readonly<Record<string, number>>;
   readonly portColors?: Readonly<Record<string, string>>;
+  /** Corner anchors for cornered wires, keyed by `connectionKey(from, to)`. */
+  readonly wireAnchors?: Readonly<Record<string, readonly Position[]>>;
   readonly boundaryInputs: Readonly<Record<string, Bit>>;
   /** Omit to render boundary inputs as read-only (e.g. viewing a nested chip driven by its parent). */
   readonly onToggleBoundaryInput?: (portId: string) => void;
@@ -45,8 +54,8 @@ export interface CircuitCanvasProps {
   readonly onCustomizeBoundaryPort?: (portId: string) => void;
   /** Triggered when a chip is dragged from the bottom toolbar and dropped onto the canvas. */
   readonly onDropChip?: (chipType: string, position: Position) => void;
-  /** Triggered when a wire is connected from source to destination. */
-  readonly onConnectWire?: (from: PortRef, to: PortRef) => void;
+  /** Triggered when a wire is connected from source to destination, with any corner anchors placed along the way. */
+  readonly onConnectWire?: (from: PortRef, to: PortRef, anchors?: Position[]) => void;
   /** Triggered when an existing wire is deleted. */
   readonly onDisconnectWire?: (from: PortRef, to: PortRef) => void;
   readonly width: number;
@@ -62,6 +71,7 @@ export function CircuitCanvas({
   boundary,
   boundaryLayout,
   portColors = {},
+  wireAnchors = {},
   boundaryInputs,
   onToggleBoundaryInput,
   onMoveBoundaryPort,
@@ -76,7 +86,7 @@ export function CircuitCanvas({
   width,
   height,
 }: CircuitCanvasProps) {
-  const [wiringDraft, setWiringDraft] = useState<{ from: PortRef; fromPos: Position } | null>(null);
+  const [wiringDraft, setWiringDraft] = useState<WiringDraft | null>(null);
   const [mousePos, setMousePos] = useState<Position | null>(null);
   const [contextMenu, setContextMenu] = useState<MenuState>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -122,17 +132,25 @@ export function CircuitCanvas({
 
   const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (contextMenu) setContextMenu(null);
-    // If clicking the canvas background, cancel wiring draft
-    if (e.target === e.target.getStage() || e.target.attrs.name === "canvas-bg") {
-      setWiringDraft(null);
-      setMousePos(null);
+
+    const isBackground = e.target === e.target.getStage() || e.target.attrs.name === "canvas-bg";
+    if (!isBackground) return;
+
+    // While actively wiring, a click on empty canvas commits another corner anchor instead of canceling.
+    if (wiringDraft) {
+      const stage = e.target.getStage();
+      const ptr = stage?.getPointerPosition();
+      if (ptr) {
+        setWiringDraft({ ...wiringDraft, corners: [...wiringDraft.corners, ptr] });
+        setMousePos(ptr);
+      }
     }
   };
 
   const handlePortInteraction = (ref: PortRef, portPos: Position) => {
     if (!wiringDraft) {
       // Start wiring from this port
-      setWiringDraft({ from: ref, fromPos: portPos });
+      setWiringDraft({ from: ref, fromPos: portPos, corners: [] });
       setMousePos(portPos);
     } else {
       // If clicking the exact same port, cancel
@@ -141,8 +159,8 @@ export function CircuitCanvas({
         setMousePos(null);
         return;
       }
-      // Complete connection
-      onConnectWire?.(wiringDraft.from, ref);
+      // Complete connection, carrying over any corners placed along the way
+      onConnectWire?.(wiringDraft.from, ref, [...wiringDraft.corners]);
       setWiringDraft(null);
       setMousePos(null);
     }
@@ -240,12 +258,17 @@ export function CircuitCanvas({
 
           {/* Existing wires */}
           {circuit.connections.map((connection) => {
-            const key = `${connection.from.componentId}:${connection.from.portId}->${connection.to.componentId}:${connection.to.portId}`;
+            const key = connectionKey(connection.from, connection.to);
+            const corners = wireAnchors[key] ?? [];
+            const points = [
+              resolvePortPosition(connection.from, ctx),
+              ...corners,
+              resolvePortPosition(connection.to, ctx),
+            ];
             return (
               <WireLine
                 key={key}
-                from={resolvePortPosition(connection.from, ctx)}
-                to={resolvePortPosition(connection.to, ctx)}
+                points={points}
                 active={Boolean(getPortValue(connection.from, ctx))}
                 color={connection.from.componentId === BOUNDARY_ID ? portColors[connection.from.portId] : undefined}
                 onDelete={onDisconnectWire ? () => onDisconnectWire(connection.from, connection.to) : undefined}
@@ -253,15 +276,28 @@ export function CircuitCanvas({
             );
           })}
 
-          {/* Active wire draft preview following mouse cursor */}
+          {/* Active wire draft preview following mouse cursor, with any corners already committed */}
           {wiringDraft && mousePos && (
-            <WireLine
-              from={wiringDraft.fromPos}
-              to={mousePos}
-              active={true}
-              isDraft={true}
-              color={wiringDraft.from.componentId === BOUNDARY_ID ? portColors[wiringDraft.from.portId] : undefined}
-            />
+            <>
+              <WireLine
+                points={[wiringDraft.fromPos, ...wiringDraft.corners, mousePos]}
+                active={true}
+                isDraft={true}
+                color={wiringDraft.from.componentId === BOUNDARY_ID ? portColors[wiringDraft.from.portId] : undefined}
+              />
+              {wiringDraft.corners.map((corner, index) => (
+                <Circle
+                  key={index}
+                  x={corner.x}
+                  y={corner.y}
+                  radius={4}
+                  fill={CANVAS_BACKGROUND}
+                  stroke="hsl(0, 0%, 70%)"
+                  strokeWidth={1.5}
+                  listening={false}
+                />
+              ))}
+            </>
           )}
 
           {/* Placed chip components */}

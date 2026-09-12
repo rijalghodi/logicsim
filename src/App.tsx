@@ -38,6 +38,7 @@ function App() {
         boundary={store.boundary}
         boundaryLayout={store.boundaryLayout}
         portColors={store.portColors}
+        wireAnchors={store.wireAnchors}
         boundaryInputs={store.boundaryInputs}
         onToggleBoundaryInput={store.toggleBoundaryInput}
         onMoveComponent={store.moveComponent}

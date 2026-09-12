@@ -11,6 +11,7 @@ import type { Bit, CircuitDefinition, PortDefinition, PortRef, ChipRegistry } fr
 import { loadSavedChips, saveCustomChip, deleteCustomChip } from "@/storage/chipStorage";
 import type { SavedChip } from "@/storage/chipStorage";
 import type { Layout, Position } from "@/components/circuit/geometry";
+import { connectionKey } from "@/components/circuit/portResolution";
 import { toast } from "@/stores/toastStore";
 
 export interface ViewState {
@@ -19,6 +20,7 @@ export interface ViewState {
   boundary: { inputs: PortDefinition[]; outputs: PortDefinition[] };
   boundaryLayout: Record<string, number>;
   portColors: Record<string, string>;
+  wireAnchors: Record<string, Position[]>;
   boundaryInputs: Record<string, Bit>;
   isDirty: boolean;
   currentChipId: string | null;
@@ -32,6 +34,8 @@ interface CircuitState {
   boundary: { inputs: PortDefinition[]; outputs: PortDefinition[] };
   boundaryLayout: Record<string, number>;
   portColors: Record<string, string>;
+  /** Corner anchors for cornered wires, keyed by `connectionKey(from, to)`. */
+  wireAnchors: Record<string, Position[]>;
   boundaryInputs: Record<string, Bit>;
   currentChipId: string | null;
   isDirty: boolean;
@@ -47,7 +51,7 @@ interface CircuitActions {
   moveComponent: (id: string, pos: Position) => void;
   moveBoundaryPort: (id: string, y: number) => void;
   dropChip: (chipType: string, pos: Position) => void;
-  connectWire: (from: PortRef, to: PortRef) => void;
+  connectWire: (from: PortRef, to: PortRef, anchors?: Position[]) => void;
   disconnectWire: (from: PortRef, to: PortRef) => void;
   removeComponent: (id: string) => void;
   removeBoundaryPort: (id: string) => void;
@@ -65,6 +69,7 @@ function createBlankCircuit() {
     boundary: { inputs: [IN], outputs: [OUT] },
     boundaryLayout: {} as Record<string, number>,
     portColors: {} as Record<string, string>,
+    wireAnchors: {} as Record<string, Position[]>,
   };
 }
 
@@ -81,6 +86,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
   boundary: initialBlank.boundary,
   boundaryLayout: initialBlank.boundaryLayout,
   portColors: initialBlank.portColors,
+  wireAnchors: initialBlank.wireAnchors,
   boundaryInputs: {},
   currentChipId: null,
   isDirty: false,
@@ -94,6 +100,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
       boundary: blank.boundary,
       boundaryLayout: blank.boundaryLayout,
       portColors: blank.portColors,
+      wireAnchors: blank.wireAnchors,
       boundaryInputs: {},
       currentChipId: null,
       isDirty: false,
@@ -112,6 +119,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
       layout: chipDef.layout || {},
       boundaryLayout: chipDef.boundaryLayout || {},
       portColors: chipDef.portColors || {},
+      wireAnchors: chipDef.wireAnchors || {},
       currentChipId: chipDef.id,
       isDirty: false,
       viewStack: [],
@@ -130,6 +138,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
         boundary: targetState.boundary,
         boundaryLayout: targetState.boundaryLayout,
         portColors: targetState.portColors,
+        wireAnchors: targetState.wireAnchors,
         boundaryInputs: targetState.boundaryInputs,
         isDirty: targetState.isDirty,
         currentChipId: targetState.currentChipId,
@@ -155,6 +164,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
       boundary: state.boundary,
       boundaryLayout: state.boundaryLayout,
       portColors: state.portColors,
+      wireAnchors: state.wireAnchors,
       boundaryInputs: state.boundaryInputs,
       isDirty: state.isDirty,
       currentChipId: state.currentChipId,
@@ -167,6 +177,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
       layout: targetDef.layout || {},
       boundaryLayout: targetDef.boundaryLayout || {},
       portColors: targetDef.portColors || {},
+      wireAnchors: targetDef.wireAnchors || {},
       boundaryInputs: {},
       currentChipId: targetDef.id,
       isDirty: false,
@@ -237,7 +248,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
     });
   },
 
-  connectWire: (from: PortRef, to: PortRef) => {
+  connectWire: (from: PortRef, to: PortRef, anchors: Position[] = []) => {
     const state = get();
     const issues = validateConnection({
       circuit: state.circuit,
@@ -256,37 +267,52 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
         ...state.circuit,
         connections: [...state.circuit.connections, { from, to }],
       },
+      wireAnchors:
+        anchors.length > 0 ? { ...state.wireAnchors, [connectionKey(from, to)]: anchors } : state.wireAnchors,
       isDirty: true,
     });
   },
 
   disconnectWire: (from: PortRef, to: PortRef) => {
-    set((state) => ({
-      circuit: {
-        ...state.circuit,
-        connections: state.circuit.connections.filter(
-          (c) =>
-            !(
-              c.from.componentId === from.componentId &&
-              c.from.portId === from.portId &&
-              c.to.componentId === to.componentId &&
-              c.to.portId === to.portId
-            ),
-        ),
-      },
-      isDirty: true,
-    }));
+    set((state) => {
+      const nextWireAnchors = { ...state.wireAnchors };
+      delete nextWireAnchors[connectionKey(from, to)];
+
+      return {
+        circuit: {
+          ...state.circuit,
+          connections: state.circuit.connections.filter(
+            (c) =>
+              !(
+                c.from.componentId === from.componentId &&
+                c.from.portId === from.portId &&
+                c.to.componentId === to.componentId &&
+                c.to.portId === to.portId
+              ),
+          ),
+        },
+        wireAnchors: nextWireAnchors,
+        isDirty: true,
+      };
+    });
   },
 
   removeComponent: (id: string) => {
-    set((state) => ({
-      circuit: {
-        ...state.circuit,
-        components: state.circuit.components.filter((c) => c.id !== id),
-        connections: state.circuit.connections.filter((c) => c.from.componentId !== id && c.to.componentId !== id),
-      },
-      isDirty: true,
-    }));
+    set((state) => {
+      const removed = state.circuit.connections.filter((c) => c.from.componentId === id || c.to.componentId === id);
+      const nextWireAnchors = { ...state.wireAnchors };
+      for (const c of removed) delete nextWireAnchors[connectionKey(c.from, c.to)];
+
+      return {
+        circuit: {
+          ...state.circuit,
+          components: state.circuit.components.filter((c) => c.id !== id),
+          connections: state.circuit.connections.filter((c) => c.from.componentId !== id && c.to.componentId !== id),
+        },
+        wireAnchors: nextWireAnchors,
+        isDirty: true,
+      };
+    });
   },
 
   removeBoundaryPort: (portId: string) => {
@@ -297,6 +323,14 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
       delete nextPortColors[portId];
       const nextBoundaryInputs = { ...state.boundaryInputs };
       delete nextBoundaryInputs[portId];
+
+      const removed = state.circuit.connections.filter(
+        (c) =>
+          (c.from.componentId === BOUNDARY_ID && c.from.portId === portId) ||
+          (c.to.componentId === BOUNDARY_ID && c.to.portId === portId),
+      );
+      const nextWireAnchors = { ...state.wireAnchors };
+      for (const c of removed) delete nextWireAnchors[connectionKey(c.from, c.to)];
 
       return {
         boundary: {
@@ -315,6 +349,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
         },
         boundaryLayout: nextBoundaryLayout,
         portColors: nextPortColors,
+        wireAnchors: nextWireAnchors,
         boundaryInputs: nextBoundaryInputs,
         isDirty: true,
       };
@@ -362,6 +397,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
       layout: state.layout,
       boundaryLayout: state.boundaryLayout,
       portColors: state.portColors,
+      wireAnchors: state.wireAnchors,
     };
 
     try {

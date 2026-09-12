@@ -1,6 +1,6 @@
 import { deserializeChipDefinition, serializeChipDefinition } from "../core";
 import type { ChipDefinition, ChipRegistry } from "../core";
-import type { Layout } from "../components/circuit/geometry";
+import type { Layout, Position } from "../components/circuit/geometry";
 import { CHIP_FILL } from "../components/circuit/colors";
 
 export interface SavedChip extends ChipDefinition {
@@ -8,6 +8,8 @@ export interface SavedChip extends ChipDefinition {
   readonly layout: Layout;
   readonly boundaryLayout: Record<string, number>;
   readonly portColors: Record<string, string>;
+  /** Corner anchors for cornered wires, keyed by `connectionKey(from, to)` — see portResolution.ts. */
+  readonly wireAnchors: Record<string, Position[]>;
 }
 
 const STORAGE_KEY = "logicsim_custom_chips";
@@ -40,6 +42,7 @@ export function loadSavedChips(registry: ChipRegistry): SavedChip[] {
           layout: item.ui?.layout ?? {},
           boundaryLayout: item.ui?.boundaryLayout ?? {},
           portColors: item.ui?.portColors ?? {},
+          wireAnchors: item.ui?.wireAnchors ?? {},
         });
       } catch (err) {
         console.warn("Failed to deserialize saved chip:", err);
@@ -81,6 +84,7 @@ export function saveCustomChip(savedChip: SavedChip, registry: ChipRegistry): vo
         layout: chip.layout,
         boundaryLayout: chip.boundaryLayout,
         portColors: chip.portColors,
+        wireAnchors: chip.wireAnchors,
       },
     });
 
@@ -93,6 +97,7 @@ export function saveCustomChip(savedChip: SavedChip, registry: ChipRegistry): vo
           layout: savedChip.layout,
           boundaryLayout: savedChip.boundaryLayout,
           portColors: savedChip.portColors,
+          wireAnchors: savedChip.wireAnchors,
         },
       },
     ];
