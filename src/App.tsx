@@ -242,7 +242,7 @@ function App() {
   const handleSaveClick = useCallback(() => {
     if (currentChipId && currentChipName) {
       const chipDef = savedChips.find((c) => c.id === currentChipId);
-      const color = chipDef?.color || "#1A1A1A";
+      const color = chipDef?.color || CHIP_FILL;
       handleConfirmSave({ id: currentChipId, name: currentChipName, color });
     } else {
       openSaveModal();
@@ -252,7 +252,7 @@ function App() {
   const handleCustomizeClick = useCallback(() => {
     if (currentChipId && currentChipName) {
       const chipDef = savedChips.find((c) => c.id === currentChipId);
-      openSaveModal({ id: currentChipId, name: currentChipName, color: chipDef?.color ?? "#1A1A1A" });
+      openSaveModal({ id: currentChipId, name: currentChipName, color: chipDef?.color ?? CHIP_FILL });
     }
   }, [currentChipId, currentChipName, savedChips, openSaveModal]);
 
