@@ -360,7 +360,7 @@ function App() {
   const handleDropChip = useCallback(
     (chipType: string, position: Position) => {
       if (chipType === "IN") {
-        const name = String.fromCharCode(65 + boundary.inputs.length);
+        const name = boundary.inputs.length === 0 ? "IN" : `IN-${boundary.inputs.length}`;
         const port = createPortDefinition(name, "input");
         setBoundary((prev) => ({ ...prev, inputs: [...prev.inputs, port] }));
         setBoundaryLayout((prev) => ({ ...prev, [port.id]: position.y }));
@@ -369,7 +369,7 @@ function App() {
       }
 
       if (chipType === "OUT") {
-        const name = boundary.outputs.length === 0 ? "Y" : `Y${boundary.outputs.length}`;
+        const name = boundary.outputs.length === 0 ? "OUT" : `OUT-${boundary.outputs.length}`;
         const port = createPortDefinition(name, "output");
         setBoundary((prev) => ({ ...prev, outputs: [...prev.outputs, port] }));
         setBoundaryLayout((prev) => ({ ...prev, [port.id]: position.y }));
