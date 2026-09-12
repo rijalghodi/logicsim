@@ -30,6 +30,9 @@ export const PORT_LABEL_HEIGHT = 16;
 /** Background grid dot spacing, shown when the "show grid" preference is on. */
 export const GRID_SIZE = 20;
 
+/** Wire corner radius, applied to a wire's interior corner anchors (no effect on a plain 2-point wire, which has none). */
+export const WIRE_CORNER_RADIUS = 8;
+
 export function getPortLabelWidth(text: string): number {
   return Math.max(24, text.length * 8);
 }
@@ -62,6 +65,53 @@ export function getComponentPortPosition(
   const y = box.y + spacedOffset(index, count, box.height);
   const x = direction === "input" ? box.x : box.x + box.width;
   return { x, y };
+}
+
+/**
+ * Builds an SVG path `d` string for a wire: straight segments between `points`, with every
+ * interior vertex (a corner anchor — never the two endpoints) rounded off by a quadratic
+ * Bézier curve of `radius`, instead of a sharp angle.
+ *
+ * Per corner, the incoming and outgoing segments are each trimmed back by the corner radius
+ * (`r`, clamped to half of whichever adjacent segment is shorter, so short segments can't make
+ * the curve overshoot into a loop) to get a "cut-in" point and a "cut-out" point, and a `Q`
+ * command curves between them using the original vertex as the control point — the same
+ * "corner-cutting" technique used for elbow connectors in most diagramming tools.
+ */
+export function buildRoundedWirePath(points: readonly Position[], radius: number): string {
+  if (points.length === 0) return "";
+
+  if (points.length < 3 || radius <= 0) {
+    return points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+  }
+
+  const commands: string[] = [`M ${points[0].x} ${points[0].y}`];
+
+  for (let i = 1; i < points.length - 1; i++) {
+    const prev = points[i - 1];
+    const curr = points[i];
+    const next = points[i + 1];
+
+    const distIn = Math.hypot(curr.x - prev.x, curr.y - prev.y);
+    const distOut = Math.hypot(next.x - curr.x, next.y - curr.y);
+
+    // Degenerate segment (two corners placed on top of each other) — nothing to round.
+    if (distIn === 0 || distOut === 0) {
+      commands.push(`L ${curr.x} ${curr.y}`);
+      continue;
+    }
+
+    const r = Math.min(radius, distIn / 2, distOut / 2);
+    const cutIn = { x: curr.x + ((prev.x - curr.x) / distIn) * r, y: curr.y + ((prev.y - curr.y) / distIn) * r };
+    const cutOut = { x: curr.x + ((next.x - curr.x) / distOut) * r, y: curr.y + ((next.y - curr.y) / distOut) * r };
+
+    commands.push(`L ${cutIn.x} ${cutIn.y}`, `Q ${curr.x} ${curr.y} ${cutOut.x} ${cutOut.y}`);
+  }
+
+  const last = points[points.length - 1];
+  commands.push(`L ${last.x} ${last.y}`);
+
+  return commands.join(" ");
 }
 
 export function getBoundaryPortPosition(

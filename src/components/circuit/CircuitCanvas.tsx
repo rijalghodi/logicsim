@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Circle, Layer, Rect, Stage } from "react-konva";
+import { Layer, Rect, Stage } from "react-konva";
 import type Konva from "konva";
 import { BOUNDARY_ID, evaluateCircuit } from "@/core";
 import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } from "@/core";
@@ -303,26 +303,12 @@ export function CircuitCanvas({
 
           {/* Active wire draft preview following mouse cursor, with any corners already committed */}
           {wiringDraft && mousePos && (
-            <>
-              <WireLine
-                points={[wiringDraft.fromPos, ...wiringDraft.corners, mousePos]}
-                active={true}
-                isDraft={true}
-                color={wiringDraft.from.componentId === BOUNDARY_ID ? portColors[wiringDraft.from.portId] : undefined}
-              />
-              {wiringDraft.corners.map((corner, index) => (
-                <Circle
-                  key={index}
-                  x={corner.x}
-                  y={corner.y}
-                  radius={4}
-                  fill={CANVAS_BACKGROUND}
-                  stroke="hsl(0, 0%, 70%)"
-                  strokeWidth={1.5}
-                  listening={false}
-                />
-              ))}
-            </>
+            <WireLine
+              points={[wiringDraft.fromPos, ...wiringDraft.corners, mousePos]}
+              active={true}
+              isDraft={true}
+              color={wiringDraft.from.componentId === BOUNDARY_ID ? portColors[wiringDraft.from.portId] : undefined}
+            />
           )}
 
           {/* Placed chip components */}
