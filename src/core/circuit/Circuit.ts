@@ -56,7 +56,7 @@ export class Circuit {
    * `ChipDefinition` — passing a definition registers it (if not already
    * registered) so it can immediately be wired up as a component.
    */
-  addComponent(type: string | ChipDefinition, id: string = createId("c")): string {
+  addComponent(type: string | ChipDefinition, id: string = createId("chip")): string {
     if (typeof type === "string") {
       this.components.push({ id, type });
       return id;

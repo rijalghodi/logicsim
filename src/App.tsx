@@ -382,7 +382,7 @@ function App() {
         return;
       }
 
-      const newId = createId("c");
+      const newId = createId("chip");
       setCircuit((prev) => ({
         ...prev,
         components: [...prev.components, { id: newId, type: chipType }],

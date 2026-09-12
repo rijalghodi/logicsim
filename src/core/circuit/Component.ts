@@ -9,5 +9,5 @@
  */
 export interface ComponentDefinition {
   readonly id: string;
-  readonly type: string;
+  readonly type: string; // NAND
 }
