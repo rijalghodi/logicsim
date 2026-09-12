@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Layer, Rect, Stage } from "react-konva";
 import type Konva from "konva";
-import { BOUNDARY_ID, evaluateCircuit } from "../../core";
-import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } from "../../core";
-import type { SavedChip } from "../../storage/chipStorage";
+import { BOUNDARY_ID, evaluateCircuit } from "@/core";
+import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } from "@/core";
+import type { SavedChip } from "@/storage/chipStorage";
 import { BoundaryPort } from "./BoundaryPort";
 import { Chip } from "./Chip";
 import { ChipMenu } from "../ui/ChipMenu";

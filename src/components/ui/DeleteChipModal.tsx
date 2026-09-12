@@ -1,6 +1,6 @@
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
-import type { SavedChip } from "../../storage/chipStorage";
-import type { ChipRegistry } from "../../core";
+import type { SavedChip } from "@/storage/chipStorage";
+import type { ChipRegistry } from "@/core";
 import { useMemo } from "react";
 
 interface DeleteChipModalProps {

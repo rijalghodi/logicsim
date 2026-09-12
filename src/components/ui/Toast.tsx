@@ -1,4 +1,4 @@
-import { useToastStore } from "../../stores/toastStore";
+import { useToastStore } from "@/stores/toastStore";
 import "./Toast.css";
 
 export function Toast() {

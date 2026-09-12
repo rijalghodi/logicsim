@@ -15,7 +15,7 @@ import {
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
 
-import { getBrightColor, getDimmedColor, getHoverColor } from "../../utils/colorHelper";
+import { getBrightColor, getDimmedColor, getHoverColor } from "@/utils/colorHelper";
 
 interface BoundaryPortProps {
   /** The position of the wire connection pin (where circuit wires attach). */

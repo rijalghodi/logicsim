@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Line } from "react-konva";
 import type { Position } from "./geometry";
 import { BIT_COLOR, WIRE_DELETE_HOVER_COLOR } from "./colors";
-import { getBrightColor, getDimmedColor } from "../../utils/colorHelper";
+import { getBrightColor, getDimmedColor } from "@/utils/colorHelper";
 
 interface WireLineProps {
   readonly from: Position;

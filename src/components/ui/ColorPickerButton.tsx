@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { PenIcon } from "./icons/PenIcon";
-import { getContrastColor } from "../../utils/colorHelper";
+import { getContrastColor } from "@/utils/colorHelper";
 
 interface ColorPickerButtonProps {
   readonly color: string;

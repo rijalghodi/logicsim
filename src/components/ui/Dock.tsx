@@ -1,7 +1,7 @@
 import "./Dock.css";
 import { DockChipMenu } from "./DockChipMenu";
 import { DockPrimitiveChip } from "./DockPrimitiveChip";
-import type { SavedChip } from "../../storage/chipStorage";
+import type { SavedChip } from "@/storage/chipStorage";
 
 interface DockProps {
   readonly savedChips: readonly SavedChip[];

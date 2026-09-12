@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { toast } from "../../stores/toastStore";
+import { toast } from "@/stores/toastStore";
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
 import { CHIP_FILL } from "../circuit/colors";
 import { Input } from "./Input";
 import { ColorPickerButton } from "./ColorPickerButton";
-import { useSaveChipModalStore, type ChipSaveState } from "../../stores/saveChipModalStore";
+import { useSaveChipModalStore, type ChipSaveState } from "@/stores/saveChipModalStore";
 
 export interface SaveChipModalProps {
   readonly onSave: (state: ChipSaveState) => void;

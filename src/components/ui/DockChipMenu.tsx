@@ -1,6 +1,6 @@
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./DropdownMenu";
 import { MoreVerticalIcon } from "./icons/MoreVerticalIcon";
-import type { SavedChip } from "../../storage/chipStorage";
+import type { SavedChip } from "@/storage/chipStorage";
 
 interface DockChipMenuProps {
   readonly chip: SavedChip;

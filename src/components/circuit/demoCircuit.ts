@@ -1,5 +1,5 @@
-import { BOUNDARY_ID, Circuit, createDefaultRegistry, createPortDefinition } from "../../core";
-import type { CircuitDefinition, ChipRegistry, PortDefinition } from "../../core";
+import { BOUNDARY_ID, Circuit, createDefaultRegistry, createPortDefinition } from "@/core";
+import type { CircuitDefinition, ChipRegistry, PortDefinition } from "@/core";
 import type { Layout } from "./geometry";
 
 export interface DemoCircuit {

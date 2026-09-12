@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Group, Rect, Text } from "react-konva";
-import type { PortDefinition } from "../../core";
+import type { PortDefinition } from "@/core";
 import {
   getComponentBox,
   getComponentPortPosition,
@@ -12,7 +12,7 @@ import type { Position } from "./geometry";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
 import { CHIP_FILL } from "./colors";
-import { getBorderColor, getContrastColor, getSafeColor } from "../../utils/colorHelper";
+import { getBorderColor, getContrastColor, getSafeColor } from "@/utils/colorHelper";
 import type Konva from "konva";
 
 interface ChipProps {
