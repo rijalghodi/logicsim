@@ -62,6 +62,8 @@ export function SaveChipModal({ onSave }: SaveChipModalProps) {
             value={name}
             onChange={(e) => setName(e.target.value.toUpperCase())}
             style={{ width: "100%" }}
+            maxLength={20}
+            required
           />
           <ColorSliderInput color={color} onChange={setColor} />
         </div>
