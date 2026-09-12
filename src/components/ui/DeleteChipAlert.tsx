@@ -18,6 +18,7 @@ export function DeleteChipAlert() {
 
   const handleConfirm = () => {
     deleteChips(chipsToDelete);
+    // TODO: load empty circuit
     close();
   };
 

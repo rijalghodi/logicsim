@@ -64,14 +64,24 @@ export function getComponentPortPosition(
 export function getBoundaryPortPosition(
   side: "left" | "right",
   index: number,
-  count: number,
+  _count: number,
   canvasWidth: number,
   canvasHeight: number,
 ): Position {
   const PADDING_TOP = 16;
-  const PADDING_BOTTOM = 56; // 40px dock + 16px padding
-  const span = canvasHeight - PADDING_TOP - PADDING_BOTTOM;
-  const y = PADDING_TOP + spacedOffset(index, count, span);
+  const PADDING_BOTTOM = 56;
+  const SPACING = 60;
+  
+  const centerY = (canvasHeight - PADDING_TOP - PADDING_BOTTOM) / 2 + PADDING_TOP;
+
+  let offset = 0;
+  if (index % 2 === 1) {
+    offset = Math.ceil(index / 2) * SPACING;
+  } else if (index > 0) {
+    offset = -Math.ceil(index / 2) * SPACING;
+  }
+
+  const y = centerY + offset;
   const x = side === "left" ? 16 + BOUNDARY_MARGIN : canvasWidth - 16 - BOUNDARY_MARGIN;
   return { x, y };
 }

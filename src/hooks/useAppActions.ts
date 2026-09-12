@@ -80,6 +80,69 @@ export function useAppActions(windowSize: { width: number; height: number }) {
       const cx = Math.round(windowSize.width / 2 - 60);
       const cy = Math.round(windowSize.height / 2 - 40);
 
+      if (chipType === "IN" || chipType === "OUT") {
+        const ports = chipType === "IN" ? store.boundary.inputs : store.boundary.outputs;
+
+        let lowestY = 16 + 40; // PADDING_TOP + 40
+        if (ports.length > 0) {
+          let maxLayoutY = 0;
+          ports.forEach((p, index) => {
+            let offset = 0;
+            if (index % 2 === 1) {
+              offset = Math.ceil(index / 2) * 60;
+            } else if (index > 0) {
+              offset = -Math.ceil(index / 2) * 60;
+            }
+            const centerY = (windowSize.height - 16 - 56) / 2 + 16;
+            const fallbackY = centerY + offset;
+
+            const y = store.boundaryLayout[p.id] ?? fallbackY;
+            if (y > maxLayoutY) {
+              maxLayoutY = y;
+            }
+          });
+
+          if (maxLayoutY >= lowestY) {
+            lowestY = maxLayoutY + 60; // SPACING
+          }
+        }
+
+        // If it fits on the screen, place it on the edge
+        if (lowestY <= windowSize.height - 60) {
+          store.dropChip(chipType, { x: 0, y: lowestY });
+          return;
+        }
+
+        // If it doesn't fit, pick a random Y on the edge
+        const isPortOccupied = (testY: number) => {
+          return ports.some((p, index) => {
+            let offset = 0;
+            if (index % 2 === 1) {
+              offset = Math.ceil(index / 2) * 60;
+            } else if (index > 0) {
+              offset = -Math.ceil(index / 2) * 60;
+            }
+            const centerY = (windowSize.height - 16 - 56) / 2 + 16;
+            const fallbackY = centerY + offset;
+
+            const py = store.boundaryLayout[p.id] ?? fallbackY;
+            return Math.abs(py - testY) < 40; // 40px clearance
+          });
+        };
+
+        let randomY: number;
+        let attempts = 0;
+        do {
+          const minY = 56;
+          const maxY = windowSize.height - 60;
+          randomY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+          attempts++;
+        } while (isPortOccupied(randomY) && attempts < 100);
+
+        store.dropChip(chipType, { x: 0, y: randomY });
+        return;
+      }
+
       const isOccupied = (x: number, y: number) => {
         return Object.values(store.layout).some((pos) => Math.abs(pos.x - x) < 5 && Math.abs(pos.y - y) < 5);
       };
