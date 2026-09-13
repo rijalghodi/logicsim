@@ -2,42 +2,30 @@
   position: fixed;
   top: 8px;
   left: 16px;
+  right: 16px;
   display: flex;
   align-items: center;
   gap: 20px;
   z-index: 1000;
+  pointer-events: none;
 }
 
-/* Override Breadcrumbs absolute positioning when placed inside Header */
-.header-container .breadcrumbs {
-  position: static;
-  top: auto;
-  left: auto;
+.header-container > * {
+  pointer-events: auto;
 }
 
-/* Menu button styling within Header */
-.header-container .dock-btn-menu {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 10px;
-  background: var(--bg-2);
-  border: none;
-  border-radius: var(--radius);
-  color: var(--primary);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
+.github-link {
+  margin-left: auto;
+  color: var(--fg);
   transition: all 0.15s ease;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--radius);
+  background: var(--bg-2);
 }
 
-.header-container .dock-btn-menu:hover {
+.github-link:hover {
   background: var(--bg-3);
-}
-
-.header-container .dock-btn-menu:active {
-  background: var(--bg-4);
 }

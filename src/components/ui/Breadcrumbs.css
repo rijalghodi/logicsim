@@ -1,11 +1,7 @@
 .breadcrumbs {
-  position: absolute;
-  top: 8px;
-  left: 16px;
   display: flex;
   align-items: center;
   gap: 4px;
-  z-index: 10;
   transition:
     background 0.15s,
     border-color 0.15s;
