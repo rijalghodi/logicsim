@@ -2,6 +2,8 @@
 
 LogicSim is an interactive, web-based digital circuit simulator. It provides a drag-and-drop canvas interface to build, simulate, and explore complex logic gates and digital circuits directly in the browser.
 
+Demo: [https://logicsim.rijalghodi.xyz](https://logicsim.rijalghodi.xyz/)
+
 ![LogicSim Preview](./preview.png)
 
 ## Requirement to Install
