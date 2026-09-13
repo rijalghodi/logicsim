@@ -68,7 +68,7 @@ strong {
   cursor: pointer;
   font-family: inherit;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: bold;
   transition: all 0.15s ease;
 }
 
