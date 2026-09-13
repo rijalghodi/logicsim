@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type Konva from "konva";
-import type { PortRef } from "@/core";
+import type { PortDirection, PortRef } from "@/core";
 import { CANVAS_BG_NAME } from "./geometry";
 import type { Position } from "./geometry";
 
@@ -24,8 +24,18 @@ export interface WiringDraft {
  * the mouse moves — letting components downstream that don't care about the
  * cursor (every placed chip, every boundary port) skip re-rendering on each
  * tick instead of redoing a full re-render per mousemove.
+ *
+ * Ports can be clicked in either order — output-then-input or
+ * input-then-output. `getPortDirection` lets `handlePortInteraction` detect
+ * a "backward" pair and normalize it to (output, input) before calling
+ * `onConnectWire`, so a connection started at an input still succeeds. A
+ * same-direction pair (two inputs, two outputs) is passed through unchanged
+ * and left for core's own validation to reject.
  */
-export function useWiringDraft(onConnectWire?: (from: PortRef, to: PortRef, anchors?: Position[]) => void) {
+export function useWiringDraft(
+  onConnectWire?: (from: PortRef, to: PortRef, anchors?: Position[]) => void,
+  getPortDirection?: (ref: PortRef) => PortDirection | undefined,
+) {
   const [wiringDraft, setWiringDraft] = useState<WiringDraft | null>(null);
   const [cursor, setCursor] = useState<Position | null>(null);
   const stageRef = useRef<Konva.Stage>(null);
@@ -80,8 +90,15 @@ export function useWiringDraft(onConnectWire?: (from: PortRef, to: PortRef, anch
       cancel();
       return;
     }
-    // Complete connection, carrying over any corners placed along the way.
-    onConnectWire?.(wiringDraft.from, ref, [...wiringDraft.corners]);
+    // A connection must run output -> input; if the user clicked input first
+    // and output second, swap so it still succeeds. Corners were recorded
+    // walking from the first click to the second, so they need reversing too
+    // when the endpoints swap, to keep the rendered path's corner order correct.
+    const backward = getPortDirection?.(wiringDraft.from) === "input" && getPortDirection?.(ref) === "output";
+    const [source, destination] = backward ? [ref, wiringDraft.from] : [wiringDraft.from, ref];
+    const corners = backward ? [...wiringDraft.corners].reverse() : [...wiringDraft.corners];
+
+    onConnectWire?.(source, destination, corners);
     cancel();
   };
 

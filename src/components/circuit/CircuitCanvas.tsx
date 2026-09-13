@@ -13,6 +13,7 @@ import { getCircuitContextMenuItems } from "./contextMenuItems";
 import type { CircuitContextMenuState } from "./contextMenuItems";
 import { CANVAS_BG_NAME, NODE_WIDTH } from "./geometry";
 import type { Layout, Position } from "./geometry";
+import { getPortDirection } from "./portResolution";
 import type { CircuitViewContext } from "./portResolution";
 import { useWiringDraft } from "./useWiringDraft";
 import { CANVAS_BACKGROUND } from "./colors";
@@ -91,8 +92,6 @@ export function CircuitCanvas({
 }: CircuitCanvasProps) {
   const [contextMenu, setContextMenu] = useState<CircuitContextMenuState>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { wiringDraft, cursor, stageRef, handleStageMouseMove, handleBackgroundClick, handlePortInteraction } =
-    useWiringDraft(onConnectWire);
 
   const simulation = useMemo(
     () => evaluateCircuit(circuit, registry, { boundaryInputs }),
@@ -111,6 +110,9 @@ export function CircuitCanvas({
     canvasWidth: width,
     canvasHeight: height,
   };
+
+  const { wiringDraft, cursor, stageRef, handleStageMouseMove, handleBackgroundClick, handlePortInteraction } =
+    useWiringDraft(onConnectWire, (ref) => getPortDirection(ref, ctx));
 
   const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (contextMenu) setContextMenu(null);

@@ -37,6 +37,7 @@ export function CircuitWires({
             points={points}
             active={Boolean(getPortValue(connection.from, ctx))}
             color={connection.from.componentId === BOUNDARY_ID ? portColors[connection.from.portId] : undefined}
+            isWiringActive={Boolean(wiringDraft)}
             onDelete={onDisconnectWire ? () => onDisconnectWire(connection.from, connection.to) : undefined}
           />
         );

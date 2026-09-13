@@ -11,12 +11,19 @@ interface WireLineProps {
   readonly active: boolean;
   readonly color?: string;
   readonly isDraft?: boolean;
+  /** Suppress hover-to-highlight and click-to-delete while a different wire is being drawn, so passing the cursor over (or accidentally clicking) this wire mid-draft doesn't delete it. */
+  readonly isWiringActive?: boolean;
   readonly onDelete?: () => void;
 }
 
 /** A wire, drawn as a straight-segment path with rounded interior corners: lit and glowing when its driving value is `true`, dimmed when `false`, with support for draft preview and click-to-delete. */
-export function WireLine({ points, active, color, isDraft, onDelete }: WireLineProps) {
+export function WireLine({ points, active, color, isDraft, isWiringActive, onDelete }: WireLineProps) {
   const [hovered, setHovered] = useState(false);
+  // Whether hovering/clicking this wire should currently show the delete affordance.
+  // `listening` stays tied to `onDelete` alone (not `deletable`) so Konva keeps firing real
+  // enter/leave events even while wiring is active — that's what keeps `hovered` accurate
+  // instead of going stale while events are suppressed.
+  const deletable = Boolean(onDelete) && !isWiringActive;
 
   let activeColor = getBrightColor(BIT_COLOR);
   let inactiveColor = getDimmedColor(BIT_COLOR);
@@ -25,7 +32,7 @@ export function WireLine({ points, active, color, isDraft, onDelete }: WireLineP
     inactiveColor = getDimmedColor(color);
   }
 
-  const strokeColor = hovered && onDelete ? WIRE_DELETE_HOVER_COLOR : active || isDraft ? activeColor : inactiveColor;
+  const strokeColor = hovered && deletable ? WIRE_DELETE_HOVER_COLOR : active || isDraft ? activeColor : inactiveColor;
 
   const pathData = buildRoundedWirePath(points, WIRE_CORNER_RADIUS);
 
@@ -33,21 +40,23 @@ export function WireLine({ points, active, color, isDraft, onDelete }: WireLineP
     <Path
       data={pathData}
       stroke={strokeColor}
-      strokeWidth={hovered && onDelete ? 3.5 : 3}
+      strokeWidth={hovered && deletable ? 3.5 : 3}
       lineCap="round"
       lineJoin="round"
       hitStrokeWidth={12}
       listening={Boolean(onDelete)}
-      onClick={onDelete}
+      onClick={deletable ? onDelete : undefined}
       onMouseEnter={(e) => {
         if (!onDelete) return;
         setHovered(true);
+        if (!deletable) return;
         const stage = e.target.getStage();
         if (stage) stage.container().style.cursor = "pointer";
       }}
       onMouseLeave={(e) => {
         if (!onDelete) return;
         setHovered(false);
+        if (!deletable) return;
         const stage = e.target.getStage();
         if (stage) stage.container().style.cursor = "default";
       }}

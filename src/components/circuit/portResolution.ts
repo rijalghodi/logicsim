@@ -1,5 +1,5 @@
 import { BOUNDARY_ID } from "@/core";
-import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef, SimulationState } from "@/core";
+import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortDirection, PortRef, SimulationState } from "@/core";
 import type { SavedChip } from "@/storage/chipStorage";
 import { getBoundaryPortPosition, getComponentPortPosition, sortPortsByLayout } from "./geometry";
 import type { Layout, Position } from "./geometry";
@@ -84,4 +84,28 @@ export function getComponentInputValue(componentId: string, portId: string, ctx:
     (connection) => connection.to.componentId === componentId && connection.to.portId === portId,
   );
   return driver ? getPortValue(driver.from, ctx) : false;
+}
+
+/**
+ * A port's own direction, mirroring the boundary inversion `resolveEndpoint`
+ * applies in `validateConnection.ts` (see SPEC.md §4): a circuit's own
+ * boundary input acts as a connection *source* internally (so it reads as
+ * "output" here), and a boundary output acts as a *sink* (reads as "input").
+ * Returns `undefined` if the component/port can't be resolved — callers
+ * should treat that as "unknown" and let core's own validation report it.
+ */
+export function getPortDirection(ref: PortRef, ctx: CircuitViewContext): PortDirection | undefined {
+  if (ref.componentId === BOUNDARY_ID) {
+    if (ctx.boundary?.inputs.some((port) => port.id === ref.portId)) return "output";
+    if (ctx.boundary?.outputs.some((port) => port.id === ref.portId)) return "input";
+    return undefined;
+  }
+
+  const component = ctx.circuit.components.find((c) => c.id === ref.componentId);
+  if (!component) return undefined;
+
+  const { inputs, outputs } = ctx.registry.getPorts(component.type);
+  if (outputs.some((port) => port.id === ref.portId)) return "output";
+  if (inputs.some((port) => port.id === ref.portId)) return "input";
+  return undefined;
 }
