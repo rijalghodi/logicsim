@@ -34,7 +34,7 @@ export function defineModal<P>(config: ModalConfig<P>): ModalConfig<P> {
 export const modalTypes = {
   "save-chip": defineModal({
     component: SaveChipModal,
-    defaultPayload: { title: "SAVE CHIP", description: "Enter a name and color for your new custom chip." },
+    defaultPayload: { title: "SAVE CHIP", description: "Enter a name and color for this chip." },
   }),
   "unsaved-alert": defineModal({
     component: UnsavedAlert,
@@ -46,7 +46,7 @@ export const modalTypes = {
   }),
   "customize-port": defineModal({
     component: CustomizePortModal,
-    defaultPayload: { title: "CUSTOMIZE PORT", description: "Enter a new name for this boundary port." },
+    defaultPayload: { title: "CUSTOMIZE PORT", description: "Enter a name and color for this port." },
   }),
   preferences: defineModal({
     component: PreferencesModal,

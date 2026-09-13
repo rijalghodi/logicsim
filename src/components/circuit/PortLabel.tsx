@@ -13,19 +13,7 @@ export function PortLabel({ x, y, text }: PortLabelProps) {
 
   return (
     <Group x={x} y={y} listening={false}>
-      <Rect
-        x={0}
-        y={0}
-        width={width}
-        height={height}
-        fill="hsl(0, 0%, 0%)"
-        cornerRadius={4}
-        // shadowColor="#000000"
-        // shadowBlur={2}
-        // shadowOpacity={0.5}
-        // shadowForStrokeEnabled
-        // shadowEnabled
-      />
+      <Rect x={0} y={0} width={width} height={height} fill="#000000" cornerRadius={4} />
       <Text
         x={0}
         y={0}
