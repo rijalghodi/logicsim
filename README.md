@@ -1,62 +1,84 @@
-## LogicSim
+# LogicSim
 
-LogicSim is a logic circuit simulator: a canvas-based UI (React + Konva) for building circuits on top of a plain-TypeScript simulation core (chips, ports, evaluation). The project is at a very early stage — the core only implements a NAND chip and the UI is a Konva drag-and-drop placeholder.
+LogicSim is an interactive, web-based digital circuit simulator. It provides a drag-and-drop canvas interface to build, simulate, and explore complex logic gates and digital circuits directly in the browser.
 
-## Commands
+This project was built from the ground up to demonstrate clean architectural patterns, robust simulation algorithms, and a polished, highly interactive user interface.
 
-Package manager is bun (see `bun.lock`).
+## Requirement to Install
 
-- `bun install` — install dependencies
-- `bun run dev` — start Vite dev server
-- `bun run build` — typecheck (`tsc -b`) then production build via Vite
-- `bun run lint` — run ESLint over the repo
-- `bun run lint:fix` — run ESLint then Prettier `--write` over the repo
-- `bun run preview` — preview the production build
+This project uses [Bun](https://bun.sh/) as its fast package manager and runtime for development.
 
-There is no test runner configured yet.
+1. Install Bun (if you haven't already):
+   ```bash
+   curl -fsSL https://bun.sh/install | bash
+   ```
+2. Clone the repository and install dependencies:
+   ```bash
+   bun install
+   ```
+3. Start the development server:
+   ```bash
+   bun run dev
+   ```
+4. Build for production:
+   ```bash
+   bun run build
+   ```
 
 ## Architecture
 
-- `src/core/` — the simulation domain, pure TypeScript with no React/UI dependencies.
-  - `type.ts` defines `Bit` (0 | 1), `Port` (named signal holder), and the `Chip` interface (`inputs`, `outputs`, `evaluate()`).
-  - Chips (e.g. `nand.ts`) implement `Chip` by wiring up `Port` instances and computing outputs from inputs in `evaluate()`.
-  - `SPEC.md` is the design outline for the core and is currently just a table of contents for planned semantics, in build order: Signals → Ports → Components → Connections → Evaluation semantics → Clock semantics → Memory semantics → CPU semantics → Error handling. Treat it as the intended architecture roadmap when extending `core/`.
-- `src/components/` — UI, rendered with `react-konva` (Konva canvas). `test.tsx` is a scratch/placeholder component (draggable shapes) and is expected to be replaced as the real circuit canvas is built.
-- `src/App.tsx` / `src/main.tsx` — standard Vite React entry points.
+### Core vs UI Separation
 
-When implementing new chips/components in `core/`, follow the existing pattern: a class implementing `Chip`, with `Port` instances for each named input/output and all logic contained in `evaluate()`. Keep `core/` free of any Konva/React imports — UI code in `components/` should consume core objects, not the other way around.
+One of the foundational engineering decisions in LogicSim is the strict boundary between the **Simulation Core** (`src/core/`) and the **User Interface** (`src/components/`).
 
-## Tooling notes
+- **Pure TypeScript Core:** The simulation engine is written in pure TypeScript. It has zero knowledge of React, the DOM, or the Canvas. It independently handles logic gate evaluation, state propagation, and wire connections. This makes the core logic highly testable, predictable, and portable (e.g., it could easily run in a Node.js backend or a Web Worker).
+- **Reactive UI:** The UI layer strictly consumes the core's state and translates it into visual elements. By keeping the domain logic fully decoupled from the view layer, the visual representation always remains perfectly synced with the underlying mathematical state of the circuit.
 
-- React Compiler is enabled via `@rolldown/plugin-babel` + `reactCompilerPreset()` in `vite.config.ts` — avoid manual `useMemo`/`useCallback` micro-optimizations that fight the compiler.
-- Prettier config (`.prettierrc`): double quotes, semicolons, trailing commas, 120 print width.
-- ESLint (`eslint.config.js`) uses flat config with `typescript-eslint`, `eslint-plugin-react-hooks`, and `eslint-plugin-react-refresh` (Vite preset).
+### React Konva for High-Performance Rendering
 
-## TODO
+To handle the complexity of rendering interactive circuits with multiple chips, ports, and connecting wires, LogicSim uses **React Konva** (an HTML5 Canvas library).
 
-- [x] Core: circuit registry
-- [x] Core: simulation logic
-- [x] Feat: Render Chip
-- [x] Feat: Render Boundary Port
-- [x] Feat: Render Wire
-- [x] Feat: Simulate Circuit
-- [x] Feat: Save, Edit, and Create New Circuit
-- [x] Feat: Delete Chip
-- [x] Feat: Chip Context Menu
-- [x] Feat: Breadcrumb and Detail Chip
-- [x] Feat: Delete Boundary Port
-- [x] Feat: Rename Boundary Port
-- [x] Feat: Color Boundary Port and wire connected
-- [x] Feat: Clean App.tsx, use hooks.
-- [x] Feat: Cornered Wire
-- [x] Feat: slider as color input
+- **Performance:** Unlike rendering hundreds of DOM nodes (SVG or HTML divs), which can severely degrade performance during panning, zooming, or dragging, Canvas provides a high-performance 2D rendering context suitable for complex visual applications.
+- **Interactivity:** React Konva bridges the gap between imperative canvas operations and React's declarative state model. This enables complex interactions like seamless drag-and-drop, infinite canvas panning, and dynamic wire routing to be implemented cleanly and efficiently.
+
+### Pure CSS and React
+
+Instead of relying on heavy CSS utility frameworks (like Tailwind) or bloated component libraries (like MUI or Bootstrap), LogicSim features a custom-built design system using **Pure CSS** and modular React components.
+
+## Features
+
+### Core
+
+- [x] Circuit registry
+- [x] Simulation logic
+
+### UI
+
+- [x] Render Chip
+- [x] Render Boundary Port
+- [x] Render Wire
+- [x] Simulate Circuit
+- [x] Save, Edit, and Create New Circuit
+- [x] Delete Chip
+- [x] Chip Context Menu
+- [x] Breadcrumb and Detail Chip
+- [x] Delete Boundary Port
+- [x] Rename Boundary Port
+- [x] Color Boundary Port and wire connected
+- [x] Clean App.tsx, use hooks.
+- [x] Cornered Wire
+- [x] slider as color input
 - [x] User Preference: show port label, show grid
 - [x] Fix sort ports in chip by y-position
 - [x] Fix: place chips and port in non-occupied space
-- [x] Feat: add slider in dock
+- [x] add slider in dock
 - [x] Clean CircuitCanvas.tsx
-- [ ] Feat: Quick Customize Chip
+- [ ] Quick Customize Chip
 - [ ] Wire coloring
 - [ ] Extend wire
-- [ ] Feat: Undo - Redo (History)
-- [ ] Feat: Fit position in every screen
+- [ ] Undo - Redo (History)
+- [ ] Fit position in every screen
+
+---
+
+_Built by [Rijal Ghodi](https://rijalghodi.xyz) - [View on GitHub](https://github.com/rijalghodi/logicsim)_
