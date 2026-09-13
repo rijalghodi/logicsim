@@ -7,6 +7,7 @@ import {
   DropdownMenuShortcut,
 } from "./DropdownMenu";
 import { MenuIcon } from "./icons/MenuIcon";
+import Button from "./Button";
 
 interface AppMenuProps {
   readonly onNew: () => void;
@@ -58,9 +59,9 @@ export function AppMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <button type="button" className="btn-primary" title="Circuit & Chip Actions">
+        <Button type="button" variant="primary" title="Circuit & Chip Actions">
           <MenuIcon size={14} /> MENU
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align}>
         {menuItems

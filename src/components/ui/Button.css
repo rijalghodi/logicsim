@@ -1,0 +1,49 @@
+.btn-primary,
+.btn-danger,
+.btn-secondary {
+  height: 32px;
+  padding: 0 12px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.15s ease;
+}
+
+.btn-primary {
+  background: hsl(from var(--primary) h s l / 86%);
+  border: none;
+  border-radius: var(--radius);
+  color: var(--primary-fg);
+}
+
+.btn-primary:hover {
+  background: var(--primary);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  color: var(--fg);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-danger {
+  background: hsl(from var(--danger) h s l / 15%);
+  border: 1px solid hsl(from var(--danger) h s l / 30%);
+  border-radius: var(--radius);
+  color: var(--danger);
+}
+
+.btn-danger:hover {
+  background: hsl(from var(--danger) h s l / 25%);
+  border-color: hsl(from var(--danger) h s l / 50%);
+}
