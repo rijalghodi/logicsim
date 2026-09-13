@@ -17,17 +17,20 @@ interface CircuitWiresProps {
 }
 
 /** Renders every committed wire in the circuit, plus the in-progress draft wire following the cursor while wiring. */
-export function CircuitWires({ ctx, wireAnchors, portColors, wiringDraft, cursor, onDisconnectWire }: CircuitWiresProps) {
+export function CircuitWires({
+  ctx,
+  wireAnchors,
+  portColors,
+  wiringDraft,
+  cursor,
+  onDisconnectWire,
+}: CircuitWiresProps) {
   return (
     <>
       {ctx.circuit.connections.map((connection) => {
         const key = connectionKey(connection.from, connection.to);
         const corners = wireAnchors[key] ?? [];
-        const points = [
-          resolvePortPosition(connection.from, ctx),
-          ...corners,
-          resolvePortPosition(connection.to, ctx),
-        ];
+        const points = [resolvePortPosition(connection.from, ctx), ...corners, resolvePortPosition(connection.to, ctx)];
         return (
           <WireLine
             key={key}
