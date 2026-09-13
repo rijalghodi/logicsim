@@ -99,20 +99,20 @@ export function BoundaryPort({
     openContextMenu(e);
   };
 
-  // 1. Position Controller (touches screen edge)
+  // Position Controller (touches screen edge)
   const controllerX = isLeft ? edgeX : edgeX - CONTROLLER_WIDTH;
   const controllerY = -BIT_CIRCLE_RADIUS;
 
-  // 2. Bit input/output circle (between edge controller and wire connection pin)
+  // Bit input/output circle (between edge controller and wire connection pin)
   const bitCircleX = isLeft ? edgeX + 32 : edgeX - 32;
 
-  // 3. Connecting wire lead between Bit circle and Wire connection pin
+  // Connecting wire lead between Bit circle and Wire connection pin
   const lineFromX = isLeft ? bitCircleX + BIT_CIRCLE_RADIUS : position.x + PORT_RADIUS;
   const lineToX = isLeft ? position.x - PORT_RADIUS : bitCircleX - BIT_CIRCLE_RADIUS;
 
-  // 4. Wire connection pin is at (position.x, 0)
+  // Wire connection pin is at (position.x, 0)
 
-  // 5. Label badge
+  // Label badge
   const labelText = name;
   const badgeWidth = getPortLabelWidth(labelText);
   const badgeHeight = PORT_LABEL_HEIGHT;
@@ -240,10 +240,10 @@ export function BoundaryPort({
         />
       </Group>
 
-      {/* 3. CONNECTING LINE BETWEEN BIT CIRCLE AND WIRE CONNECTION PIN */}
+      {/* Connecting line between Bit circle and Wire connection pin */}
       <Line points={[lineFromX, 0, lineToX, 0]} stroke={BIT_STROKE} strokeWidth={2.5} hitStrokeWidth={16} />
 
-      {/* 4. WIRE CONNECTION PIN (where circuit wires attach) */}
+      {/* Wire connection pin (where circuit wires attach) */}
       <PortPin
         x={position.x}
         y={0}
@@ -253,7 +253,7 @@ export function BoundaryPort({
         onHoverChange={setPinHovered}
       />
 
-      {/* 5. LABEL BADGE — shown on hover, or always when the "show port labels" preference is on */}
+      {/* Label badge — shown on hover, or always when the "show port labels" preference is on */}
       {(pinHovered || showLabel) && <PortLabel x={badgeX} y={badgeY} text={labelText} />}
     </Group>
   );

@@ -150,7 +150,7 @@ export function ChipNode({
           strokeWidth={1.5}
           cornerRadius={6}
           shadowColor="#000000"
-          shadowBlur={2}
+          shadowBlur={4}
           shadowOpacity={0.5}
         />
         <Text
