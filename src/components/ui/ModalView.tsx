@@ -8,10 +8,7 @@ export function ModalView() {
   if (!active) return null;
 
   const { payload, type } = active;
-  // `active.component` is correlated to `active.type`/`active.payload` in the store's own
-  // type (see `ActiveModal` in modalStore.ts) — this cast is the one place that correlation
-  // legitimately collapses, since we're rendering a lookup result generically, not a
-  // statically-known component.
+
   const Component = active.component as AnyModalComponent;
 
   return (
