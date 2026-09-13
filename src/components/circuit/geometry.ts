@@ -40,6 +40,15 @@ export function getPortLabelWidth(text: string): number {
   return Math.min(PORT_LABEL_MAX_WIDTH, Math.max(22, text.length * 9));
 }
 
+/** Orders ports by a saved chip's custom `boundaryLayout` (port id -> position), falling back to declaration order when absent. */
+export function sortPortsByLayout<T extends { readonly id: string }>(
+  ports: readonly T[],
+  layout: Readonly<Record<string, number>> | undefined,
+): readonly T[] {
+  if (!layout) return ports;
+  return [...ports].sort((a, b) => (layout[a.id] ?? 0) - (layout[b.id] ?? 0));
+}
+
 /** Taller boxes for chips with more ports, so pins on a busy side don't crowd together. */
 export function getNodeHeight(maxPortCount: number): number {
   return Math.max(MIN_NODE_HEIGHT, (maxPortCount + 1) * PORT_ROW_HEIGHT);

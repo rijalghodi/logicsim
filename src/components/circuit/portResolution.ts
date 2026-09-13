@@ -1,7 +1,7 @@
 import { BOUNDARY_ID } from "@/core";
 import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef, SimulationState } from "@/core";
 import type { SavedChip } from "@/storage/chipStorage";
-import { getBoundaryPortPosition, getComponentPortPosition } from "./geometry";
+import { getBoundaryPortPosition, getComponentPortPosition, sortPortsByLayout } from "./geometry";
 import type { Layout, Position } from "./geometry";
 
 /**
@@ -56,15 +56,8 @@ export function resolvePortPosition(ref: PortRef, ctx: CircuitViewContext): Posi
   const maxPortCount = Math.max(inputs.length, outputs.length);
 
   const savedDef = ctx.savedChips?.find((c) => c.id === component.type);
-  const boundaryLayout = savedDef?.boundaryLayout;
-
-  const sortedInputs = boundaryLayout
-    ? [...inputs].sort((a, b) => (boundaryLayout[a.id] ?? 0) - (boundaryLayout[b.id] ?? 0))
-    : inputs;
-
-  const sortedOutputs = boundaryLayout
-    ? [...outputs].sort((a, b) => (boundaryLayout[a.id] ?? 0) - (boundaryLayout[b.id] ?? 0))
-    : outputs;
+  const sortedInputs = sortPortsByLayout(inputs, savedDef?.boundaryLayout);
+  const sortedOutputs = sortPortsByLayout(outputs, savedDef?.boundaryLayout);
 
   const inputIndex = sortedInputs.findIndex((port) => port.id === ref.portId);
   if (inputIndex >= 0) {

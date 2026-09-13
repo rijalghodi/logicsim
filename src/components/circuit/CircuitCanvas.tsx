@@ -1,31 +1,21 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Layer, Rect, Stage } from "react-konva";
 import type Konva from "konva";
-import { BOUNDARY_ID, evaluateCircuit } from "@/core";
+import { evaluateCircuit } from "@/core";
 import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortRef } from "@/core";
 import type { SavedChip } from "@/storage/chipStorage";
-import { BoundaryPort } from "./BoundaryPort";
-import { ChipNode } from "./ChipNode";
+import { CircuitBoundaryPorts } from "./CircuitBoundaryPorts";
+import { CircuitComponents } from "./CircuitComponents";
 import { CircuitGrid } from "./CircuitGrid";
+import { CircuitWires } from "./CircuitWires";
 import { ContextMenu } from "../ui/ContextMenu";
-import { CANVAS_BG_NAME, getBoundaryPortPosition, NODE_WIDTH } from "./geometry";
+import { getCircuitContextMenuItems } from "./contextMenuItems";
+import type { CircuitContextMenuState } from "./contextMenuItems";
+import { CANVAS_BG_NAME, NODE_WIDTH } from "./geometry";
 import type { Layout, Position } from "./geometry";
-import { connectionKey, getComponentInputValue, getPortValue, resolvePortPosition } from "./portResolution";
 import type { CircuitViewContext } from "./portResolution";
-import { WireLine } from "./WireLine";
+import { useWiringDraft } from "./useWiringDraft";
 import { CANVAS_BACKGROUND } from "./colors";
-
-/** A wire being drawn: the starting port, plus any corner anchors committed so far by clicking empty canvas space. */
-interface WiringDraft {
-  readonly from: PortRef;
-  readonly fromPos: Position;
-  readonly corners: readonly Position[];
-}
-
-type MenuState =
-  | { type: "chip"; componentId: string; componentType: string; x: number; y: number }
-  | { type: "boundary"; portId: string; x: number; y: number }
-  | null;
 
 export interface CircuitCanvasProps {
   readonly circuit: CircuitDefinition;
@@ -99,19 +89,10 @@ export function CircuitCanvas({
   width,
   height,
 }: CircuitCanvasProps) {
-  const [wiringDraft, setWiringDraft] = useState<WiringDraft | null>(null);
-  const [mousePos, setMousePos] = useState<Position | null>(null);
-  const [contextMenu, setContextMenu] = useState<MenuState>(null);
+  const [contextMenu, setContextMenu] = useState<CircuitContextMenuState>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<Konva.Stage>(null);
-
-  /** Ends the wire draft and restores the default cursor (elements the mouse is currently over will re-assert their own cursor as it moves). */
-  const clearWiringDraft = () => {
-    setWiringDraft(null);
-    setMousePos(null);
-    const stage = stageRef.current;
-    if (stage) stage.container().style.cursor = "default";
-  };
+  const { wiringDraft, cursor, stageRef, handleStageMouseMove, handleBackgroundClick, handlePortInteraction } =
+    useWiringDraft(onConnectWire);
 
   const simulation = useMemo(
     () => evaluateCircuit(circuit, registry, { boundaryInputs }),
@@ -131,62 +112,11 @@ export function CircuitCanvas({
     canvasHeight: height,
   };
 
-  // Cancel wiring on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") clearWiringDraft();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  const handleStageMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (!wiringDraft) return;
-    const stage = e.target.getStage();
-    const ptr = stage?.getPointerPosition();
-    if (ptr) {
-      setMousePos(ptr);
-    }
-
-    // Crosshair over empty canvas while wiring; ports/wires/chips manage their own cursor on hover.
-    const isBackground = e.target === stage || e.target.attrs.name === CANVAS_BG_NAME;
-    if (isBackground && stage) {
-      stage.container().style.cursor = "crosshair";
-    }
-  };
-
   const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (contextMenu) setContextMenu(null);
 
     const isBackground = e.target === e.target.getStage() || e.target.attrs.name === CANVAS_BG_NAME;
-    if (!isBackground) return;
-
-    // While actively wiring, a click on empty canvas commits another corner anchor instead of canceling.
-    if (wiringDraft) {
-      const stage = e.target.getStage();
-      const ptr = stage?.getPointerPosition();
-      if (ptr) {
-        setWiringDraft({ ...wiringDraft, corners: [...wiringDraft.corners, ptr] });
-        setMousePos(ptr);
-      }
-    }
-  };
-
-  const handlePortInteraction = (ref: PortRef, portPos: Position) => {
-    if (!wiringDraft) {
-      // Start wiring from this port
-      setWiringDraft({ from: ref, fromPos: portPos, corners: [] });
-      setMousePos(portPos);
-    } else {
-      // If clicking the exact same port, cancel
-      if (wiringDraft.from.componentId === ref.componentId && wiringDraft.from.portId === ref.portId) {
-        clearWiringDraft();
-        return;
-      }
-      // Complete connection, carrying over any corners placed along the way
-      onConnectWire?.(wiringDraft.from, ref, [...wiringDraft.corners]);
-      clearWiringDraft();
-    }
+    if (isBackground) handleBackgroundClick(e);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -210,80 +140,6 @@ export function CircuitCanvas({
     onDropChip(chipType, dropPos);
   };
 
-  const getContextMenuItems = () => {
-    if (!contextMenu) return [];
-
-    if (contextMenu.type === "chip") {
-      const isPrimitive = registry.resolve(contextMenu.componentType).kind === "primitive";
-      if (isPrimitive) {
-        return [
-          {
-            label: "DUPLICATE",
-            shortcutHint: "⌘ D",
-            shortcutKeys: ["d"],
-            requireModifier: true,
-            onClick: () => onDuplicateComponent?.(contextMenu.componentId),
-          },
-          {
-            label: "REMOVE",
-            shortcutHint: "⌫",
-            shortcutKeys: ["Backspace", "Delete"],
-            isDanger: true,
-            onClick: () => onRemoveComponent?.(contextMenu.componentId),
-          },
-        ];
-      }
-      return [
-        {
-          label: "VIEW",
-          shortcutHint: "⏎",
-          shortcutKeys: ["Enter"],
-          onClick: () => onViewComponent?.(contextMenu.componentId),
-        },
-        {
-          label: "DUPLICATE",
-          shortcutHint: "⌘ D",
-          shortcutKeys: ["d"],
-          requireModifier: true,
-          onClick: () => onDuplicateComponent?.(contextMenu.componentId),
-        },
-        {
-          label: "REMOVE",
-          shortcutHint: "⌫",
-          shortcutKeys: ["Backspace", "Delete"],
-          isDanger: true,
-          onClick: () => onRemoveComponent?.(contextMenu.componentId),
-        },
-      ];
-    }
-
-    if (contextMenu.type === "boundary") {
-      return [
-        {
-          label: "CUSTOMIZE",
-          shortcutHint: "⏎",
-          shortcutKeys: ["Enter"],
-          onClick: () => onCustomizeBoundaryPort?.(contextMenu.portId),
-        },
-        {
-          label: "DUPLICATE",
-          shortcutHint: "⌘ D",
-          shortcutKeys: ["d"],
-          requireModifier: true,
-          onClick: () => onDuplicateBoundaryPort?.(contextMenu.portId),
-        },
-        {
-          label: "REMOVE",
-          shortcutHint: "⌫",
-          shortcutKeys: ["Backspace", "Delete"],
-          isDanger: true,
-          onClick: () => onRemoveBoundaryPort?.(contextMenu.portId),
-        },
-      ];
-    }
-    return [];
-  };
-
   return (
     <div
       ref={containerRef}
@@ -300,143 +156,52 @@ export function CircuitCanvas({
         onTap={handleStageClick}
       >
         <Layer>
-          <Rect name={CANVAS_BG_NAME} x={0} y={0} width={width} height={height} fill={CANVAS_BACKGROUND} listening={true} />
+          <Rect
+            name={CANVAS_BG_NAME}
+            x={0}
+            y={0}
+            width={width}
+            height={height}
+            fill={CANVAS_BACKGROUND}
+            listening={true}
+          />
 
           {showGrid && <CircuitGrid width={width} height={height} />}
 
-          {/* Existing wires */}
-          {circuit.connections.map((connection) => {
-            const key = connectionKey(connection.from, connection.to);
-            const corners = wireAnchors[key] ?? [];
-            const points = [
-              resolvePortPosition(connection.from, ctx),
-              ...corners,
-              resolvePortPosition(connection.to, ctx),
-            ];
-            return (
-              <WireLine
-                key={key}
-                points={points}
-                active={Boolean(getPortValue(connection.from, ctx))}
-                color={connection.from.componentId === BOUNDARY_ID ? portColors[connection.from.portId] : undefined}
-                onDelete={onDisconnectWire ? () => onDisconnectWire(connection.from, connection.to) : undefined}
-              />
-            );
-          })}
+          <CircuitWires
+            ctx={ctx}
+            wireAnchors={wireAnchors}
+            portColors={portColors}
+            wiringDraft={wiringDraft}
+            cursor={cursor}
+            onDisconnectWire={onDisconnectWire}
+          />
 
-          {/* Active wire draft preview following mouse cursor, with any corners already committed */}
-          {wiringDraft && mousePos && (
-            <WireLine
-              points={[wiringDraft.fromPos, ...wiringDraft.corners, mousePos]}
-              active={true}
-              isDraft={true}
-              color={wiringDraft.from.componentId === BOUNDARY_ID ? portColors[wiringDraft.from.portId] : undefined}
-            />
-          )}
+          <CircuitComponents
+            ctx={ctx}
+            contextMenu={contextMenu}
+            isWiringActive={Boolean(wiringDraft)}
+            showPortLabels={showPortLabel}
+            onMoveComponent={onMoveComponent}
+            onViewComponent={onViewComponent}
+            onOpenContextMenu={(componentId, componentType, x, y) =>
+              setContextMenu({ type: "chip", componentId, componentType, x, y })
+            }
+            onCloseContextMenu={() => setContextMenu(null)}
+            onPortClick={handlePortInteraction}
+          />
 
-          {/* Placed chip components */}
-          {circuit.components.map((component) => {
-            const resolved = registry.resolve(component.type);
-            const label = resolved.kind === "primitive" ? resolved.type : resolved.definition.name;
-            const inputs = resolved.kind === "primitive" ? resolved.inputs : resolved.definition.inputs;
-            const outputs = resolved.kind === "primitive" ? resolved.outputs : resolved.definition.outputs;
-            const position = layout[component.id] ?? { x: 0, y: 0 };
-            const savedDef = savedChips.find((c) => c.id === component.type);
-            const customChipColor = savedDef?.color;
-            const portOrder = savedDef?.boundaryLayout;
-
-            const sortedInputs = portOrder
-              ? [...inputs].sort((a, b) => (portOrder[a.id] ?? 0) - (portOrder[b.id] ?? 0))
-              : inputs;
-
-            const sortedOutputs = portOrder
-              ? [...outputs].sort((a, b) => (portOrder[a.id] ?? 0) - (portOrder[b.id] ?? 0))
-              : outputs;
-
-            return (
-              <ChipNode
-                key={component.id}
-                chipType={component.type}
-                position={position}
-                label={label}
-                color={customChipColor}
-                inputs={sortedInputs}
-                outputs={sortedOutputs}
-                getPortValue={(portId, direction) =>
-                  direction === "output"
-                    ? Boolean(simulation.componentOutputs[component.id]?.[portId])
-                    : Boolean(getComponentInputValue(component.id, portId, ctx))
-                }
-                onMove={onMoveComponent ? (next) => onMoveComponent(component.id, next) : undefined}
-                isContextMenuOpen={contextMenu?.type === "chip" && contextMenu.componentId === component.id}
-                onContextMenu={(x, y) => {
-                  setContextMenu({ type: "chip", componentId: component.id, componentType: component.type, x, y });
-                }}
-                onDblClick={() => {
-                  setContextMenu(null);
-                  onViewComponent?.(component.id);
-                }}
-                onPortClick={(portId, _direction, portPos) =>
-                  handlePortInteraction({ componentId: component.id, portId }, portPos)
-                }
-                isWiringActive={Boolean(wiringDraft)}
-                showPortLabels={showPortLabel}
-              />
-            );
-          })}
-
-          {/* Left boundary inputs */}
-          {boundary?.inputs.map((port, index) => {
-            const base = getBoundaryPortPosition("left", index, boundary.inputs.length, width, height);
-            const position = { x: base.x, y: boundaryLayout?.[port.id] ?? base.y };
-            return (
-              <BoundaryPort
-                key={port.id}
-                position={position}
-                edgeX={16}
-                side="left"
-                name={port.name}
-                color={portColors[port.id]}
-                active={Boolean(boundaryInputs[port.id])}
-                onToggle={onToggleBoundaryInput ? () => onToggleBoundaryInput(port.id) : undefined}
-                onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}
-                onPortClick={(p) => handlePortInteraction({ componentId: BOUNDARY_ID, portId: port.id }, p)}
-                isWiringActive={Boolean(wiringDraft)}
-                bounds={{ minY: 16, maxY: height - 56 }}
-                isContextMenuOpen={contextMenu?.type === "boundary" && contextMenu.portId === port.id}
-                onContextMenu={(x, y) => {
-                  setContextMenu({ type: "boundary", portId: port.id, x, y });
-                }}
-                showLabel={showPortLabel}
-              />
-            );
-          })}
-
-          {/* Right boundary outputs */}
-          {boundary?.outputs.map((port, index) => {
-            const base = getBoundaryPortPosition("right", index, boundary.outputs.length, width, height);
-            const position = { x: base.x, y: boundaryLayout?.[port.id] ?? base.y };
-            return (
-              <BoundaryPort
-                key={port.id}
-                position={position}
-                edgeX={width - 16}
-                side="right"
-                name={port.name}
-                color={portColors[port.id]}
-                active={Boolean(simulation.boundaryOutputs[port.id])}
-                onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}
-                onPortClick={(p) => handlePortInteraction({ componentId: BOUNDARY_ID, portId: port.id }, p)}
-                isWiringActive={Boolean(wiringDraft)}
-                bounds={{ minY: 16, maxY: height - 56 }}
-                isContextMenuOpen={contextMenu?.type === "boundary" && contextMenu.portId === port.id}
-                onContextMenu={(x, y) => {
-                  setContextMenu({ type: "boundary", portId: port.id, x, y });
-                }}
-                showLabel={showPortLabel}
-              />
-            );
-          })}
+          <CircuitBoundaryPorts
+            ctx={ctx}
+            portColors={portColors}
+            contextMenu={contextMenu}
+            isWiringActive={Boolean(wiringDraft)}
+            showPortLabel={showPortLabel}
+            onToggleBoundaryInput={onToggleBoundaryInput}
+            onMoveBoundaryPort={onMoveBoundaryPort}
+            onOpenContextMenu={(portId, x, y) => setContextMenu({ type: "boundary", portId, x, y })}
+            onPortClick={handlePortInteraction}
+          />
         </Layer>
       </Stage>
 
@@ -444,7 +209,14 @@ export function CircuitCanvas({
         <ContextMenu
           position={{ x: contextMenu.x, y: contextMenu.y }}
           onClose={() => setContextMenu(null)}
-          items={getContextMenuItems()}
+          items={getCircuitContextMenuItems(contextMenu, registry, {
+            onViewComponent,
+            onDuplicateComponent,
+            onRemoveComponent,
+            onCustomizeBoundaryPort,
+            onDuplicateBoundaryPort,
+            onRemoveBoundaryPort,
+          })}
         />
       )}
     </div>
