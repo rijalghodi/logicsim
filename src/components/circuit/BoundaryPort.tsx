@@ -234,6 +234,9 @@ export function BoundaryPort({
           }
           stroke={BIT_STROKE}
           strokeWidth={2}
+          shadowColor="#000000"
+          shadowBlur={2}
+          shadowOpacity={0.5}
         />
       </Group>
 

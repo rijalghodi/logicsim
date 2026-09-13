@@ -20,8 +20,8 @@ export function PortLabel({ x, y, text }: PortLabelProps) {
         height={height}
         fill="hsl(0, 0%, 0%)"
         cornerRadius={4}
-        shadowColor="hsl(0, 0%, 30)"
-        shadowBlur={6}
+        shadowColor="#000000"
+        shadowBlur={2}
         shadowOpacity={0.5}
       />
       <Text

@@ -149,6 +149,9 @@ export function ChipNode({
           stroke={getBorderColor(color ?? CHIP_FILL)}
           strokeWidth={1.5}
           cornerRadius={6}
+          shadowColor="#000000"
+          shadowBlur={2}
+          shadowOpacity={0.5}
         />
         <Text
           x={0}
