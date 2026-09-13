@@ -1,8 +1,10 @@
 import { Input } from "./Input";
 import type { ComponentPropsWithRef } from "react";
 
-export interface NumberInputProps
-  extends Omit<ComponentPropsWithRef<"input">, "onChange" | "value" | "type" | "min" | "max"> {
+export interface NumberInputProps extends Omit<
+  ComponentPropsWithRef<"input">,
+  "onChange" | "value" | "type" | "min" | "max"
+> {
   readonly value: number;
   readonly onChange: (val: number) => void;
   readonly min?: number;
@@ -10,14 +12,7 @@ export interface NumberInputProps
   readonly preventLeadingZero?: boolean;
 }
 
-export function NumberInput({
-  value,
-  onChange,
-  min,
-  max,
-  preventLeadingZero,
-  ...props
-}: NumberInputProps) {
+export function NumberInput({ value, onChange, min, max, preventLeadingZero, ...props }: NumberInputProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let valStr = e.target.value;
 
@@ -36,14 +31,5 @@ export function NumberInput({
     onChange(num);
   };
 
-  return (
-    <Input
-      type="number"
-      min={min}
-      max={max}
-      value={value}
-      onChange={handleChange}
-      {...props}
-    />
-  );
+  return <Input type="number" min={min} max={max} value={value} onChange={handleChange} {...props} />;
 }

@@ -1,5 +1,13 @@
 import { BOUNDARY_ID } from "@/core";
-import type { Bit, BoundaryPorts, CircuitDefinition, ChipRegistry, PortDirection, PortRef, SimulationState } from "@/core";
+import type {
+  Bit,
+  BoundaryPorts,
+  CircuitDefinition,
+  ChipRegistry,
+  PortDirection,
+  PortRef,
+  SimulationState,
+} from "@/core";
 import type { SavedChip } from "@/storage/chipStorage";
 import { getBoundaryPortPosition, getComponentPortPosition, sortPortsByLayout } from "./geometry";
 import type { Layout, Position } from "./geometry";
