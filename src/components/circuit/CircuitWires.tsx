@@ -1,5 +1,5 @@
-import { BOUNDARY_ID } from "@/core";
 import type { PortRef } from "@/core";
+import type { CircuitContextMenuState } from "./contextMenuItems";
 import type { Position } from "./geometry";
 import { connectionKey, getPortValue, resolvePortPosition } from "./portResolution";
 import type { CircuitViewContext } from "./portResolution";
@@ -13,17 +13,20 @@ interface CircuitWiresProps {
   readonly wiringDraft: WiringDraft | null;
   /** The live cursor position while wiring; only meaningful when `wiringDraft` is set. */
   readonly cursor: Position | null;
-  readonly onDisconnectWire?: (from: PortRef, to: PortRef) => void;
+  readonly contextMenu: CircuitContextMenuState;
+  /** Fired when a wire is clicked or right-clicked, with the click position — opens the shared context menu offering REMOVE. Omit to make wires non-interactive. */
+  readonly onOpenContextMenu?: (from: PortRef, to: PortRef, x: number, y: number) => void;
 }
 
 /** Renders every committed wire in the circuit, plus the in-progress draft wire following the cursor while wiring. */
 export function CircuitWires({
   ctx,
   wireAnchors,
-  portColors,
+  // portColors,
   wiringDraft,
   cursor,
-  onDisconnectWire,
+  contextMenu,
+  onOpenContextMenu,
 }: CircuitWiresProps) {
   return (
     <>
@@ -31,14 +34,20 @@ export function CircuitWires({
         const key = connectionKey(connection.from, connection.to);
         const corners = wireAnchors[key] ?? [];
         const points = [resolvePortPosition(connection.from, ctx), ...corners, resolvePortPosition(connection.to, ctx)];
+        const isContextMenuOpen =
+          contextMenu?.type === "wire" && connectionKey(contextMenu.from, contextMenu.to) === key;
         return (
           <WireLine
             key={key}
             points={points}
             active={Boolean(getPortValue(connection.from, ctx))}
-            color={connection.from.componentId === BOUNDARY_ID ? portColors[connection.from.portId] : undefined}
+            // TODO: Use wire color
+            // color={connection.from.componentId === BOUNDARY_ID ? portColors[connection.from.portId] : undefined}
             isWiringActive={Boolean(wiringDraft)}
-            onDelete={onDisconnectWire ? () => onDisconnectWire(connection.from, connection.to) : undefined}
+            isContextMenuOpen={isContextMenuOpen}
+            onContextMenu={
+              onOpenContextMenu ? (x, y) => onOpenContextMenu(connection.from, connection.to, x, y) : undefined
+            }
           />
         );
       })}
@@ -48,7 +57,7 @@ export function CircuitWires({
           points={[wiringDraft.fromPos, ...wiringDraft.corners, cursor]}
           active={true}
           isDraft={true}
-          color={wiringDraft.from.componentId === BOUNDARY_ID ? portColors[wiringDraft.from.portId] : undefined}
+          // color={wiringDraft.from.componentId === BOUNDARY_ID ? portColors[wiringDraft.from.portId] : undefined}
         />
       )}
     </>

@@ -176,7 +176,8 @@ export function CircuitCanvas({
             portColors={portColors}
             wiringDraft={wiringDraft}
             cursor={cursor}
-            onDisconnectWire={onDisconnectWire}
+            contextMenu={contextMenu}
+            onOpenContextMenu={(from, to, x, y) => setContextMenu({ type: "wire", from, to, x, y })}
           />
 
           <CircuitComponents
@@ -218,6 +219,7 @@ export function CircuitCanvas({
             onCustomizeBoundaryPort,
             onDuplicateBoundaryPort,
             onRemoveBoundaryPort,
+            onDisconnectWire,
           })}
         />
       )}

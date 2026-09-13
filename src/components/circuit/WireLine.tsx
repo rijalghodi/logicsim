@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Path } from "react-konva";
+import type Konva from "konva";
 import { buildRoundedWirePath, WIRE_CORNER_RADIUS } from "./geometry";
 import type { Position } from "./geometry";
-import { BIT_COLOR, WIRE_DELETE_HOVER_COLOR } from "./colors";
+import { BIT_COLOR } from "./colors";
 import { getBrightColor, getDimmedColor } from "@/utils/colorHelper";
 
 interface WireLineProps {
@@ -11,19 +12,27 @@ interface WireLineProps {
   readonly active: boolean;
   readonly color?: string;
   readonly isDraft?: boolean;
-  /** Suppress hover-to-highlight and click-to-delete while a different wire is being drawn, so passing the cursor over (or accidentally clicking) this wire mid-draft doesn't delete it. */
+  /** Suppress hover-highlight and click-to-open-menu while a different wire is being drawn, so passing the cursor over (or accidentally clicking) this wire mid-draft doesn't open its menu. */
   readonly isWiringActive?: boolean;
-  readonly onDelete?: () => void;
+  /** Whether this wire's context menu is currently open — keeps the dashed highlight while the menu is deciding the wire's fate. */
+  readonly isContextMenuOpen?: boolean;
+  /** Fired with the click position when the wire is clicked or right-clicked; omit to make the wire non-interactive (no menu to offer). */
+  readonly onContextMenu?: (x: number, y: number) => void;
 }
 
-/** A wire, drawn as a straight-segment path with rounded interior corners: lit and glowing when its driving value is `true`, dimmed when `false`, with support for draft preview and click-to-delete. */
-export function WireLine({ points, active, color, isDraft, isWiringActive, onDelete }: WireLineProps) {
+/** A wire, drawn as a straight-segment path with rounded interior corners: lit and glowing when its driving value is `true`, dimmed when `false`. Hovering (or having its context menu open) highlights it as a dashed line — clicking opens a menu offering REMOVE, rather than deleting directly. */
+export function WireLine({
+  points,
+  active,
+  color,
+  isDraft,
+  isWiringActive,
+  isContextMenuOpen,
+  onContextMenu,
+}: WireLineProps) {
   const [hovered, setHovered] = useState(false);
-  // Whether hovering/clicking this wire should currently show the delete affordance.
-  // `listening` stays tied to `onDelete` alone (not `deletable`) so Konva keeps firing real
-  // enter/leave events even while wiring is active — that's what keeps `hovered` accurate
-  // instead of going stale while events are suppressed.
-  const deletable = Boolean(onDelete) && !isWiringActive;
+  const interactive = Boolean(onContextMenu) && !isWiringActive;
+  const highlighted = (interactive && (hovered || isContextMenuOpen)) || isDraft;
 
   let activeColor = getBrightColor(BIT_COLOR);
   let inactiveColor = getDimmedColor(BIT_COLOR);
@@ -32,31 +41,52 @@ export function WireLine({ points, active, color, isDraft, isWiringActive, onDel
     inactiveColor = getDimmedColor(color);
   }
 
-  const strokeColor = hovered && deletable ? WIRE_DELETE_HOVER_COLOR : active || isDraft ? activeColor : inactiveColor;
+  const strokeColor = highlighted ? activeColor : active || isDraft ? activeColor : inactiveColor;
 
   const pathData = buildRoundedWirePath(points, WIRE_CORNER_RADIUS);
+
+  const openMenu = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    if (!onContextMenu) return;
+    const stage = e.target.getStage();
+    const pointerPos = stage?.getPointerPosition() ?? points[0];
+    onContextMenu(pointerPos.x, pointerPos.y);
+  };
+
+  const handleContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    e.evt.preventDefault();
+    e.cancelBubble = true;
+    openMenu(e);
+  };
+
+  const handleClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    if ("button" in e.evt && e.evt.button !== 0) return;
+    e.cancelBubble = true;
+    openMenu(e);
+  };
 
   return (
     <Path
       data={pathData}
       stroke={strokeColor}
-      strokeWidth={hovered && deletable ? 3.5 : 3}
+      strokeWidth={highlighted ? 3.5 : 3}
+      dash={highlighted ? [6] : undefined}
       lineCap="round"
       lineJoin="round"
-      hitStrokeWidth={12}
-      listening={Boolean(onDelete)}
-      onClick={deletable ? onDelete : undefined}
+      listening={Boolean(onContextMenu)}
+      onClick={handleClick}
+      onTap={handleClick}
+      onContextMenu={handleContextMenu}
       onMouseEnter={(e) => {
-        if (!onDelete) return;
+        if (!onContextMenu) return;
         setHovered(true);
-        if (!deletable) return;
+        if (!interactive) return;
         const stage = e.target.getStage();
         if (stage) stage.container().style.cursor = "pointer";
       }}
       onMouseLeave={(e) => {
-        if (!onDelete) return;
+        if (!onContextMenu) return;
         setHovered(false);
-        if (!deletable) return;
+        if (!interactive) return;
         const stage = e.target.getStage();
         if (stage) stage.container().style.cursor = "default";
       }}
