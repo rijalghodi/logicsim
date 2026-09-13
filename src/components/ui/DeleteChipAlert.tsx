@@ -2,6 +2,7 @@ import { ModalActions } from "./Modal";
 import { useMemo } from "react";
 import type { ModalContextProps } from "@/stores/modalStore";
 import { useCircuitStore } from "@/stores/circuitStore";
+import Button from "./Button";
 
 export const DeleteChipAlert = ({ payload, closeModal }: ModalContextProps<{ chipId: string }>) => {
   const { savedChips, registry, deleteChips } = useCircuitStore();
@@ -49,12 +50,12 @@ export const DeleteChipAlert = ({ payload, closeModal }: ModalContextProps<{ chi
       )}
 
       <ModalActions>
-        <button type="button" className="btn-secondary" onClick={closeModal}>
+        <Button type="button" variant="secondary" onClick={closeModal}>
           CANCEL
-        </button>
-        <button type="button" className="btn-danger" onClick={handleConfirm}>
+        </Button>
+        <Button type="button" variant="danger" onClick={handleConfirm}>
           DELETE
-        </button>
+        </Button>
       </ModalActions>
     </>
   );

@@ -34,7 +34,7 @@ export function defineModal<P>(config: ModalConfig<P>): ModalConfig<P> {
 export const modalTypes = {
   "save-chip": defineModal({
     component: SaveChipModal,
-    defaultPayload: { title: "SAVE CHIP" },
+    defaultPayload: { title: "SAVE CHIP", description: "Enter a name and color for your new custom chip." },
   }),
   "unsaved-alert": defineModal({
     component: UnsavedAlert,
