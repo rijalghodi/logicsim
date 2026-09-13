@@ -46,15 +46,15 @@ function defineModal<P>(config: ModalConfig<P>): ModalConfig<P> {
 export const modalTypes = {
   "save-chip": defineModal<{ chipId: string | null }>({
     component: SaveChipModal,
-    defaultPayload: { title: "SAVE CHIP", description: "Enter a name and color for the chip." },
+    defaultPayload: { title: "SAVE CHIP" },
   }),
   "unsaved-alert": defineModal<{ chipIdToOpen: string | null }>({
     component: UnsavedAlert,
-    defaultPayload: { title: "UNSAVED CHANGES", description: "Do you want to save this circuit before proceeding?" },
+    defaultPayload: { title: "UNSAVED CHANGES" },
   }),
   "delete-chip": defineModal<{ chipId: string }>({
     component: DeleteChipAlert,
-    defaultPayload: { title: "DELETE CHIP", description: "This action cannot be undone." },
+    defaultPayload: { title: "DELETE CHIP" },
   }),
   "customize-port": defineModal<{ portId: string }>({
     component: CustomizePortModal,
@@ -100,7 +100,7 @@ export type AnyModalComponent = (props: ModalContextProps<any>) => React.JSX.Ele
 
 export const useModalStore = create<ModalState>(() => ({ active: null }));
 
-function open<K extends ModalType>(type: K, payload: PayloadOf<K> & Partial<ModalChrome>): void {
+function open<K extends ModalType>(type: K, payload?: PayloadOf<K> & Partial<ModalChrome>): void {
   const config = modalTypes[type];
   const resolvedPayload = { ...config.defaultPayload, ...payload } as PayloadOf<K> & Required<ModalChrome>;
   // The one necessary cast: `K` is only known at the type level inside this generic function's

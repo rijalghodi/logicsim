@@ -24,9 +24,7 @@ function App() {
         onSave={actions.handleSaveClick}
         onCustomize={actions.handleCustomizeClick}
         onDelete={actions.handleDeleteCurrentClick}
-        onPreferences={() =>
-          modals.open("preferences", { title: "PREFERENCES", description: "Personalize how the circuit is displayed." })
-        }
+        onPreferences={() => modals.open("preferences")}
         isSaved={!!store.currentChipId}
       />
 
@@ -48,13 +46,7 @@ function App() {
         onRemoveBoundaryPort={store.removeBoundaryPort}
         onDuplicateComponent={store.duplicateComponent}
         onDuplicateBoundaryPort={store.duplicateBoundaryPort}
-        onCustomizeBoundaryPort={(portId) =>
-          modals.open("customize-port", {
-            title: "CUSTOMIZE PORT",
-            description: "Enter a new name for this boundary port.",
-            portId,
-          })
-        }
+        onCustomizeBoundaryPort={(portId) => modals.open("customize-port", { portId })}
         onDropChip={store.dropChip}
         onConnectWire={store.connectWire}
         onDisconnectWire={store.disconnectWire}
@@ -67,9 +59,7 @@ function App() {
       <Dock
         onAddChip={actions.handleAddChipFreespace}
         onOpenChip={actions.handleOpenChipClick}
-        onDeleteChip={(chipId) =>
-          modals.open("delete-chip", { title: "DELETE CHIP", description: "This action cannot be undone.", chipId })
-        }
+        onDeleteChip={(chipId) => modals.open("delete-chip", { chipId })}
       />
 
       <Toast />

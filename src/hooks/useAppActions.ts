@@ -15,20 +15,13 @@ export function useAppActions(windowSize: { width: number; height: number }) {
         color: chipDef?.color || CHIP_FILL,
       });
     } else {
-      modals.open("save-chip", {
-        title: "SAVE CHIP",
-        description: "Enter a name and color for the chip.",
-        chipId: null,
-      });
+      modals.open("save-chip", { chipId: null });
     }
   }, [store]);
 
   const handleNewClick = useCallback(() => {
     if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
-      modals.open("unsaved-alert", {
-        title: "UNSAVED CHANGES",
-        chipIdToOpen: null,
-      });
+      modals.open("unsaved-alert");
     } else {
       store.resetToBlank();
     }
@@ -36,31 +29,20 @@ export function useAppActions(windowSize: { width: number; height: number }) {
 
   const handleCustomizeClick = useCallback(() => {
     if (store.currentChipId) {
-      modals.open("save-chip", {
-        title: "CUSTOMIZE CHIP",
-        description: "Enter a name and color for the chip.",
-        chipId: store.currentChipId,
-      });
+      modals.open("save-chip", { chipId: store.currentChipId });
     }
   }, [store.currentChipId]);
 
   const handleDeleteCurrentClick = useCallback(() => {
     if (store.currentChipId) {
-      modals.open("delete-chip", {
-        title: "DELETE CHIP",
-        description: "This action cannot be undone.",
-        chipId: store.currentChipId,
-      });
+      modals.open("delete-chip", { chipId: store.currentChipId });
     }
   }, [store]);
 
   const handleOpenChipClick = useCallback(
     (chipId: string) => {
       if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
-        modals.open("unsaved-alert", {
-          title: "UNSAVED CHANGES",
-          chipIdToOpen: chipId,
-        });
+        modals.open("unsaved-alert", { chipIdToOpen: chipId });
       } else {
         store.loadChipToCanvas(chipId);
       }
@@ -71,10 +53,7 @@ export function useAppActions(windowSize: { width: number; height: number }) {
   const handleBreadcrumbClick = useCallback(
     (index: number) => {
       if (store.isDirty && store.currentChipId) {
-        modals.open("unsaved-alert", {
-          title: "UNSAVED CHANGES",
-          chipIdToOpen: store.currentChipId,
-        });
+        modals.open("unsaved-alert", { chipIdToOpen: store.currentChipId });
       } else {
         store.executeBreadcrumbNavigation(index);
       }
