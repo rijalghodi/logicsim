@@ -38,7 +38,7 @@ export function PortPin({ x, y, active, isWiringActive, onPortClick, onHoverChan
       onMouseEnter={(e) => {
         setIsHovered(true);
         onHoverChange?.(true);
-        setCursor(e, "pointer");
+        setCursor(e, "crosshair");
       }}
       onMouseLeave={(e) => {
         setIsHovered(false);
