@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { toast } from "@/stores/toastStore";
 import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
 import { Input } from "./Input";
-import { ColorPickerButton } from "./ColorPickerButton";
+import { ColorSliderInput } from "./ColorSliderInput";
 import { BIT_COLOR } from "../circuit/colors";
 import { useCircuitStore } from "@/stores/circuitStore";
 import { useCustomizePortModalStore } from "@/stores/customizePortModalStore";
@@ -13,11 +13,7 @@ export function CustomizePortModal() {
 
   const port = useMemo(() => {
     if (!portId) return null;
-    return (
-      boundary.inputs.find((p) => p.id === portId) ??
-      boundary.outputs.find((p) => p.id === portId) ??
-      null
-    );
+    return boundary.inputs.find((p) => p.id === portId) ?? boundary.outputs.find((p) => p.id === portId) ?? null;
   }, [portId, boundary]);
 
   const initialName = port?.name ?? "";
@@ -63,8 +59,7 @@ export function CustomizePortModal() {
       </ModalHeader>
 
       <ModalBody onSubmit={handleSubmit}>
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          <ColorPickerButton color={color} onChange={setColor} />
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <Input
             ref={inputRef}
             type="text"
@@ -73,8 +68,9 @@ export function CustomizePortModal() {
             value={name}
             onChange={(e) => setName(e.target.value.toUpperCase())}
             maxLength={10}
-            style={{ flex: 1 }}
+            required
           />
+          <ColorSliderInput color={color} onChange={setColor} />
         </div>
 
         <ModalActions>
