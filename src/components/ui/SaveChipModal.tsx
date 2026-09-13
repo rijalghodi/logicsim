@@ -8,7 +8,10 @@ import type { ModalContextProps } from "@/stores/modalStore";
 import { useCircuitStore } from "@/stores/circuitStore";
 import Button from "./Button";
 
-export const SaveChipModal = ({ payload, closeModal }: ModalContextProps<{ chipId: string | null }>) => {
+export const SaveChipModal = ({
+  payload,
+  closeModal,
+}: ModalContextProps<{ chipId: string | null; onSaved?: () => void }>) => {
   const { savedChips, saveCurrentChip } = useCircuitStore();
 
   const chip = useMemo(() => savedChips.find((c) => c.id === payload.chipId), [savedChips, payload.chipId]);
@@ -34,6 +37,7 @@ export const SaveChipModal = ({ payload, closeModal }: ModalContextProps<{ chipI
     }
     saveCurrentChip({ id: chip?.id ?? null, name: trimmed, color });
     closeModal();
+    payload.onSaved?.();
   };
 
   return (

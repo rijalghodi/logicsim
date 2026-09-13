@@ -21,7 +21,7 @@ export function useAppActions(windowSize: { width: number; height: number }) {
 
   const handleNewClick = useCallback(() => {
     if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
-      modals.open("unsaved-alert");
+      modals.open("unsaved-alert", { onProceed: () => store.resetToBlank() });
     } else {
       store.resetToBlank();
     }
@@ -42,7 +42,7 @@ export function useAppActions(windowSize: { width: number; height: number }) {
   const handleOpenChipClick = useCallback(
     (chipId: string) => {
       if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
-        modals.open("unsaved-alert", { chipIdToOpen: chipId });
+        modals.open("unsaved-alert", { onProceed: () => store.loadChipToCanvas(chipId) });
       } else {
         store.loadChipToCanvas(chipId);
       }
@@ -53,7 +53,7 @@ export function useAppActions(windowSize: { width: number; height: number }) {
   const handleBreadcrumbClick = useCallback(
     (index: number) => {
       if (store.isDirty && store.currentChipId) {
-        modals.open("unsaved-alert", { chipIdToOpen: store.currentChipId });
+        modals.open("unsaved-alert", { onProceed: () => store.executeBreadcrumbNavigation(index) });
       } else {
         store.executeBreadcrumbNavigation(index);
       }

@@ -4,29 +4,24 @@ import type { ModalContextProps } from "@/stores/modalStore";
 import { useMemo } from "react";
 import Button from "./Button";
 
-export const UnsavedAlert = ({
-  payload,
-  closeModal,
-  openModal,
-}: ModalContextProps<{ chipIdToOpen: string | null }>) => {
-  const { savedChips, loadChipToCanvas, resetToBlank } = useCircuitStore();
+/** What to do once the unsaved-changes prompt is resolved — whatever navigation/reset the caller was originally trying to do. */
+export const UnsavedAlert = ({ payload, closeModal, openModal }: ModalContextProps<{ onProceed: () => void }>) => {
+  const { currentChipId, savedChips } = useCircuitStore();
 
-  const chip = useMemo(() => savedChips.find((c) => c.id === payload.chipIdToOpen), [savedChips, payload.chipIdToOpen]);
+  // The chip with the actual unsaved changes is whatever's currently loaded — not wherever we're headed.
+  const chip = useMemo(() => savedChips.find((c) => c.id === currentChipId), [savedChips, currentChipId]);
 
   const handleDiscard = () => {
     closeModal();
-    if (payload.chipIdToOpen) {
-      loadChipToCanvas(payload.chipIdToOpen);
-    } else {
-      resetToBlank();
-    }
+    payload.onProceed();
   };
 
   const handleSave = () => {
     closeModal();
     openModal("save-chip", {
-      title: payload.chipIdToOpen ? "CUSTOMIZE CHIP" : "SAVE CHIP",
-      chipId: payload.chipIdToOpen,
+      title: currentChipId ? "CUSTOMIZE CHIP" : "SAVE CHIP",
+      chipId: currentChipId,
+      onSaved: payload.onProceed,
     });
   };
 
