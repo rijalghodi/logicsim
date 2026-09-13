@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "@/stores/toastStore";
 import { ModalActions } from "./Modal";
-import { CHIP_FILL } from "../circuit/colors";
+import { CHIP_FILL } from "../circuit/constants";
 import { Input } from "./Input";
 import { ColorSliderInput } from "./ColorSliderInput";
 import type { ModalContextProps } from "@/stores/modalStore";

@@ -1,7 +1,7 @@
 import { deserializeChipDefinition, serializeChipDefinition } from "../core";
 import type { ChipDefinition, ChipRegistry } from "../core";
 import type { Layout, Position } from "../components/circuit/geometry";
-import { CHIP_FILL } from "../components/circuit/colors";
+import { CHIP_FILL } from "../components/circuit/constants";
 
 export interface SavedChip extends ChipDefinition {
   readonly color: string;

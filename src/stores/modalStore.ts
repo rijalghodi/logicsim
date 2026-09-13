@@ -46,7 +46,7 @@ export const modalTypes = {
   }),
   "customize-port": defineModal({
     component: CustomizePortModal,
-    defaultPayload: { title: "CUSTOMIZE PORT", description: "Enter a name and color for this port." },
+    defaultPayload: { title: "CUSTOMIZE PORT", description: "Enter a name for this port." },
   }),
   preferences: defineModal({
     component: PreferencesModal,

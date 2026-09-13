@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { modals } from "@/stores/modalStore";
 import { useCircuitStore } from "@/stores/circuitStore";
-import { CHIP_FILL } from "@/components/circuit/colors";
+import { CHIP_FILL } from "@/components/circuit/constants";
 
 export function useAppActions(windowSize: { width: number; height: number }) {
   const store = useCircuitStore();

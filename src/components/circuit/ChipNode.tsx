@@ -11,7 +11,7 @@ import {
 import type { Position } from "./geometry";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
-import { CHIP_FILL } from "./colors";
+import { CHIP_FILL } from "./constants";
 import { getBorderColor, getContrastColor, getSafeColor } from "@/utils/colorHelper";
 import type Konva from "konva";
 

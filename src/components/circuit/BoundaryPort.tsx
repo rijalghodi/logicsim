@@ -4,7 +4,7 @@ import type Konva from "konva";
 import { PORT_RADIUS, getPortLabelWidth, PORT_LABEL_HEIGHT, BIT_CIRCLE_RADIUS } from "./geometry";
 import type { Position } from "./geometry";
 
-import { CONTROLLER_FILL, CONTROLLER_FILL_HOVER, BIT_COLOR, BIT_STROKE } from "./colors";
+import { CONTROLLER_FILL, CONTROLLER_FILL_HOVER, BIT_COLOR, BIT_STROKE } from "./constants";
 import { PortLabel } from "./PortLabel";
 import { PortPin } from "./PortPin";
 

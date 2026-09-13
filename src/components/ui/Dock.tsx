@@ -4,6 +4,7 @@ import { DockChipMenu } from "./DockChipMenu";
 import { DockPrimitiveChip } from "./DockPrimitiveChip";
 import { ChevronRightIcon } from "./icons/ChevronRightIcon";
 import { useCircuitStore } from "@/stores/circuitStore";
+import { CHIP_DRAG_MIMETYPE } from "../circuit/constants";
 
 interface DockProps {
   readonly onAddChip?: (chipType: string) => void;
@@ -30,7 +31,7 @@ export function Dock({ onAddChip, onOpenChip, onDeleteChip }: DockProps) {
   const sortedChips = useMemo(() => [...savedChips].sort((a, b) => a.name.localeCompare(b.name)), [savedChips]);
 
   const handleDragStart = (e: React.DragEvent, chipType: string) => {
-    e.dataTransfer.setData("application/logicsim-chip", chipType);
+    e.dataTransfer.setData(CHIP_DRAG_MIMETYPE, chipType);
     e.dataTransfer.effectAllowed = "copy";
   };
 

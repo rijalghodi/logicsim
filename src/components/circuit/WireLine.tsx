@@ -3,7 +3,7 @@ import { Path } from "react-konva";
 import type Konva from "konva";
 import { buildRoundedWirePath, WIRE_CORNER_RADIUS } from "./geometry";
 import type { Position } from "./geometry";
-import { BIT_COLOR } from "./colors";
+import { BIT_COLOR } from "./constants";
 import { getBrightColor, getDimmedColor } from "@/utils/colorHelper";
 
 interface WireLineProps {

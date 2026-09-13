@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Circle, Group } from "react-konva";
 import type Konva from "konva";
 import { PORT_RADIUS } from "./geometry";
-import { PORT_COLOR, BIT_COLOR, PORT_COLOR_HOVER } from "./colors";
+import { PORT_COLOR, BIT_COLOR, PORT_COLOR_HOVER } from "./constants";
 
 interface PortPinProps {
   readonly x: number;

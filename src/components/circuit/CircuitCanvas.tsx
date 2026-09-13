@@ -16,9 +16,10 @@ import type { Layout, Position } from "./geometry";
 import { getPortDirection } from "./portResolution";
 import type { CircuitViewContext } from "./portResolution";
 import { useWiringDraft } from "./useWiringDraft";
-import { CANVAS_BACKGROUND } from "./colors";
+import { CANVAS_BACKGROUND, CHIP_DRAG_MIMETYPE } from "./constants";
 
 export interface CircuitCanvasProps {
+  // -- circuit data --
   readonly circuit: CircuitDefinition;
   readonly registry: ChipRegistry;
   readonly savedChips?: SavedChip[];
@@ -30,33 +31,45 @@ export interface CircuitCanvasProps {
   /** Corner anchors for cornered wires, keyed by `connectionKey(from, to)`. */
   readonly wireAnchors?: Readonly<Record<string, readonly Position[]>>;
   readonly boundaryInputs: Readonly<Record<string, Bit>>;
+
+  // -- boundary port actions --
   /** Omit to render boundary inputs as read-only (e.g. viewing a nested chip driven by its parent). */
   readonly onToggleBoundaryInput?: (portId: string) => void;
   /** Omit to make boundary ports vertically fixed (non-draggable). */
   readonly onMoveBoundaryPort?: (portId: string, y: number) => void;
+  /** Triggered when a boundary port should be removed. */
+  readonly onRemoveBoundaryPort?: (portId: string) => void;
+  /** Triggered when a boundary port should be duplicated. */
+  readonly onDuplicateBoundaryPort?: (portId: string) => void;
+  /** Triggered when a boundary port should be renamed. */
+  readonly onCustomizeBoundaryPort?: (portId: string) => void;
+
+  // -- component actions --
   /** Omit to make components fixed (non-draggable). */
   readonly onMoveComponent?: (componentId: string, position: Position) => void;
   readonly onViewComponent?: (componentId: string) => void;
   /** Triggered when a component should be removed. */
   readonly onRemoveComponent?: (componentId: string) => void;
-  /** Triggered when a boundary port should be removed. */
-  readonly onRemoveBoundaryPort?: (portId: string) => void;
   /** Triggered when a component should be duplicated. */
   readonly onDuplicateComponent?: (componentId: string) => void;
-  /** Triggered when a boundary port should be duplicated. */
-  readonly onDuplicateBoundaryPort?: (portId: string) => void;
-  /** Triggered when a boundary port should be renamed. */
-  readonly onCustomizeBoundaryPort?: (portId: string) => void;
-  /** Triggered when a chip is dragged from the bottom toolbar and dropped onto the canvas. */
-  readonly onDropChip?: (chipType: string, position: Position) => void;
+
+  // -- wiring --
   /** Triggered when a wire is connected from source to destination, with any corner anchors placed along the way. */
   readonly onConnectWire?: (from: PortRef, to: PortRef, anchors?: Position[]) => void;
   /** Triggered when an existing wire is deleted. */
   readonly onDisconnectWire?: (from: PortRef, to: PortRef) => void;
+
+  // -- drag & drop --
+  /** Triggered when a chip is dragged from the bottom toolbar and dropped onto the canvas. */
+  readonly onDropChip?: (chipType: string, position: Position) => void;
+
+  // -- display preferences --
   /** Show a dotted background grid (the "show grid" preference). Default false. */
   readonly showGrid?: boolean;
   /** Show every port's label at all times, not just on hover (the "show port labels" preference). Default false. */
   readonly showPortLabel?: boolean;
+
+  // -- sizing --
   readonly width: number;
   readonly height: number;
 }
@@ -73,16 +86,16 @@ export function CircuitCanvas({
   boundaryInputs,
   onToggleBoundaryInput,
   onMoveBoundaryPort,
+  onRemoveBoundaryPort,
+  onDuplicateBoundaryPort,
+  onCustomizeBoundaryPort,
   onMoveComponent,
   onViewComponent,
   onRemoveComponent,
-  onRemoveBoundaryPort,
   onDuplicateComponent,
-  onDuplicateBoundaryPort,
-  onCustomizeBoundaryPort,
-  onDropChip,
   onConnectWire,
   onDisconnectWire,
+  onDropChip,
   showGrid = false,
   showPortLabel = false,
   width,
@@ -111,6 +124,7 @@ export function CircuitCanvas({
 
   const { wiringDraft, cursor, stageRef, handleStageMouseMove, handleBackgroundClick, handlePortInteraction } =
     useWiringDraft(onConnectWire, (ref) => getPortDirection(ref, ctx));
+  const isWiringActive = Boolean(wiringDraft);
 
   const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (contextMenu) setContextMenu(null);
@@ -120,7 +134,7 @@ export function CircuitCanvas({
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-    if (e.dataTransfer.types.includes("application/logicsim-chip")) {
+    if (e.dataTransfer.types.includes(CHIP_DRAG_MIMETYPE)) {
       e.preventDefault();
       e.dataTransfer.dropEffect = "copy";
     }
@@ -128,7 +142,7 @@ export function CircuitCanvas({
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const chipType = e.dataTransfer.getData("application/logicsim-chip");
+    const chipType = e.dataTransfer.getData(CHIP_DRAG_MIMETYPE);
     if (!chipType || !onDropChip || !containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
@@ -180,7 +194,7 @@ export function CircuitCanvas({
           <CircuitComponents
             ctx={ctx}
             contextMenu={contextMenu}
-            isWiringActive={Boolean(wiringDraft)}
+            isWiringActive={isWiringActive}
             showPortLabels={showPortLabel}
             onMoveComponent={onMoveComponent}
             onViewComponent={onViewComponent}
@@ -194,7 +208,7 @@ export function CircuitCanvas({
           <CircuitBoundaryPorts
             ctx={ctx}
             contextMenu={contextMenu}
-            isWiringActive={Boolean(wiringDraft)}
+            isWiringActive={isWiringActive}
             showPortLabel={showPortLabel}
             onToggleBoundaryInput={onToggleBoundaryInput}
             onMoveBoundaryPort={onMoveBoundaryPort}

@@ -1,7 +1,7 @@
 import { Shape } from "react-konva";
 import type Konva from "konva";
 import { GRID_SIZE } from "./geometry";
-import { GRID_DOT_COLOR } from "./colors";
+import { GRID_DOT_COLOR } from "./constants";
 
 interface CircuitGridProps {
   readonly width: number;

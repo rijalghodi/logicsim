@@ -18,3 +18,6 @@ export const PORT_COLOR_HOVER = "hsl(0, 0%, 90%)";
 // Boundary Port Controller Colors
 export const CONTROLLER_FILL = "hsl(0, 0%, 27%)";
 export const CONTROLLER_FILL_HOVER = "hsl(0, 0%, 27%)";
+
+/** Custom drag-data type used to drag a chip from the Dock onto the circuit canvas. */
+export const CHIP_DRAG_MIMETYPE = "application/logicsim-chip";
