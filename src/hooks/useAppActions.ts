@@ -6,22 +6,26 @@ import { CHIP_FILL } from "@/components/circuit/colors";
 export function useAppActions(windowSize: { width: number; height: number }) {
   const store = useCircuitStore();
 
-  const handleSaveClick = useCallback(() => {
-    if (store.currentChipId) {
-      const chipDef = store.savedChips.find((c) => c.id === store.currentChipId);
-      store.saveCurrentChip({
-        id: store.currentChipId,
-        name: chipDef?.name || "",
-        color: chipDef?.color || CHIP_FILL,
-      });
-    } else {
-      modals.open("save-chip", { chipId: null });
-    }
-  }, [store]);
+  const handleSaveClick = useCallback(
+    (onSaved?: () => void) => {
+      if (store.currentChipId) {
+        const chipDef = store.savedChips.find((c) => c.id === store.currentChipId);
+        store.saveCurrentChip({
+          id: store.currentChipId,
+          name: chipDef?.name || "",
+          color: chipDef?.color || CHIP_FILL,
+        });
+        onSaved?.();
+      } else {
+        modals.open("save-chip", { chipId: null, onSaved });
+      }
+    },
+    [store],
+  );
 
   const handleNewClick = useCallback(() => {
     if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
-      modals.open("unsaved-alert", { onProceed: () => store.resetToBlank() });
+      modals.open("unsaved-alert", { onDiscard: () => store.resetToBlank(), onSave: handleSaveClick });
     } else {
       store.resetToBlank();
     }
@@ -42,7 +46,10 @@ export function useAppActions(windowSize: { width: number; height: number }) {
   const handleOpenChipClick = useCallback(
     (chipId: string) => {
       if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
-        modals.open("unsaved-alert", { onProceed: () => store.loadChipToCanvas(chipId) });
+        modals.open("unsaved-alert", {
+          onDiscard: () => store.loadChipToCanvas(chipId),
+          onSave: handleSaveClick,
+        });
       } else {
         store.loadChipToCanvas(chipId);
       }
@@ -53,7 +60,12 @@ export function useAppActions(windowSize: { width: number; height: number }) {
   const handleBreadcrumbClick = useCallback(
     (index: number) => {
       if (store.isDirty && store.currentChipId) {
-        modals.open("unsaved-alert", { onProceed: () => store.executeBreadcrumbNavigation(index) });
+        modals.open("unsaved-alert", {
+          onDiscard: () => store.executeBreadcrumbNavigation(index),
+          onSave: () => {
+            handleSaveClick(() => store.executeBreadcrumbNavigation(index));
+          },
+        });
       } else {
         store.executeBreadcrumbNavigation(index);
       }
@@ -167,7 +179,7 @@ export function useAppActions(windowSize: { width: number; height: number }) {
   );
 
   return {
-    handleSaveClick,
+    handleSaveClick: handleSaveClick,
     handleNewClick,
     handleCustomizeClick,
     handleDeleteCurrentClick,
