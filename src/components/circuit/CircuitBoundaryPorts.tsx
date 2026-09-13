@@ -8,7 +8,6 @@ import type { CircuitViewContext } from "./portResolution";
 
 interface CircuitBoundaryPortsProps {
   readonly ctx: CircuitViewContext;
-  readonly portColors: Readonly<Record<string, string>>;
   readonly contextMenu: CircuitContextMenuState;
   readonly isWiringActive: boolean;
   readonly showPortLabel: boolean;
@@ -23,7 +22,6 @@ interface CircuitBoundaryPortsProps {
 /** Renders a circuit's own boundary ports along both edges: inputs on the left, outputs on the right (see SPEC.md §4, the boundary convention). */
 export function CircuitBoundaryPorts({
   ctx,
-  portColors,
   contextMenu,
   isWiringActive,
   showPortLabel,
@@ -51,7 +49,6 @@ export function CircuitBoundaryPorts({
           edgeX={side === "left" ? 16 : canvasWidth - 16}
           side={side}
           name={port.name}
-          color={portColors[port.id]}
           active={isActive(port)}
           onToggle={onToggle ? () => onToggle(port.id) : undefined}
           onMove={onMoveBoundaryPort ? (y) => onMoveBoundaryPort(port.id, y) : undefined}

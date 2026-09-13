@@ -54,9 +54,9 @@ When implementing new chips/components in `core/`, follow the existing pattern: 
 - [x] Fix sort ports in chip by y-position
 - [x] Fix: place chips and port in non-occupied space
 - [x] Feat: add slider in dock
-- [ ] Clean CircuitCanvas.tsx
+- [x] Clean CircuitCanvas.tsx
 - [ ] Feat: Quick Customize Chip
 - [ ] Wire coloring
 - [ ] Extend wire
 - [ ] Feat: Undo - Redo (History)
-- [ ] Feat: Cap position in every screen
+- [ ] Feat: Fit position in every screen

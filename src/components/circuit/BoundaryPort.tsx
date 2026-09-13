@@ -19,7 +19,6 @@ interface BoundaryPortProps {
   readonly side: "left" | "right";
   readonly name: string;
   readonly active: boolean;
-  readonly color?: string;
   /** Present only for boundary inputs — an output is read-only, driven by the circuit. */
   readonly onToggle?: () => void;
   /** Fired with the port's new y while/after dragging — x never changes. */
@@ -49,7 +48,6 @@ export function BoundaryPort({
   edgeX,
   name,
   active,
-  color,
   onToggle,
   onMove,
   onPortClick,
@@ -221,16 +219,10 @@ export function BoundaryPort({
           radius={BIT_CIRCLE_RADIUS}
           fill={
             active
-              ? color
-                ? getBrightColor(color)
-                : getBrightColor(BIT_COLOR)
+              ? getBrightColor(BIT_COLOR)
               : bitHovered && onToggle
-                ? color
-                  ? getHoverColor(getDimmedColor(color))
-                  : getHoverColor(getDimmedColor(BIT_COLOR))
-                : color
-                  ? getDimmedColor(color)
-                  : getDimmedColor(BIT_COLOR)
+                ? getHoverColor(getDimmedColor(BIT_COLOR))
+                : getDimmedColor(BIT_COLOR)
           }
           stroke={BIT_STROKE}
           strokeWidth={2}

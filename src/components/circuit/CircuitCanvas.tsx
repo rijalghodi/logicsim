@@ -27,7 +27,6 @@ export interface CircuitCanvasProps {
   readonly boundary?: BoundaryPorts;
   /** Per-boundary-port-id y override, from dragging — falls back to even spacing when absent. */
   readonly boundaryLayout?: Readonly<Record<string, number>>;
-  readonly portColors?: Readonly<Record<string, string>>;
   /** Corner anchors for cornered wires, keyed by `connectionKey(from, to)`. */
   readonly wireAnchors?: Readonly<Record<string, readonly Position[]>>;
   readonly boundaryInputs: Readonly<Record<string, Bit>>;
@@ -70,7 +69,6 @@ export function CircuitCanvas({
   layout,
   boundary,
   boundaryLayout,
-  portColors = {},
   wireAnchors = {},
   boundaryInputs,
   onToggleBoundaryInput,
@@ -173,7 +171,6 @@ export function CircuitCanvas({
           <CircuitWires
             ctx={ctx}
             wireAnchors={wireAnchors}
-            portColors={portColors}
             wiringDraft={wiringDraft}
             cursor={cursor}
             contextMenu={contextMenu}
@@ -196,7 +193,6 @@ export function CircuitCanvas({
 
           <CircuitBoundaryPorts
             ctx={ctx}
-            portColors={portColors}
             contextMenu={contextMenu}
             isWiringActive={Boolean(wiringDraft)}
             showPortLabel={showPortLabel}

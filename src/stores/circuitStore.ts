@@ -19,7 +19,7 @@ export interface ViewState {
   layout: Layout;
   boundary: { inputs: PortDefinition[]; outputs: PortDefinition[] };
   boundaryLayout: Record<string, number>;
-  portColors: Record<string, string>;
+  portColors: Record<string, string | undefined>;
   wireAnchors: Record<string, Position[]>;
   boundaryInputs: Record<string, Bit>;
   isDirty: boolean;
@@ -33,7 +33,7 @@ interface CircuitState {
   layout: Layout;
   boundary: { inputs: PortDefinition[]; outputs: PortDefinition[] };
   boundaryLayout: Record<string, number>;
-  portColors: Record<string, string>;
+  portColors: Record<string, string | undefined>;
   /** Corner anchors for cornered wires, keyed by `connectionKey(from, to)`. */
   wireAnchors: Record<string, Position[]>;
   boundaryInputs: Record<string, Bit>;
@@ -57,7 +57,7 @@ interface CircuitActions {
   removeBoundaryPort: (id: string) => void;
   duplicateComponent: (id: string) => void;
   duplicateBoundaryPort: (portId: string) => void;
-  renameBoundaryPort: (portId: string, newName: string, newColor: string) => void;
+  customizeBoundaryPort: (portId: string, newName: string) => void;
   saveCurrentChip: (payload: { id?: string | null; name: string; color: string }) => void;
   deleteChips: (chipsToDelete: SavedChip[]) => void;
 }
@@ -403,7 +403,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
     });
   },
 
-  renameBoundaryPort: (portId: string, newName: string, newColor: string) => {
+  customizeBoundaryPort: (portId: string, newName: string, newColor?: string) => {
     set((state) => {
       const isInput = state.boundary.inputs.some((p) => p.id === portId);
       const targetList = isInput ? state.boundary.inputs : state.boundary.outputs;

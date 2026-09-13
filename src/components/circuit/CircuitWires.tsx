@@ -9,7 +9,6 @@ import { WireLine } from "./WireLine";
 interface CircuitWiresProps {
   readonly ctx: CircuitViewContext;
   readonly wireAnchors: Readonly<Record<string, readonly Position[]>>;
-  readonly portColors: Readonly<Record<string, string>>;
   readonly wiringDraft: WiringDraft | null;
   /** The live cursor position while wiring; only meaningful when `wiringDraft` is set. */
   readonly cursor: Position | null;
@@ -41,8 +40,6 @@ export function CircuitWires({
             key={key}
             points={points}
             active={Boolean(getPortValue(connection.from, ctx))}
-            // TODO: Use wire color
-            // color={connection.from.componentId === BOUNDARY_ID ? portColors[connection.from.portId] : undefined}
             isWiringActive={Boolean(wiringDraft)}
             isContextMenuOpen={isContextMenuOpen}
             onContextMenu={
@@ -53,12 +50,7 @@ export function CircuitWires({
       })}
 
       {wiringDraft && cursor && (
-        <WireLine
-          points={[wiringDraft.fromPos, ...wiringDraft.corners, cursor]}
-          active={true}
-          isDraft={true}
-          // color={wiringDraft.from.componentId === BOUNDARY_ID ? portColors[wiringDraft.from.portId] : undefined}
-        />
+        <WireLine points={[wiringDraft.fromPos, ...wiringDraft.corners, cursor]} active={true} isDraft={true} />
       )}
     </>
   );

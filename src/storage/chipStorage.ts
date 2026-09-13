@@ -7,7 +7,7 @@ export interface SavedChip extends ChipDefinition {
   readonly color: string;
   readonly layout: Layout;
   readonly boundaryLayout: Record<string, number>;
-  readonly portColors: Record<string, string>;
+  readonly portColors: Record<string, string | undefined>;
   /** Corner anchors for cornered wires, keyed by `connectionKey(from, to)` — see portResolution.ts. */
   readonly wireAnchors: Record<string, Position[]>;
 }

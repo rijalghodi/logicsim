@@ -2,14 +2,12 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { toast } from "@/stores/toastStore";
 import { ModalActions } from "./Modal";
 import { Input } from "./Input";
-import { ColorSliderInput } from "./ColorSliderInput";
-import { BIT_COLOR } from "../circuit/colors";
 import { useCircuitStore } from "@/stores/circuitStore";
 import type { ModalContextProps } from "@/stores/modalStore";
 import Button from "./Button";
 
 export const CustomizePortModal = ({ payload, closeModal }: ModalContextProps<{ portId: string }>) => {
-  const { boundary, portColors, renameBoundaryPort } = useCircuitStore();
+  const { boundary, customizeBoundaryPort: renameBoundaryPort } = useCircuitStore();
 
   const port = useMemo(() => {
     return (
@@ -20,7 +18,6 @@ export const CustomizePortModal = ({ payload, closeModal }: ModalContextProps<{ 
   }, [payload.portId, boundary]);
 
   const [name, setName] = useState(port?.name ?? "");
-  const [color, setColor] = useState(portColors[payload.portId] || BIT_COLOR);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -37,7 +34,7 @@ export const CustomizePortModal = ({ payload, closeModal }: ModalContextProps<{ 
       toast.error("Port name cannot be empty");
       return;
     }
-    renameBoundaryPort(payload.portId, trimmed, color);
+    renameBoundaryPort(payload.portId, trimmed);
     closeModal();
   };
 
@@ -54,7 +51,6 @@ export const CustomizePortModal = ({ payload, closeModal }: ModalContextProps<{ 
           maxLength={10}
           required
         />
-        <ColorSliderInput color={color} onChange={setColor} />
       </div>
 
       <ModalActions>
