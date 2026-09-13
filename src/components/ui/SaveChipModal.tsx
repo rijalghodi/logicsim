@@ -4,12 +4,11 @@ import { ModalActions } from "./Modal";
 import { CHIP_FILL } from "../circuit/colors";
 import { Input } from "./Input";
 import { ColorSliderInput } from "./ColorSliderInput";
-import type { ModalProps } from "@/stores/modalStore";
-import { modals } from "@/stores/modalStore";
+import type { ModalContextProps } from "@/stores/modalStore";
 import { useCircuitStore } from "@/stores/circuitStore";
 import Button from "./Button";
 
-export const SaveChipModal = ({ payload }: ModalProps<{ chipId: string | null }>) => {
+export const SaveChipModal = ({ payload, closeModal }: ModalContextProps<{ chipId: string | null }>) => {
   const { savedChips, saveCurrentChip } = useCircuitStore();
 
   const chip = useMemo(() => savedChips.find((c) => c.id === payload.chipId), [savedChips, payload.chipId]);
@@ -34,7 +33,7 @@ export const SaveChipModal = ({ payload }: ModalProps<{ chipId: string | null }>
       return;
     }
     saveCurrentChip({ id: chip?.id ?? null, name: trimmed, color });
-    modals.close();
+    closeModal();
   };
 
   return (
@@ -54,7 +53,7 @@ export const SaveChipModal = ({ payload }: ModalProps<{ chipId: string | null }>
       </div>
 
       <ModalActions>
-        <Button type="button" variant="secondary" onClick={() => modals.close()}>
+        <Button type="button" variant="secondary" onClick={closeModal}>
           CANCEL
         </Button>
         <Button type="submit" variant="primary">

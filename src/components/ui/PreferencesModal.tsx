@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { ModalActions } from "./Modal";
 import { Switch } from "./Switch";
-import { modals } from "@/stores/modalStore";
+import { type ModalContextProps } from "@/stores/modalStore";
 import { useUserPreferencesStore } from "@/stores/userPreferencesStore";
 import Button from "./Button";
 
@@ -12,7 +12,7 @@ const rowStyle: CSSProperties = {
   gap: "12px",
 };
 
-export const PreferencesModal = () => {
+export const PreferencesModal = ({ closeModal }: ModalContextProps<object>) => {
   const { showGrid, showPortLabel, setShowGrid, setShowPortLabel } = useUserPreferencesStore();
 
   return (
@@ -28,7 +28,7 @@ export const PreferencesModal = () => {
       </div>
 
       <ModalActions>
-        <Button type="button" variant="primary" onClick={() => modals.close()}>
+        <Button type="button" variant="primary" onClick={closeModal}>
           DONE
         </Button>
       </ModalActions>

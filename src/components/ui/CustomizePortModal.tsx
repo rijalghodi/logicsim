@@ -5,11 +5,10 @@ import { Input } from "./Input";
 import { ColorSliderInput } from "./ColorSliderInput";
 import { BIT_COLOR } from "../circuit/colors";
 import { useCircuitStore } from "@/stores/circuitStore";
-import type { ModalProps } from "@/stores/modalStore";
-import { modals } from "@/stores/modalStore";
+import type { ModalContextProps } from "@/stores/modalStore";
 import Button from "./Button";
 
-export const CustomizePortModal = ({ payload }: ModalProps<{ portId: string }>) => {
+export const CustomizePortModal = ({ payload, closeModal }: ModalContextProps<{ portId: string }>) => {
   const { boundary, portColors, renameBoundaryPort } = useCircuitStore();
 
   const port = useMemo(() => {
@@ -39,7 +38,7 @@ export const CustomizePortModal = ({ payload }: ModalProps<{ portId: string }>) 
       return;
     }
     renameBoundaryPort(payload.portId, trimmed, color);
-    modals.close();
+    closeModal();
   };
 
   return (
@@ -59,7 +58,7 @@ export const CustomizePortModal = ({ payload }: ModalProps<{ portId: string }>) 
       </div>
 
       <ModalActions>
-        <Button type="button" variant="secondary" onClick={() => modals.close()}>
+        <Button type="button" variant="secondary" onClick={closeModal}>
           CANCEL
         </Button>
         <Button type="submit" variant="primary">

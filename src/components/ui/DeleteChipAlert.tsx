@@ -1,10 +1,9 @@
 import { ModalActions } from "./Modal";
 import { useMemo } from "react";
-import type { ModalProps } from "@/stores/modalStore";
-import { modals } from "@/stores/modalStore";
+import type { ModalContextProps } from "@/stores/modalStore";
 import { useCircuitStore } from "@/stores/circuitStore";
 
-export const DeleteChipAlert = ({ payload }: ModalProps<{ chipId: string }>) => {
+export const DeleteChipAlert = ({ payload, closeModal }: ModalContextProps<{ chipId: string }>) => {
   const { savedChips, registry, deleteChips } = useCircuitStore();
 
   const chipsToDelete = useMemo(() => {
@@ -18,7 +17,7 @@ export const DeleteChipAlert = ({ payload }: ModalProps<{ chipId: string }>) => 
   const handleConfirm = () => {
     deleteChips(chipsToDelete);
     // TODO: load empty circuit
-    modals.close();
+    closeModal();
   };
 
   return (
@@ -50,7 +49,7 @@ export const DeleteChipAlert = ({ payload }: ModalProps<{ chipId: string }>) => 
       )}
 
       <ModalActions>
-        <button type="button" className="btn-secondary" onClick={() => modals.close()}>
+        <button type="button" className="btn-secondary" onClick={closeModal}>
           CANCEL
         </button>
         <button type="button" className="btn-danger" onClick={handleConfirm}>
