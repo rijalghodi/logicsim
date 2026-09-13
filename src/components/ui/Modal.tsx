@@ -1,4 +1,4 @@
-import type { ReactNode, FormEvent } from "react";
+import type { ReactNode } from "react";
 import "./Modal.css";
 
 interface ModalProps {
@@ -39,17 +39,9 @@ export function ModalDescription({ children }: { readonly children: ReactNode })
 
 interface ModalBodyProps {
   readonly children: ReactNode;
-  readonly onSubmit?: (e: FormEvent) => void;
 }
 
-export function ModalBody({ children, onSubmit }: ModalBodyProps) {
-  if (onSubmit) {
-    return (
-      <form onSubmit={onSubmit} className="modal-body">
-        {children}
-      </form>
-    );
-  }
+export function ModalBody({ children }: ModalBodyProps) {
   return <div className="modal-body">{children}</div>;
 }
 

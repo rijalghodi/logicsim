@@ -1,36 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "@/stores/toastStore";
-import { Modal, ModalBody, ModalDescription, ModalActions, ModalHeader, ModalTitle } from "./Modal";
+import { ModalActions } from "./Modal";
 import { CHIP_FILL } from "../circuit/colors";
 import { Input } from "./Input";
 import { ColorSliderInput } from "./ColorSliderInput";
-import { useSaveChipModalStore, type ChipSaveState } from "@/stores/saveChipModalStore";
+import type { ModalProps } from "@/stores/modalStore";
+import { modals } from "@/stores/modalStore";
 import { useCircuitStore } from "@/stores/circuitStore";
+import Button from "./Button";
 
-export interface SaveChipModalProps {
-  readonly onSave: (state: ChipSaveState) => void;
-}
+export const SaveChipModal = ({ payload }: ModalProps<{ chipId: string | null }>) => {
+  const { savedChips, saveCurrentChip } = useCircuitStore();
 
-export function SaveChipModal({ onSave }: SaveChipModalProps) {
-  const { isOpen, chipId, close } = useSaveChipModalStore();
-  const { savedChips } = useCircuitStore();
-
-  const chip = useMemo(() => savedChips.find((c) => c.id === chipId), [savedChips, chipId]);
+  const chip = useMemo(() => savedChips.find((c) => c.id === payload.chipId), [savedChips, payload.chipId]);
 
   const [name, setName] = useState(chip?.name || "");
   const [color, setColor] = useState(chip?.color || CHIP_FILL);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setName(chip?.name || "");
-      setColor(chip?.color || CHIP_FILL);
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
-  }, [isOpen, chip]);
-
-  if (!isOpen) return null;
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,40 +33,34 @@ export function SaveChipModal({ onSave }: SaveChipModalProps) {
       toast.error("NAND is a reserved primitive chip name");
       return;
     }
-    onSave({ id: chip?.id ?? null, name: trimmed, color });
+    saveCurrentChip({ id: chip?.id ?? null, name: trimmed, color });
+    modals.close();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={close}>
-      <ModalHeader>
-        <ModalTitle>{chip ? "CUSTOMIZE" : "SAVE"} CHIP</ModalTitle>
-        <ModalDescription>Enter a name and color for the chip.</ModalDescription>
-      </ModalHeader>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <Input
+          type="text"
+          placeholder="CHIP NAME (e.g. AND, XOR)"
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value.toUpperCase())}
+          style={{ width: "100%" }}
+          maxLength={20}
+          required
+        />
+        <ColorSliderInput color={color} onChange={setColor} />
+      </div>
 
-      <ModalBody onSubmit={handleSubmit}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <Input
-            type="text"
-            placeholder="CHIP NAME (e.g. AND, XOR)"
-            autoFocus
-            value={name}
-            onChange={(e) => setName(e.target.value.toUpperCase())}
-            style={{ width: "100%" }}
-            maxLength={20}
-            required
-          />
-          <ColorSliderInput color={color} onChange={setColor} />
-        </div>
-
-        <ModalActions>
-          <button type="button" className="btn-secondary" onClick={close}>
-            CANCEL
-          </button>
-          <button type="submit" className="btn-primary">
-            SAVE CHIP
-          </button>
-        </ModalActions>
-      </ModalBody>
-    </Modal>
+      <ModalActions>
+        <Button type="button" variant="secondary" onClick={() => modals.close()}>
+          CANCEL
+        </Button>
+        <Button type="submit" variant="primary">
+          SAVE CHIP
+        </Button>
+      </ModalActions>
+    </form>
   );
-}
+};

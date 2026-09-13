@@ -3,6 +3,7 @@ import { ChevronRightIcon } from "./icons/ChevronRightIcon";
 import { MoreHorizontalIcon } from "./icons/MoreHorizontalIcon";
 import "./Breadcrumbs.css";
 import { DotIcon } from "./icons/DotIcon";
+import { cn } from "@/utils";
 
 export interface BreadcrumbItem {
   readonly id: string;
@@ -22,7 +23,7 @@ export function Breadcrumbs({ items, onNavigate }: BreadcrumbsProps) {
     <button
       key={item.id}
       type="button"
-      className={`breadcrumb-item ${isLast ? "breadcrumb-item-active" : "breadcrumb-item-link"}`}
+      className={cn("breadcrumb-item", isLast ? "breadcrumb-item-active" : "breadcrumb-item-link")}
       onClick={() => !isLast && onNavigate(index)}
     >
       {item.name}

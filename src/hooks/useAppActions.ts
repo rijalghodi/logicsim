@@ -1,7 +1,5 @@
 import { useCallback } from "react";
-import { saveChipModal } from "@/stores/saveChipModalStore";
-import { unsavedAlert } from "@/stores/unsavedAlertStore";
-import { deleteChipAlert } from "@/stores/deleteChipAlertStore";
+import { modals } from "@/stores/modalStore";
 import { useCircuitStore } from "@/stores/circuitStore";
 import { CHIP_FILL } from "@/components/circuit/colors";
 
@@ -17,13 +15,20 @@ export function useAppActions(windowSize: { width: number; height: number }) {
         color: chipDef?.color || CHIP_FILL,
       });
     } else {
-      saveChipModal.open(null);
+      modals.open("save-chip", {
+        title: "SAVE CHIP",
+        description: "Enter a name and color for the chip.",
+        chipId: null,
+      });
     }
   }, [store]);
 
   const handleNewClick = useCallback(() => {
     if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
-      unsavedAlert.open(null);
+      modals.open("unsaved-alert", {
+        title: "UNSAVED CHANGES",
+        chipIdToOpen: null,
+      });
     } else {
       store.resetToBlank();
     }
@@ -31,20 +36,32 @@ export function useAppActions(windowSize: { width: number; height: number }) {
 
   const handleCustomizeClick = useCallback(() => {
     if (store.currentChipId) {
-      saveChipModal.open(store.currentChipId);
+      modals.open("save-chip", {
+        title: "CUSTOMIZE CHIP",
+        description: "Enter a name and color for the chip.",
+        chipId: store.currentChipId,
+      });
     }
   }, [store.currentChipId]);
 
   const handleDeleteCurrentClick = useCallback(() => {
     if (store.currentChipId) {
-      deleteChipAlert.open(store.currentChipId);
+      modals.open("delete-chip", {
+        title: "DELETE CHIP",
+        description: "This action cannot be undone.",
+        chipId: store.currentChipId,
+      });
     }
   }, [store]);
 
   const handleOpenChipClick = useCallback(
     (chipId: string) => {
       if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
-        unsavedAlert.open(chipId);
+        modals.open("unsaved-alert", {
+          title: "UNSAVED CHANGES",
+          description: "Do you want to save this circuit before proceeding?",
+          chipIdToOpen: chipId,
+        });
       } else {
         store.loadChipToCanvas(chipId);
       }
@@ -55,21 +72,13 @@ export function useAppActions(windowSize: { width: number; height: number }) {
   const handleBreadcrumbClick = useCallback(
     (index: number) => {
       if (store.isDirty && store.currentChipId) {
-        unsavedAlert.open(store.currentChipId);
+        modals.open("unsaved-alert", {
+          title: "UNSAVED CHANGES",
+          description: "Do you want to save this circuit before proceeding?",
+          chipIdToOpen: store.currentChipId,
+        });
       } else {
         store.executeBreadcrumbNavigation(index);
-      }
-    },
-    [store],
-  );
-
-  const handleDiscardChanges = useCallback(
-    (chipIdToOpen?: string | null) => {
-      unsavedAlert.close();
-      if (chipIdToOpen) {
-        store.loadChipToCanvas(chipIdToOpen);
-      } else {
-        store.resetToBlank();
       }
     },
     [store],
@@ -187,7 +196,6 @@ export function useAppActions(windowSize: { width: number; height: number }) {
     handleDeleteCurrentClick,
     handleOpenChipClick,
     handleBreadcrumbClick,
-    handleDiscardChanges,
     handleAddChipFreespace,
   };
 }

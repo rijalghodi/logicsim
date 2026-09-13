@@ -1,17 +1,10 @@
 import { CircuitCanvas } from "./components/circuit/CircuitCanvas";
 import { Dock } from "./components/ui/Dock";
-import { SaveChipModal } from "./components/ui/SaveChipModal";
-import { saveChipModal } from "./stores/saveChipModalStore";
-import { UnsavedAlert } from "./components/ui/UnsavedAlert";
-import { DeleteChipAlert } from "./components/ui/DeleteChipAlert";
-import { CustomizePortModal } from "./components/ui/CustomizePortModal";
-import { PreferencesModal } from "./components/ui/PreferencesModal";
+import { ModalView } from "./components/ui/ModalView";
 import { Header } from "./components/ui/Header";
 import { Toast } from "./components/ui/Toast";
 import { useCircuitStore } from "./stores/circuitStore";
-import { deleteChipAlert } from "./stores/deleteChipAlertStore";
-import { customizePortModal } from "./stores/customizePortModalStore";
-import { preferencesModal } from "./stores/preferencesModalStore";
+import { modals } from "./stores/modalStore";
 import { useUserPreferencesStore } from "./stores/userPreferencesStore";
 import { useWindowSize } from "./hooks/useWindowSize";
 import { useAppActions } from "./hooks/useAppActions";
@@ -31,7 +24,9 @@ function App() {
         onSave={actions.handleSaveClick}
         onCustomize={actions.handleCustomizeClick}
         onDelete={actions.handleDeleteCurrentClick}
-        onPreferences={preferencesModal.open}
+        onPreferences={() =>
+          modals.open("preferences", { title: "PREFERENCES", description: "Personalize how the circuit is displayed." })
+        }
         isSaved={!!store.currentChipId}
       />
 
@@ -53,7 +48,13 @@ function App() {
         onRemoveBoundaryPort={store.removeBoundaryPort}
         onDuplicateComponent={store.duplicateComponent}
         onDuplicateBoundaryPort={store.duplicateBoundaryPort}
-        onCustomizeBoundaryPort={customizePortModal.open}
+        onCustomizeBoundaryPort={(portId) =>
+          modals.open("customize-port", {
+            title: "CUSTOMIZE PORT",
+            description: "Enter a new name for this boundary port.",
+            portId,
+          })
+        }
         onDropChip={store.dropChip}
         onConnectWire={store.connectWire}
         onDisconnectWire={store.disconnectWire}
@@ -66,25 +67,14 @@ function App() {
       <Dock
         onAddChip={actions.handleAddChipFreespace}
         onOpenChip={actions.handleOpenChipClick}
-        onDeleteChip={deleteChipAlert.open}
+        onDeleteChip={(chipId) =>
+          modals.open("delete-chip", { title: "DELETE CHIP", description: "This action cannot be undone.", chipId })
+        }
       />
 
       <Toast />
 
-      <SaveChipModal
-        onSave={(data) => {
-          store.saveCurrentChip(data);
-          saveChipModal.close();
-        }}
-      />
-
-      <UnsavedAlert onSave={saveChipModal.open} onDiscard={actions.handleDiscardChanges} />
-
-      <DeleteChipAlert />
-
-      <CustomizePortModal />
-
-      <PreferencesModal />
+      <ModalView />
     </div>
   );
 }

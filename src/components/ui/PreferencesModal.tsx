@@ -1,8 +1,9 @@
 import type { CSSProperties } from "react";
-import { Modal, ModalActions, ModalBody, ModalDescription, ModalHeader, ModalTitle } from "./Modal";
+import { ModalActions } from "./Modal";
 import { Switch } from "./Switch";
-import { usePreferencesModalStore } from "@/stores/preferencesModalStore";
+import { modals } from "@/stores/modalStore";
 import { useUserPreferencesStore } from "@/stores/userPreferencesStore";
+import Button from "./Button";
 
 const rowStyle: CSSProperties = {
   display: "flex",
@@ -11,34 +12,26 @@ const rowStyle: CSSProperties = {
   gap: "12px",
 };
 
-export function PreferencesModal() {
-  const { isOpen, close } = usePreferencesModalStore();
+export const PreferencesModal = () => {
   const { showGrid, showPortLabel, setShowGrid, setShowPortLabel } = useUserPreferencesStore();
 
   return (
-    <Modal isOpen={isOpen} onClose={close}>
-      <ModalHeader>
-        <ModalTitle>PREFERENCES</ModalTitle>
-        <ModalDescription>Personalize how the circuit is displayed.</ModalDescription>
-      </ModalHeader>
+    <>
+      <div style={rowStyle}>
+        <span>SHOW GRID</span>
+        <Switch checked={showGrid} onChange={setShowGrid} aria-label="Show grid" />
+      </div>
 
-      <ModalBody>
-        <div style={rowStyle}>
-          <span>SHOW GRID</span>
-          <Switch checked={showGrid} onChange={setShowGrid} aria-label="Show grid" />
-        </div>
+      <div style={rowStyle}>
+        <span>SHOW PORT LABELS</span>
+        <Switch checked={showPortLabel} onChange={setShowPortLabel} aria-label="Show port labels" />
+      </div>
 
-        <div style={rowStyle}>
-          <span>SHOW PORT LABELS</span>
-          <Switch checked={showPortLabel} onChange={setShowPortLabel} aria-label="Show port labels" />
-        </div>
-
-        <ModalActions>
-          <button type="button" className="btn-primary" onClick={close}>
-            DONE
-          </button>
-        </ModalActions>
-      </ModalBody>
-    </Modal>
+      <ModalActions>
+        <Button type="button" variant="primary" onClick={() => modals.close()}>
+          DONE
+        </Button>
+      </ModalActions>
+    </>
   );
-}
+};

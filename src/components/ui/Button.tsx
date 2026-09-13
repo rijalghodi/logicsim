@@ -10,7 +10,7 @@ type Props = {
 
 export default function Button({ children, className, variant = "secondary", ...props }: Props) {
   return (
-    <button className={cn(`btn-${variant}`, className)} {...props}>
+    <button className={cn("btn", `btn-${variant}`, className)} {...props}>
       {children}
     </button>
   );

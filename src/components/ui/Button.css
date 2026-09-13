@@ -1,6 +1,4 @@
-.btn-primary,
-.btn-danger,
-.btn-secondary {
+.btn {
   height: 32px;
   padding: 0 12px;
   display: flex;
@@ -12,12 +10,17 @@
   font-size: 14px;
   font-weight: bold;
   transition: all 0.15s ease;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .btn-primary {
   background: hsl(from var(--primary) h s l / 86%);
   border: none;
-  border-radius: var(--radius);
   color: var(--primary-fg);
 }
 
@@ -28,7 +31,6 @@
 .btn-secondary {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius);
   color: var(--fg);
 }
 
@@ -39,7 +41,6 @@
 .btn-danger {
   background: hsl(from var(--danger) h s l / 15%);
   border: 1px solid hsl(from var(--danger) h s l / 30%);
-  border-radius: var(--radius);
   color: var(--danger);
 }
 

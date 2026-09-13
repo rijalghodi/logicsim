@@ -1,57 +1,50 @@
 import { useCircuitStore } from "@/stores/circuitStore";
-import { Modal, ModalHeader, ModalTitle, ModalDescription, ModalBody, ModalActions } from "./Modal";
-import { useUnsavedAlertStore } from "@/stores/unsavedAlertStore";
+import { ModalActions } from "./Modal";
+import type { ModalProps } from "@/stores/modalStore";
+import { modals } from "@/stores/modalStore";
 import { useMemo } from "react";
+import Button from "./Button";
 
-export function UnsavedAlert({
-  onSave,
-  onDiscard,
-}: {
-  onSave: (chipIdToOpen: string | null) => void;
-  onDiscard: (chipIdToOpen: string | null) => void;
-}) {
-  const { isOpen, close, chipIdToOpen } = useUnsavedAlertStore();
-  const { savedChips } = useCircuitStore();
+export const UnsavedAlert = ({ payload }: ModalProps<{ chipIdToOpen: string | null }>) => {
+  const { savedChips, loadChipToCanvas, resetToBlank } = useCircuitStore();
 
-  const chip = useMemo(() => savedChips.find((c) => c.id === chipIdToOpen), [savedChips, chipIdToOpen]);
-
-  if (!isOpen) return null;
-
-  const handleCancel = () => close();
+  const chip = useMemo(() => savedChips.find((c) => c.id === payload.chipIdToOpen), [savedChips, payload.chipIdToOpen]);
 
   const handleDiscard = () => {
-    onDiscard(chipIdToOpen);
-    close();
+    modals.close();
+    if (payload.chipIdToOpen) {
+      loadChipToCanvas(payload.chipIdToOpen);
+    } else {
+      resetToBlank();
+    }
   };
 
   const handleSave = () => {
-    onSave(chipIdToOpen);
-    close();
+    modals.close();
+    modals.open("save-chip", {
+      title: payload.chipIdToOpen ? "CUSTOMIZE CHIP" : "SAVE CHIP",
+      description: "Enter a name and color for the chip.",
+      chipId: payload.chipIdToOpen,
+    });
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleCancel}>
-      <ModalHeader>
-        <ModalTitle>UNSAVED CHANGES</ModalTitle>
-        <ModalDescription>
-          The <strong style={{ color: "var(--fg)" }}>{chip?.name ?? "Untitled"}</strong> circuit has unsaved changes. Do
-          you want to save this circuit before proceeding?
-        </ModalDescription>
-      </ModalHeader>
+    <>
+      <p>
+        The <strong style={{ color: "var(--fg)" }}>{chip?.name ?? "Untitled"}</strong> circuit has unsaved changes.
+      </p>
 
-      <ModalBody>
-        <ModalActions>
-          <button type="button" className="btn-secondary" onClick={handleCancel}>
-            CANCEL
-          </button>
-          <button type="button" className="btn-danger" onClick={handleDiscard}>
-            DISCARD
-          </button>
-          <button type="button" className="btn-primary" onClick={handleSave}>
-            SAVE
-          </button>
-        </ModalActions>
-      </ModalBody>
-    </Modal>
+      <ModalActions>
+        <Button type="button" variant="secondary" onClick={() => modals.close()}>
+          CANCEL
+        </Button>
+        <Button type="button" variant="danger" onClick={handleDiscard}>
+          DISCARD
+        </Button>
+        <Button type="button" variant="primary" onClick={handleSave}>
+          SAVE
+        </Button>
+      </ModalActions>
+    </>
   );
-}
+};
