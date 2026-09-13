@@ -30,8 +30,9 @@ export const UnsavedAlert = ({ payload }: ModalProps<{ chipIdToOpen: string | nu
 
   return (
     <>
-      <p>
-        The <strong style={{ color: "var(--fg)" }}>{chip?.name ?? "Untitled"}</strong> circuit has unsaved changes.
+      <p style={{ color: "var(--fg-muted)" }}>
+        The <strong style={{ color: "var(--fg)" }}>{chip?.name ?? "Untitled"}</strong> circuit has unsaved changes. Do
+        you want to save it before proceeding?
       </p>
 
       <ModalActions>

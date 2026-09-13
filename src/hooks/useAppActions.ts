@@ -59,7 +59,6 @@ export function useAppActions(windowSize: { width: number; height: number }) {
       if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
         modals.open("unsaved-alert", {
           title: "UNSAVED CHANGES",
-          description: "Do you want to save this circuit before proceeding?",
           chipIdToOpen: chipId,
         });
       } else {
@@ -74,7 +73,6 @@ export function useAppActions(windowSize: { width: number; height: number }) {
       if (store.isDirty && store.currentChipId) {
         modals.open("unsaved-alert", {
           title: "UNSAVED CHANGES",
-          description: "Do you want to save this circuit before proceeding?",
           chipIdToOpen: store.currentChipId,
         });
       } else {
