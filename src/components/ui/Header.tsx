@@ -12,6 +12,7 @@ export interface HeaderProps {
   readonly onCustomize: () => void;
   readonly onDelete: () => void;
   readonly onPreferences: () => void;
+  readonly onQuit: () => void;
   readonly isSaved: boolean;
 }
 
@@ -22,6 +23,7 @@ export function Header({
   onCustomize,
   onDelete,
   onPreferences,
+  onQuit,
   isSaved,
 }: HeaderProps) {
   const store = useCircuitStore();
@@ -53,6 +55,7 @@ export function Header({
         onCustomize={onCustomize}
         onDelete={onDelete}
         onPreferences={onPreferences}
+        onQuit={onQuit}
         isSaved={isSaved}
       />
       <Breadcrumbs items={breadcrumbItems} onNavigate={onNavigateBreadcrumb} />

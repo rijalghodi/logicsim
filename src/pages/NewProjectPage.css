@@ -1,0 +1,50 @@
+.new-project {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg-0);
+  color: var(--fg);
+}
+
+.new-project-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 440px;
+}
+
+.new-project-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.new-project-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.new-project-label {
+  font-size: var(--text-md);
+  color: var(--fg-muted);
+  font-weight: 600;
+}
+
+.new-project-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.new-project-actions .btn {
+  flex: 1;
+}

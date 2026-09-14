@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
 
 :root {
   --bg-0: hsl(0, 0%, 8%);
@@ -13,16 +14,27 @@
   --success-fg: hsl(128, 95%, 8%);
   --warning: hsl(40, 100%, 50%);
   --warning-fg: hsl(48, 96%, 9%);
-  --border: hsla(0, 0%, 40%, 0.3);
+  --border: hsla(0, 0%, 35%, 0.3);
   --fg: hsl(0, 0%, 96%);
   --fg-secondary: hsl(0, 0%, 80%);
   --fg-muted: hsl(0, 0%, 65%);
-  --radius: 6px;
-  --radius-sm: calc(var(--radius) - 2px);
-  --radius-lg: calc(var(--radius) + 4px);
-  --radius-xl: calc(var(--radius) + 8px);
+
+  --radius: 4px;
+  --radius-md: 4px;
+  --radius-sm: 2px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+
   --shadow: 0 16px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
   --shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.06);
+
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+
+  --font-mono: "JetBrains Mono", monospace;
 }
 
 * {
@@ -38,7 +50,7 @@ html {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: "JetBrains Mono", monospace;
+  font-family: var(--font-mono);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-0);

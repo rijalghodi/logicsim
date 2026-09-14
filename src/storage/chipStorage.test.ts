@@ -16,6 +16,8 @@ if (typeof globalThis.localStorage === "undefined") {
 }
 
 describe("chipStorage", () => {
+  const projectId = "proj_test";
+
   beforeEach(() => {
     localStorage.clear();
   });
@@ -39,15 +41,40 @@ describe("chipStorage", () => {
       boundaryLayout: {},
       portColors: {},
     };
-    saveCustomChip(chip, registry);
+    saveCustomChip(chip, registry, projectId);
 
     const freshRegistry = createDefaultRegistry();
-    const loaded = loadSavedChips(freshRegistry);
+    const loaded = loadSavedChips(freshRegistry, projectId);
 
     expect(loaded.length).toBe(1);
     expect(loaded[0].id).toBe("CUSTOM_BUFFER");
     expect(loaded[0].name).toBe("BUFFER");
     expect(freshRegistry.hasChip("CUSTOM_BUFFER")).toBe(true);
+  });
+
+  it("keeps each project's chip library separate", () => {
+    const registry = createDefaultRegistry();
+    const inA = createPortDefinition("A", "input");
+    const outY = createPortDefinition("Y", "output");
+
+    const chipDef = createChipDefinition({
+      id: "CUSTOM_BUFFER",
+      name: "BUFFER",
+      inputs: [inA],
+      outputs: [outY],
+      circuit: { components: [], connections: [] },
+    });
+    const chip: SavedChip = {
+      ...chipDef,
+      color: "#ff0000",
+      layout: {},
+      boundaryLayout: {},
+      portColors: {},
+    };
+    saveCustomChip(chip, registry, projectId);
+
+    const otherRegistry = createDefaultRegistry();
+    expect(loadSavedChips(otherRegistry, "proj_other").length).toBe(0);
   });
 
   it("deletes a custom chip by id", () => {
@@ -70,10 +97,10 @@ describe("chipStorage", () => {
       portColors: {},
     };
 
-    saveCustomChip(chip, registry);
-    expect(loadSavedChips(registry).length).toBe(1);
+    saveCustomChip(chip, registry, projectId);
+    expect(loadSavedChips(registry, projectId).length).toBe(1);
 
-    deleteCustomChip("TO_DELETE");
-    expect(loadSavedChips(registry).length).toBe(0);
+    deleteCustomChip("TO_DELETE", projectId);
+    expect(loadSavedChips(registry, projectId).length).toBe(0);
   });
 });

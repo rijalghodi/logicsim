@@ -91,6 +91,7 @@ Instead of relying on heavy CSS utility frameworks (like Tailwind) or bloated co
 - [ ] Fit position in every screen
 - [ ] Project Based
 - [ ] Infinite Pan
+- [ ] Save as
 
 ---
 

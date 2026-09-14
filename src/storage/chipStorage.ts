@@ -2,6 +2,7 @@ import { deserializeChipDefinition, serializeChipDefinition } from "../core";
 import type { ChipDefinition, ChipRegistry } from "../core";
 import type { Layout, Position } from "../components/circuit/geometry";
 import { CHIP_FILL } from "../components/circuit/constants";
+import { chipsStorageKey } from "./projectStorage";
 
 export interface SavedChip extends ChipDefinition {
   readonly color: string;
@@ -12,16 +13,15 @@ export interface SavedChip extends ChipDefinition {
   readonly wireAnchors: Record<string, Position[]>;
 }
 
-const STORAGE_KEY = "logicsim_custom_chips";
-
 /**
- * Loads all user-created chip definitions from localStorage, deserializes
- * and validates their schema, and registers each one into the given ChipRegistry.
- * Returns the fully hydrated SavedChip which includes UI layout metadata.
+ * Loads all user-created chip definitions for one project from localStorage,
+ * deserializes and validates their schema, and registers each one into the
+ * given ChipRegistry. Returns the fully hydrated SavedChip which includes UI
+ * layout metadata. Each project keeps its own library, keyed by projectId.
  */
-export function loadSavedChips(registry: ChipRegistry): SavedChip[] {
+export function loadSavedChips(registry: ChipRegistry, projectId: string): SavedChip[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(chipsStorageKey(projectId));
     if (!raw) return [];
 
     const parsed = JSON.parse(raw);
@@ -59,8 +59,8 @@ export function loadSavedChips(registry: ChipRegistry): SavedChip[] {
  * Serializes and stores a new or updated ChipDefinition with UI metadata
  * in localStorage, and ensures it is registered in the ChipRegistry.
  */
-export function saveCustomChip(savedChip: SavedChip, registry: ChipRegistry): void {
-  const existingChips = loadSavedChips(registry);
+export function saveCustomChip(savedChip: SavedChip, registry: ChipRegistry, projectId: string): void {
+  const existingChips = loadSavedChips(registry, projectId);
   const duplicate = existingChips.find((c) => c.name === savedChip.name && c.id !== savedChip.id);
 
   if (duplicate) {
@@ -102,18 +102,18 @@ export function saveCustomChip(savedChip: SavedChip, registry: ChipRegistry): vo
       },
     ];
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    localStorage.setItem(chipsStorageKey(projectId), JSON.stringify(updated));
   } catch (err) {
     console.error("Failed to save chip to localStorage:", err);
   }
 }
 
 /**
- * Deletes a custom chip from localStorage.
+ * Deletes a custom chip from a project's localStorage library.
  */
-export function deleteCustomChip(chipId: string): void {
+export function deleteCustomChip(chipId: string, projectId: string): void {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(chipsStorageKey(projectId));
     if (!raw) return;
 
     const parsed = JSON.parse(raw);
@@ -123,7 +123,7 @@ export function deleteCustomChip(chipId: string): void {
       const coreId = item.ui ? item.core?.id : item.id;
       return coreId !== chipId;
     });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    localStorage.setItem(chipsStorageKey(projectId), JSON.stringify(updated));
   } catch (err) {
     console.error("Failed to delete chip from localStorage:", err);
   }

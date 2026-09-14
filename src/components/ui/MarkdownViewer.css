@@ -1,0 +1,52 @@
+.markdown {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--fg-secondary);
+}
+
+.markdown h1,
+.markdown h2 {
+  color: var(--fg);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin: 24px 0 8px;
+}
+
+.markdown h1:first-child,
+.markdown h2:first-child {
+  margin-top: 0;
+}
+
+.markdown h1 {
+  font-size: var(--text-xl);
+}
+
+.markdown h2 {
+  font-size: var(--text-lg);
+}
+
+.markdown p {
+  margin: 0 0 12px;
+}
+
+.markdown ul,
+.markdown ol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+
+.markdown ul {
+  list-style: disc;
+}
+
+.markdown ol {
+  list-style: decimal;
+}
+
+.markdown li {
+  padding-left: 4px;
+}

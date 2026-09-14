@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuShortcut,
+  DropdownMenuSeparator,
 } from "./DropdownMenu";
 import { MenuIcon } from "./icons/MenuIcon";
 import Button from "./Button";
@@ -15,6 +16,7 @@ interface AppMenuProps {
   readonly onCustomize: () => void;
   readonly onDelete: () => void;
   readonly onPreferences: () => void;
+  readonly onQuit: () => void;
   readonly isSaved: boolean;
   readonly align?: "left" | "right";
 }
@@ -25,6 +27,7 @@ export function AppMenu({
   onCustomize,
   onDelete,
   onPreferences,
+  onQuit,
   isSaved,
   align = "left",
 }: AppMenuProps) {
@@ -35,8 +38,9 @@ export function AppMenu({
       { label: "CUSTOMIZE", key: "e", displayKey: "⌘ E", action: onCustomize, show: isSaved },
       { label: "DELETE CHIP", key: "backspace", displayKey: "⌘ ⌫", action: onDelete, show: isSaved, isDanger: true },
       { label: "PREFERENCES", key: ",", displayKey: "⌘ ,", action: onPreferences, show: true },
+      { label: "QUIT PROJECT", key: "q", displayKey: "⌘ Q", action: onQuit, show: true, isLast: true },
     ],
-    [onNew, onSave, onCustomize, onDelete, onPreferences, isSaved],
+    [onNew, onSave, onCustomize, onDelete, onPreferences, onQuit, isSaved],
   );
 
   useEffect(() => {
@@ -67,10 +71,13 @@ export function AppMenu({
         {menuItems
           .filter((item) => item.show)
           .map((item) => (
-            <DropdownMenuItem key={item.label} onClick={item.action} isDanger={item.isDanger}>
-              <span>{item.label}</span>
-              <DropdownMenuShortcut>{item.displayKey}</DropdownMenuShortcut>
-            </DropdownMenuItem>
+            <div key={item.label}>
+              {item.isLast && <DropdownMenuSeparator />}
+              <DropdownMenuItem onClick={item.action} isDanger={item.isDanger}>
+                <span>{item.label}</span>
+                <DropdownMenuShortcut>{item.displayKey}</DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </div>
           ))}
       </DropdownMenuContent>
     </DropdownMenu>

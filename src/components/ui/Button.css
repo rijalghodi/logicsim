@@ -8,7 +8,7 @@
   cursor: pointer;
   font-family: inherit;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 800;
   transition: all 0.15s ease;
   background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius);
@@ -30,7 +30,7 @@
 
 .btn-secondary {
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none;
   color: var(--fg);
 }
 
@@ -47,4 +47,33 @@
 .btn-danger:hover {
   background: hsl(from var(--danger) h s l / 25%);
   border-color: hsl(from var(--danger) h s l / 50%);
+}
+
+.btn-sm {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: var(--radius-sm);
+}
+
+.btn-md {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 14px;
+  border-radius: var(--radius);
+}
+
+.btn-lg {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 16px;
+  border-radius: var(--radius);
+}
+
+.btn-xl {
+  height: 48px;
+  padding: 0 20px;
+  font-size: 18px;
+  border-radius: 0;
+  border-radius: var(--radius-lg);
 }

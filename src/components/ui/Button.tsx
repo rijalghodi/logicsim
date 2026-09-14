@@ -6,11 +6,12 @@ type Props = {
   children: React.ReactNode;
   className?: string;
   variant?: "primary" | "secondary" | "danger";
+  size?: "sm" | "md" | "lg" | "xl";
 } & ComponentPropsWithRef<"button">;
 
-export default function Button({ children, className, variant = "secondary", ...props }: Props) {
+export default function Button({ children, className, variant = "secondary", size = "md", ...props }: Props) {
   return (
-    <button className={cn("btn", `btn-${variant}`, className)} {...props}>
+    <button className={cn("btn", `btn-${variant}`, `btn-${size}`, className)} {...props}>
       {children}
     </button>
   );

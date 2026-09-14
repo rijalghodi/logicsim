@@ -10,6 +10,8 @@ import {
 import type { Bit, CircuitDefinition, PortDefinition, PortRef, ChipRegistry } from "@/core";
 import { loadSavedChips, saveCustomChip, deleteCustomChip } from "@/storage/chipStorage";
 import type { SavedChip } from "@/storage/chipStorage";
+import { loadProjectCircuit, saveProjectCircuit } from "@/storage/projectCircuitStorage";
+import { touchProject } from "@/storage/projectStorage";
 import type { Layout, Position } from "@/components/circuit/geometry";
 import { connectionKey } from "@/components/circuit/portResolution";
 import { toast } from "@/stores/toastStore";
@@ -27,6 +29,8 @@ export interface ViewState {
 }
 
 interface CircuitState {
+  /** The project currently open on the canvas, or null before any project has loaded — see initProject. */
+  currentProjectId: string | null;
   registry: ChipRegistry;
   savedChips: SavedChip[];
   circuit: CircuitDefinition;
@@ -43,6 +47,7 @@ interface CircuitState {
 }
 
 interface CircuitActions {
+  initProject: (projectId: string) => void;
   resetToBlank: () => void;
   loadChipToCanvas: (chipId: string) => void;
   executeBreadcrumbNavigation: (index: number) => void;
@@ -75,13 +80,12 @@ function createBlankCircuit() {
   };
 }
 
-const defaultRegistry = createDefaultRegistry();
-const initialSavedChips = loadSavedChips(defaultRegistry);
 const initialBlank = createBlankCircuit();
 
 export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) => ({
-  registry: defaultRegistry,
-  savedChips: initialSavedChips,
+  currentProjectId: null,
+  registry: createDefaultRegistry(),
+  savedChips: [],
 
   circuit: initialBlank.circuit,
   layout: initialBlank.layout,
@@ -93,6 +97,31 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
   currentChipId: null,
   isDirty: false,
   viewStack: [],
+
+  initProject: (projectId: string) => {
+    const registry = createDefaultRegistry();
+    const savedChips = loadSavedChips(registry, projectId);
+    const stored = loadProjectCircuit(projectId);
+    const blank = createBlankCircuit();
+
+    touchProject(projectId);
+
+    set({
+      currentProjectId: projectId,
+      registry,
+      savedChips,
+      circuit: stored?.circuit ?? blank.circuit,
+      layout: stored?.layout ?? blank.layout,
+      boundary: stored?.boundary ?? blank.boundary,
+      boundaryLayout: stored?.boundaryLayout ?? blank.boundaryLayout,
+      portColors: stored?.portColors ?? blank.portColors,
+      wireAnchors: stored?.wireAnchors ?? blank.wireAnchors,
+      boundaryInputs: stored?.boundaryInputs ?? {},
+      currentChipId: stored?.currentChipId ?? null,
+      isDirty: false,
+      viewStack: [],
+    });
+  },
 
   resetToBlank: () => {
     const blank = createBlankCircuit();
@@ -430,6 +459,8 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
 
   saveCurrentChip: ({ id, name, color }) => {
     const state = get();
+    if (!state.currentProjectId) return;
+
     const chipDef = createChipDefinition({
       id: id || undefined,
       name,
@@ -448,8 +479,8 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
     };
 
     try {
-      saveCustomChip(savedChip, state.registry);
-      const nextSavedChips = loadSavedChips(state.registry);
+      saveCustomChip(savedChip, state.registry, state.currentProjectId);
+      const nextSavedChips = loadSavedChips(state.registry, state.currentProjectId);
       set({
         savedChips: nextSavedChips,
         currentChipId: chipDef.id,
@@ -463,11 +494,13 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
 
   deleteChips: (chipsToDelete: SavedChip[]) => {
     const state = get();
+    if (!state.currentProjectId) return;
+
     for (const c of chipsToDelete) {
-      deleteCustomChip(c.id);
+      deleteCustomChip(c.id, state.currentProjectId);
       state.registry.unregisterChip(c.id);
     }
-    const nextSavedChips = loadSavedChips(state.registry);
+    const nextSavedChips = loadSavedChips(state.registry, state.currentProjectId);
 
     let needsReset = false;
     if (state.currentChipId && chipsToDelete.some((c) => c.id === state.currentChipId)) {
@@ -486,3 +519,26 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
 
 export const useCurrentChip = () =>
   useCircuitStore((state) => state.savedChips.find((c) => c.id === state.currentChipId) || null);
+
+// Autosaves the open project's root canvas — every project is its own localStorage
+// entry (see projectCircuitStorage.ts), so switching projects can't leak state between
+// them. Debounced because layout/wire edits fire on every drag frame.
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+useCircuitStore.subscribe((state) => {
+  if (!state.currentProjectId) return;
+  const projectId = state.currentProjectId;
+
+  if (persistTimer) clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    saveProjectCircuit(projectId, {
+      circuit: state.circuit,
+      layout: state.layout,
+      boundary: state.boundary,
+      boundaryLayout: state.boundaryLayout,
+      portColors: state.portColors,
+      wireAnchors: state.wireAnchors,
+      boundaryInputs: state.boundaryInputs,
+      currentChipId: state.currentChipId,
+    });
+  }, 400);
+});
