@@ -37,7 +37,7 @@ export function NewProjectPage() {
             ref={inputRef}
             type="text"
             size="xl"
-            placeholder="e.g. 4-BIT ADDER"
+            placeholder="e.g. MY CIRCUITS"
             autoFocus
             value={name}
             onChange={(e) => setName(e.target.value)}

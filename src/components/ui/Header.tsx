@@ -1,6 +1,5 @@
 import { Breadcrumbs } from "./Breadcrumbs";
 import { AppMenu } from "./AppMenu";
-import { GithubIcon } from "./icons/GithubIcon";
 import { useCircuitStore, useCurrentChip } from "@/stores/circuitStore";
 import { useMemo } from "react";
 import "./Header.css";
@@ -59,16 +58,6 @@ export function Header({
         isSaved={isSaved}
       />
       <Breadcrumbs items={breadcrumbItems} onNavigate={onNavigateBreadcrumb} />
-
-      <a
-        href="https://github.com/rijalghodi/logicsim"
-        target="_blank"
-        rel="noreferrer"
-        className="github-link"
-        title="View on GitHub"
-      >
-        <GithubIcon size={20} />
-      </a>
     </header>
   );
 }

@@ -13,19 +13,3 @@
 .header-container > * {
   pointer-events: auto;
 }
-
-.github-link {
-  margin-left: auto;
-  color: var(--fg);
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px;
-  border-radius: var(--radius);
-  background: var(--bg-2);
-}
-
-.github-link:hover {
-  background: var(--bg-3);
-}
