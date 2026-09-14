@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Path } from "react-konva";
 import type Konva from "konva";
-import { buildRoundedWirePath, WIRE_CORNER_RADIUS } from "./geometry";
+import { buildRoundedWirePath, WIRE_CORNER_RADIUS, WIRE_STROKE_WIDTH } from "./geometry";
 import type { Position } from "./geometry";
 import { BIT_COLOR } from "./constants";
 import { getBrightColor, getDimmedColor } from "@/utils/colorHelper";
@@ -32,7 +32,7 @@ export function WireLine({
 }: WireLineProps) {
   const [hovered, setHovered] = useState(false);
   const interactive = Boolean(onContextMenu) && !isWiringActive;
-  const highlighted = (interactive && (hovered || isContextMenuOpen)) || isDraft;
+  const highlighted = interactive && (hovered || isContextMenuOpen);
 
   let activeColor = getBrightColor(BIT_COLOR);
   let inactiveColor = getDimmedColor(BIT_COLOR);
@@ -41,7 +41,7 @@ export function WireLine({
     inactiveColor = getDimmedColor(color);
   }
 
-  const strokeColor = highlighted ? activeColor : active || isDraft ? activeColor : inactiveColor;
+  const strokeColor = isDraft ? "#000000" : active ? activeColor : inactiveColor;
 
   const pathData = buildRoundedWirePath(points, WIRE_CORNER_RADIUS);
 
@@ -59,17 +59,14 @@ export function WireLine({
   };
 
   const handleClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
-    if ("button" in e.evt && e.evt.button !== 0) return;
     e.cancelBubble = true;
-    openMenu(e);
   };
 
   return (
     <Path
       data={pathData}
       stroke={strokeColor}
-      strokeWidth={highlighted ? 3.5 : 3}
-      dash={highlighted ? [6] : undefined}
+      strokeWidth={highlighted ? WIRE_STROKE_WIDTH + 2 : WIRE_STROKE_WIDTH}
       lineCap="round"
       lineJoin="round"
       listening={Boolean(onContextMenu)}

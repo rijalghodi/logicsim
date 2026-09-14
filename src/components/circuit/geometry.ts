@@ -26,6 +26,7 @@ export const BOUNDARY_MARGIN = 72;
 export const BOUNDARY_LABEL_OFFSET_Y = 26;
 export const PORT_LABEL_HEIGHT = 16;
 export const PORT_LABEL_MAX_WIDTH = 100;
+export const WIRE_STROKE_WIDTH = 4;
 
 /** Background grid dot spacing, shown when the "show grid" preference is on. */
 export const GRID_SIZE = 20;

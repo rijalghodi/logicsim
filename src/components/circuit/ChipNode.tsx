@@ -84,10 +84,8 @@ export function ChipNode({
   };
 
   const handleClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
-    if ("button" in e.evt && e.evt.button !== 0) return;
     if (isDraggingRef.current) return;
     e.cancelBubble = true;
-    openContextMenu(e);
   };
 
   return (

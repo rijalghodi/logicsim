@@ -49,6 +49,15 @@ Instead of relying on heavy CSS utility frameworks (like Tailwind) or bloated co
 
 ## Features
 
+- **Interactive Canvas**: Drag and drop logic gates, wires, and boundary ports on a high-performance interactive canvas.
+- **Real-time Simulation**: Instant evaluation and propagation of digital logic states across your custom circuits.
+- **Custom Chips**: Build complex circuits, save them, and reuse them as single custom components in new designs.
+- **Hierarchical Design**: Dive into the inner workings of your custom chips and navigate easily using breadcrumbs.
+- **Dynamic Routing**: Seamless wire connections with cornered routing, visual feedback, and color-coded states.
+- **Customizable Interface**: Tweak user preferences, including grid visibility and port labels, for an optimal workflow.
+
+## TODO
+
 ### Core
 
 - [x] Circuit registry
@@ -80,6 +89,8 @@ Instead of relying on heavy CSS utility frameworks (like Tailwind) or bloated co
 - [ ] Extend wire
 - [ ] Undo - Redo (History)
 - [ ] Fit position in every screen
+- [ ] Project Based
+- [ ] Infinite Pan
 
 ---
 

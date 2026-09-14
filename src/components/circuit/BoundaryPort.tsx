@@ -91,9 +91,9 @@ export function BoundaryPort({
   };
 
   const handleClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    e.cancelBubble = true;
     if ("button" in e.evt && e.evt.button !== 0) return;
     if (isDraggingRef.current) return;
-    e.cancelBubble = true;
     openContextMenu(e);
   };
 
