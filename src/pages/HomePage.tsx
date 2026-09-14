@@ -38,7 +38,7 @@ export function HomePage() {
           </div>
 
           <div className="home-recent-list">
-            {recentProjects.slice(0, 2).map((project) => (
+            {recentProjects.slice(0, 3).map((project) => (
               <button
                 key={project.id}
                 type="button"

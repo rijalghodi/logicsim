@@ -42,6 +42,21 @@ export function ProjectPage() {
     return null;
   }
 
+  const handleQuitClick = () => {
+    const hasUnsavedChanges = store.isDirty || store.viewStack.some((view) => view.isDirty);
+    if (hasUnsavedChanges) {
+      modals.open("unsaved-alert", {
+        onDiscard: () => {
+          store.discardProjectChanges();
+          navigate("/");
+        },
+        onSave: () => actions.handleSaveClick(() => navigate("/")),
+      });
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
       <Header
@@ -51,7 +66,7 @@ export function ProjectPage() {
         onCustomize={actions.handleCustomizeClick}
         onDelete={actions.handleDeleteCurrentClick}
         onPreferences={() => modals.open("preferences")}
-        onQuit={() => navigate("/")}
+        onQuit={handleQuitClick}
         isSaved={!!store.currentChipId}
       />
 

@@ -35,13 +35,13 @@ export function Header({
       return {
         id: `stack-${i}`,
         name: chip?.name ?? "Untitled",
-        isDirty: state.isDirty,
+        unsaved: state.isDirty,
       };
     });
     items.push({
       id: "current",
       name: currentChip?.name ?? "Untitled",
-      isDirty: store.isDirty,
+      unsaved: store.isDirty,
     });
     return items;
   }, [store.viewStack, store.savedChips, currentChip, store.isDirty]);

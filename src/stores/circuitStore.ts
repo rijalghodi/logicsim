@@ -11,6 +11,7 @@ import type { Bit, CircuitDefinition, PortDefinition, PortRef, ChipRegistry } fr
 import { loadSavedChips, saveCustomChip, deleteCustomChip } from "@/storage/chipStorage";
 import type { SavedChip } from "@/storage/chipStorage";
 import { loadProjectCircuit, saveProjectCircuit } from "@/storage/projectCircuitStorage";
+import type { StoredProjectCircuit } from "@/storage/projectCircuitStorage";
 import { touchProject } from "@/storage/projectStorage";
 import type { Layout, Position } from "@/components/circuit/geometry";
 import { connectionKey } from "@/components/circuit/portResolution";
@@ -44,6 +45,12 @@ interface CircuitState {
   currentChipId: string | null;
   isDirty: boolean;
   viewStack: ViewState[];
+  /**
+   * The root canvas exactly as it was when this project was opened (see initProject).
+   * The canvas autosaves continuously as you edit — see the subscribe() below — so this
+   * is the only way to recover "before this session's edits" for discardProjectChanges.
+   */
+  projectSnapshot: StoredProjectCircuit | null;
 }
 
 interface CircuitActions {
@@ -52,6 +59,8 @@ interface CircuitActions {
   loadChipToCanvas: (chipId: string) => void;
   executeBreadcrumbNavigation: (index: number) => void;
   diveIntoChip: (componentId: string) => void;
+  /** Reverts the root canvas to its projectSnapshot and clears the view stack, discarding every edit made this session. Does not touch the saved-chip library. */
+  discardProjectChanges: () => void;
   toggleBoundaryInput: (portId: string) => void;
   moveComponent: (id: string, pos: Position) => void;
   moveBoundaryPort: (id: string, y: number) => void;
@@ -97,6 +106,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
   currentChipId: null,
   isDirty: false,
   viewStack: [],
+  projectSnapshot: null,
 
   initProject: (projectId: string) => {
     const registry = createDefaultRegistry();
@@ -106,10 +116,7 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
 
     touchProject(projectId);
 
-    set({
-      currentProjectId: projectId,
-      registry,
-      savedChips,
+    const snapshot: StoredProjectCircuit = {
       circuit: stored?.circuit ?? blank.circuit,
       layout: stored?.layout ?? blank.layout,
       boundary: stored?.boundary ?? blank.boundary,
@@ -118,6 +125,40 @@ export const useCircuitStore = create<CircuitState & CircuitActions>((set, get) 
       wireAnchors: stored?.wireAnchors ?? blank.wireAnchors,
       boundaryInputs: stored?.boundaryInputs ?? {},
       currentChipId: stored?.currentChipId ?? null,
+    };
+
+    set({
+      currentProjectId: projectId,
+      registry,
+      savedChips,
+      circuit: snapshot.circuit,
+      layout: snapshot.layout,
+      boundary: snapshot.boundary,
+      boundaryLayout: snapshot.boundaryLayout,
+      portColors: snapshot.portColors,
+      wireAnchors: snapshot.wireAnchors,
+      boundaryInputs: snapshot.boundaryInputs,
+      currentChipId: snapshot.currentChipId,
+      isDirty: false,
+      viewStack: [],
+      projectSnapshot: snapshot,
+    });
+  },
+
+  discardProjectChanges: () => {
+    const state = get();
+    if (!state.projectSnapshot) return;
+    const snapshot = state.projectSnapshot;
+
+    set({
+      circuit: snapshot.circuit,
+      layout: snapshot.layout,
+      boundary: snapshot.boundary,
+      boundaryLayout: snapshot.boundaryLayout,
+      portColors: snapshot.portColors,
+      wireAnchors: snapshot.wireAnchors,
+      boundaryInputs: snapshot.boundaryInputs,
+      currentChipId: snapshot.currentChipId,
       isDirty: false,
       viewStack: [],
     });

@@ -8,7 +8,7 @@ import { cn } from "@/utils";
 export interface BreadcrumbItem {
   readonly id: string;
   readonly name: string;
-  readonly isDirty: boolean;
+  readonly unsaved: boolean;
 }
 
 interface BreadcrumbsProps {
@@ -27,7 +27,7 @@ export function Breadcrumbs({ items, onNavigate }: BreadcrumbsProps) {
       onClick={() => !isLast && onNavigate(index)}
     >
       {item.name}
-      {item.isDirty && (
+      {item.unsaved && (
         <span className="breadcrumb-dirty-dot">
           <DotIcon size={5} />
         </span>
@@ -72,7 +72,7 @@ export function Breadcrumbs({ items, onNavigate }: BreadcrumbsProps) {
             <DropdownMenuItem key={item.id} onClick={() => onNavigate(originalIndexMinusOne + 1)}>
               <div style={{ display: "flex", alignItems: "center" }}>
                 {item.name}
-                {item.isDirty && <span className="breadcrumb-dirty-dot">*</span>}
+                {item.unsaved && <span className="breadcrumb-dirty-dot">*</span>}
               </div>
             </DropdownMenuItem>
           ))}
