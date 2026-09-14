@@ -50,3 +50,12 @@
 .markdown li {
   padding-left: 4px;
 }
+
+.markdown strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.markdown mark {
+  font-style: italic;
+}
