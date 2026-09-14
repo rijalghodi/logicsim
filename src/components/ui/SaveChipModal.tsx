@@ -26,7 +26,7 @@ export const SaveChipModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = name.trim().toUpperCase();
+    const trimmed = name.trim();
     if (!trimmed) {
       toast.error("Please enter a chip name");
       return;
@@ -48,7 +48,7 @@ export const SaveChipModal = ({
           placeholder="CHIP NAME (e.g. AND, XOR)"
           autoFocus
           value={name}
-          onChange={(e) => setName(e.target.value.toUpperCase())}
+          onChange={(e) => setName(e.target.value)}
           style={{ width: "100%" }}
           maxLength={20}
           required

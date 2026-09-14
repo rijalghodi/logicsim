@@ -29,7 +29,7 @@ export const CustomizePortModal = ({ payload, closeModal }: ModalContextProps<{ 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = name.trim().toUpperCase();
+    const trimmed = name.trim();
     if (!trimmed) {
       toast.error("Port name cannot be empty");
       return;
@@ -47,7 +47,7 @@ export const CustomizePortModal = ({ payload, closeModal }: ModalContextProps<{ 
           placeholder="PORT NAME (e.g. A, B, OUT)"
           autoFocus
           value={name}
-          onChange={(e) => setName(e.target.value.toUpperCase())}
+          onChange={(e) => setName(e.target.value)}
           maxLength={10}
           required
         />
