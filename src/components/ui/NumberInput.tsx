@@ -1,16 +1,17 @@
-import { Input } from "./Input";
+import { Input, type InputSize } from "./Input";
 import type { ComponentPropsWithRef } from "react";
 
-export interface NumberInputProps extends Omit<
+export type NumberInputProps = Omit<
   ComponentPropsWithRef<"input">,
-  "onChange" | "value" | "type" | "min" | "max"
-> {
-  readonly value: number;
-  readonly onChange: (val: number) => void;
-  readonly min?: number;
-  readonly max?: number;
-  readonly preventLeadingZero?: boolean;
-}
+  "onChange" | "value" | "type" | "min" | "max" | "size"
+> & {
+  value: number;
+  onChange: (val: number) => void;
+  min?: number;
+  max?: number;
+  preventLeadingZero?: boolean;
+  size?: InputSize;
+};
 
 export function NumberInput({ value, onChange, min, max, preventLeadingZero, ...props }: NumberInputProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
