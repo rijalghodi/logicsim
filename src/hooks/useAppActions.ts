@@ -32,6 +32,17 @@ export function useAppActions(windowSize: { width: number; height: number }) {
     }
   }, [store, handleSaveClick]);
 
+  const handleSaveAsClick = useCallback(() => {
+    const state = useCircuitStore.getState();
+    if (!state.currentChipId) return;
+    modals.open("save-chip", {
+      chipId: state.currentChipId,
+      saveAsNew: true,
+      title: "SAVE AS",
+      description: "Save a copy of this chip under a new name.",
+    });
+  }, []);
+
   const handleCustomizeClick = useCallback(() => {
     if (store.currentChipId) {
       modals.open("save-chip", { chipId: store.currentChipId });
@@ -195,6 +206,7 @@ export function useAppActions(windowSize: { width: number; height: number }) {
 
   return {
     handleSaveClick: handleSaveClick,
+    handleSaveAsClick,
     handleNewClick,
     handleCustomizeClick,
     handleDeleteCurrentClick,

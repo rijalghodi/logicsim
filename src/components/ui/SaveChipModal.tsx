@@ -11,12 +11,14 @@ import Button from "./Button";
 export const SaveChipModal = ({
   payload,
   closeModal,
-}: ModalContextProps<{ chipId: string | null; onSaved?: () => void }>) => {
+}: ModalContextProps<{ chipId: string | null; saveAsNew?: boolean; onSaved?: () => void }>) => {
   const { savedChips, saveCurrentChip } = useCircuitStore();
 
+  // For "Save As", chipId still names the chip to prefill from, but the save itself must
+  // always create a new chip — never overwrite the one being copied.
   const chip = useMemo(() => savedChips.find((c) => c.id === payload.chipId), [savedChips, payload.chipId]);
 
-  const [name, setName] = useState(chip?.name || "");
+  const [name, setName] = useState(() => (payload.saveAsNew && chip ? `${chip.name} COPY` : chip?.name || ""));
   const [color, setColor] = useState(chip?.color || CHIP_FILL);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +37,7 @@ export const SaveChipModal = ({
       toast.error("NAND is a reserved primitive chip name");
       return;
     }
-    saveCurrentChip({ id: chip?.id ?? null, name: trimmed, color });
+    saveCurrentChip({ id: payload.saveAsNew ? null : (chip?.id ?? null), name: trimmed, color });
     closeModal();
     payload.onSaved?.();
   };
@@ -61,7 +63,7 @@ export const SaveChipModal = ({
           CANCEL
         </Button>
         <Button type="submit" variant="primary">
-          SAVE CHIP
+          {payload.saveAsNew ? "SAVE AS" : "SAVE CHIP"}
         </Button>
       </ModalActions>
     </form>

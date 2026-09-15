@@ -8,6 +8,7 @@ export interface HeaderProps {
   readonly onNavigateBreadcrumb: (index: number) => void;
   readonly onNew: () => void;
   readonly onSave: () => void;
+  readonly onSaveAs: () => void;
   readonly onCustomize: () => void;
   readonly onDelete: () => void;
   readonly onPreferences: () => void;
@@ -19,6 +20,7 @@ export function Header({
   onNavigateBreadcrumb,
   onNew,
   onSave,
+  onSaveAs,
   onCustomize,
   onDelete,
   onPreferences,
@@ -51,6 +53,7 @@ export function Header({
       <AppMenu
         onNew={onNew}
         onSave={onSave}
+        onSaveAs={onSaveAs}
         onCustomize={onCustomize}
         onDelete={onDelete}
         onPreferences={onPreferences}

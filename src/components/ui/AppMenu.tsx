@@ -13,6 +13,7 @@ import Button from "./Button";
 interface AppMenuProps {
   readonly onNew: () => void;
   readonly onSave: () => void;
+  readonly onSaveAs: () => void;
   readonly onCustomize: () => void;
   readonly onDelete: () => void;
   readonly onPreferences: () => void;
@@ -24,6 +25,7 @@ interface AppMenuProps {
 export function AppMenu({
   onNew,
   onSave,
+  onSaveAs,
   onCustomize,
   onDelete,
   onPreferences,
@@ -35,12 +37,13 @@ export function AppMenu({
     () => [
       { label: "NEW CHIP", key: "k", displayKey: "⌘ K", action: onNew, show: true },
       { label: "SAVE CHIP", key: "s", displayKey: "⌘ S", action: onSave, show: true },
+      { label: "SAVE AS", key: "s", shiftKey: true, displayKey: "⌘ ⇧ S", action: onSaveAs, show: isSaved },
       { label: "CUSTOMIZE", key: "e", displayKey: "⌘ E", action: onCustomize, show: isSaved },
       { label: "DELETE CHIP", key: "backspace", displayKey: "⌘ ⌫", action: onDelete, show: isSaved, isDanger: true },
       { label: "PREFERENCES", key: ",", displayKey: "⌘ ,", action: onPreferences, show: true },
       { label: "QUIT PROJECT", key: "q", displayKey: "⌘ Q", action: onQuit, show: true, isLast: true },
     ],
-    [onNew, onSave, onCustomize, onDelete, onPreferences, onQuit, isSaved],
+    [onNew, onSave, onSaveAs, onCustomize, onDelete, onPreferences, onQuit, isSaved],
   );
 
   useEffect(() => {
@@ -48,7 +51,7 @@ export function AppMenu({
       if (!e.ctrlKey && !e.metaKey) return;
 
       const pressedKey = e.key.toLowerCase();
-      const item = menuItems.find((i) => i.key === pressedKey);
+      const item = menuItems.find((i) => i.key === pressedKey && !!i.shiftKey === e.shiftKey);
 
       if (item && item.show) {
         e.preventDefault();

@@ -63,6 +63,7 @@ export function ProjectPage() {
         onNavigateBreadcrumb={actions.handleBreadcrumbClick}
         onNew={actions.handleNewClick}
         onSave={actions.handleSaveClick}
+        onSaveAs={actions.handleSaveAsClick}
         onCustomize={actions.handleCustomizeClick}
         onDelete={actions.handleDeleteCurrentClick}
         onPreferences={() => modals.open("preferences")}
