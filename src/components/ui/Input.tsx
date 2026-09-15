@@ -9,6 +9,6 @@ export type InputProps = Omit<ComponentPropsWithRef<"input">, "size"> & {
 };
 
 export function Input(props: InputProps) {
-  const { size, className, ...rest } = props;
-  return <input {...rest} className={cn("input", `input-${size || "md"}`, className)} />;
+  const { size = "md", className, ...rest } = props;
+  return <input {...rest} className={cn("input", `input-${size}`, className)} />;
 }

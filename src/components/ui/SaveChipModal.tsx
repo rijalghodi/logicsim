@@ -49,6 +49,7 @@ export const SaveChipModal = ({
           type="text"
           placeholder="CHIP NAME (e.g. AND, XOR)"
           autoFocus
+          size="lg"
           value={name}
           onChange={(e) => setName(e.target.value)}
           style={{ width: "100%" }}
