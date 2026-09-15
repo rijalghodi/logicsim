@@ -20,7 +20,10 @@ export interface CircuitContextMenuCallbacks {
 /**
  * Builds the right-click menu for a chip or a boundary port. A primitive chip
  * (only NAND today, per SPEC.md) has no internals, so it gets no VIEW item —
- * checked via `registry.resolve(...).kind`, never the chip's name.
+ * checked via `registry.resolve(...).kind`, never the chip's name. Each other
+ * item is included only when its backing callback is provided, so a read-only
+ * canvas (e.g. viewing a dived-into chip's internals) never offers an action
+ * that would silently do nothing when clicked.
  */
 export function getCircuitContextMenuItems(
   contextMenu: CircuitContextMenuState,
@@ -40,51 +43,60 @@ export function getCircuitContextMenuItems(
         onClick: () => callbacks.onViewComponent?.(contextMenu.componentId),
       });
     }
-    items.push(
-      {
+    if (callbacks.onDuplicateComponent) {
+      items.push({
         label: "DUPLICATE",
         shortcutHint: "⌘ D",
         shortcutKeys: ["d"],
         requireModifier: true,
         onClick: () => callbacks.onDuplicateComponent?.(contextMenu.componentId),
-      },
-      {
+      });
+    }
+    if (callbacks.onRemoveComponent) {
+      items.push({
         label: "REMOVE",
         shortcutHint: "⌫",
         shortcutKeys: ["Backspace", "Delete"],
         isDanger: true,
         onClick: () => callbacks.onRemoveComponent?.(contextMenu.componentId),
-      },
-    );
+      });
+    }
     return items;
   }
 
   if (contextMenu.type === "boundary") {
-    return [
-      {
+    const items: ContextMenuItem[] = [];
+    if (callbacks.onCustomizeBoundaryPort) {
+      items.push({
         label: "CUSTOMIZE",
         shortcutHint: "⏎",
         shortcutKeys: ["Enter"],
         onClick: () => callbacks.onCustomizeBoundaryPort?.(contextMenu.portId),
-      },
-      {
+      });
+    }
+    if (callbacks.onDuplicateBoundaryPort) {
+      items.push({
         label: "DUPLICATE",
         shortcutHint: "⌘ D",
         shortcutKeys: ["d"],
         requireModifier: true,
         onClick: () => callbacks.onDuplicateBoundaryPort?.(contextMenu.portId),
-      },
-      {
+      });
+    }
+    if (callbacks.onRemoveBoundaryPort) {
+      items.push({
         label: "REMOVE",
         shortcutHint: "⌫",
         shortcutKeys: ["Backspace", "Delete"],
         isDanger: true,
         onClick: () => callbacks.onRemoveBoundaryPort?.(contextMenu.portId),
-      },
-    ];
+      });
+    }
+    return items;
   }
 
   // contextMenu.type === "wire" — only REMOVE is offered for now.
+  if (!callbacks.onDisconnectWire) return [];
   return [
     {
       label: "REMOVE",

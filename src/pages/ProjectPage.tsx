@@ -57,6 +57,11 @@ export function ProjectPage() {
     }
   };
 
+  // Diving into a chip's internals (breadcrumb navigation) is inspection only — you can still
+  // simulate it (toggle its own boundary inputs) but not restructure it. To edit a chip, open it
+  // directly from the Dock instead, which clears the view stack and makes it the active editor.
+  const isReadOnly = store.viewStack.length > 0;
+
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
       <Header
@@ -81,28 +86,30 @@ export function ProjectPage() {
         wireAnchors={store.wireAnchors}
         boundaryInputs={store.boundaryInputs}
         onToggleBoundaryInput={store.toggleBoundaryInput}
-        onMoveComponent={store.moveComponent}
         onViewComponent={store.diveIntoChip}
-        onMoveBoundaryPort={store.moveBoundaryPort}
-        onRemoveComponent={store.removeComponent}
-        onRemoveBoundaryPort={store.removeBoundaryPort}
-        onDuplicateComponent={store.duplicateComponent}
-        onDuplicateBoundaryPort={store.duplicateBoundaryPort}
-        onCustomizeBoundaryPort={(portId) => modals.open("customize-port", { portId })}
-        onDropChip={store.dropChip}
-        onConnectWire={store.connectWire}
-        onDisconnectWire={store.disconnectWire}
+        onMoveComponent={isReadOnly ? undefined : store.moveComponent}
+        onMoveBoundaryPort={isReadOnly ? undefined : store.moveBoundaryPort}
+        onRemoveComponent={isReadOnly ? undefined : store.removeComponent}
+        onRemoveBoundaryPort={isReadOnly ? undefined : store.removeBoundaryPort}
+        onDuplicateComponent={isReadOnly ? undefined : store.duplicateComponent}
+        onDuplicateBoundaryPort={isReadOnly ? undefined : store.duplicateBoundaryPort}
+        onCustomizeBoundaryPort={isReadOnly ? undefined : (portId) => modals.open("customize-port", { portId })}
+        onDropChip={isReadOnly ? undefined : store.dropChip}
+        onConnectWire={isReadOnly ? undefined : store.connectWire}
+        onDisconnectWire={isReadOnly ? undefined : store.disconnectWire}
         showGrid={preferences.showGrid}
         showPortLabel={preferences.showPortLabel}
         width={windowSize.width}
         height={windowSize.height}
       />
 
-      <Dock
-        onAddChip={actions.handleAddChipFreespace}
-        onOpenChip={actions.handleOpenChipClick}
-        onDeleteChip={(chipId) => modals.open("delete-chip", { chipId })}
-      />
+      {!isReadOnly && (
+        <Dock
+          onAddChip={actions.handleAddChipFreespace}
+          onOpenChip={actions.handleOpenChipClick}
+          onDeleteChip={(deletedChipId) => modals.open("delete-chip", { chipId: deletedChipId })}
+        />
+      )}
 
       <Toast />
 

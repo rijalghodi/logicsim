@@ -61,6 +61,11 @@ export function Header({
         isSaved={isSaved}
       />
       <Breadcrumbs items={breadcrumbItems} onNavigate={onNavigateBreadcrumb} />
+      {store.viewStack.length > 0 && (
+        <span className="header-readonly-badge" title="Viewing this chip's internals — open it from the dock to edit">
+          READ-ONLY
+        </span>
+      )}
     </header>
   );
 }

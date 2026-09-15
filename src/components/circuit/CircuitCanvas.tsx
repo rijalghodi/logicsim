@@ -218,11 +218,9 @@ export function CircuitCanvas({
         </Layer>
       </Stage>
 
-      {contextMenu && (
-        <ContextMenu
-          position={{ x: contextMenu.x, y: contextMenu.y }}
-          onClose={() => setContextMenu(null)}
-          items={getCircuitContextMenuItems(contextMenu, registry, {
+      {contextMenu &&
+        (() => {
+          const items = getCircuitContextMenuItems(contextMenu, registry, {
             onViewComponent,
             onDuplicateComponent,
             onRemoveComponent,
@@ -230,9 +228,16 @@ export function CircuitCanvas({
             onDuplicateBoundaryPort,
             onRemoveBoundaryPort,
             onDisconnectWire,
-          })}
-        />
-      )}
+          });
+          if (items.length === 0) return null;
+          return (
+            <ContextMenu
+              position={{ x: contextMenu.x, y: contextMenu.y }}
+              onClose={() => setContextMenu(null)}
+              items={items}
+            />
+          );
+        })()}
     </div>
   );
 }
