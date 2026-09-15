@@ -45,6 +45,12 @@
   --space-6: 24px;
   --space-8: 32px;
   --space-10: 40px;
+
+  --screen-xs: 480px;
+  --screen-sm: 640px;
+  --screen-md: 768px;
+  --screen-lg: 1024px;
+  --screen-xl: 1280px;
 }
 
 * {

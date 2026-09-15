@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
+import { ProjectRow } from "@/components/ui/ProjectRow";
 import { listProjects } from "@/storage/projectStorage";
-import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import "./ProjectsListPage.css";
 
 export function ProjectsListPage() {
@@ -18,25 +18,17 @@ export function ProjectsListPage() {
         ) : (
           <div className="projects-list">
             {projects.map((project) => (
-              <button
-                key={project.id}
-                type="button"
-                className="project-row"
-                onClick={() => navigate(`/projects/${project.id}`)}
-              >
-                <span className="project-row-name">{project.name}</span>
-                <span className="project-row-meta">UPDATED {formatRelativeTime(project.updatedAt)}</span>
-              </button>
+              <ProjectRow key={project.id} project={project} onClick={() => navigate(`/projects/${project.id}`)} />
             ))}
           </div>
         )}
 
         <div className="projects-page-actions">
-          <Button type="button" variant="secondary" size="lg" onClick={() => navigate("/")}>
-            BACK
-          </Button>
-          <Button type="button" variant="primary" size="lg" onClick={() => navigate("/new-project")}>
+          <Button type="button" variant="primary" size="xl" onClick={() => navigate("/new-project")}>
             + NEW PROJECT
+          </Button>
+          <Button type="button" variant="secondary" size="xl" onClick={() => navigate("/")}>
+            BACK
           </Button>
         </div>
       </div>

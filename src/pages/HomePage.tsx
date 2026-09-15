@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import { GithubIcon } from "@/components/ui/icons/GithubIcon";
+import { ProjectRow } from "@/components/ui/ProjectRow";
 import { listProjects } from "@/storage/projectStorage";
-import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import "./HomePage.css";
 
 const LOGO_ASCII = String.raw`
@@ -39,30 +39,13 @@ export function HomePage() {
 
           <div className="home-recent-list">
             {recentProjects.slice(0, 3).map((project) => (
-              <button
-                key={project.id}
-                type="button"
-                className="home-recent-card"
-                onClick={() => navigate(`/projects/${project.id}`)}
-              >
-                <span className="home-recent-card-name">{project.name}</span>
-                <span className="home-recent-card-meta">UPDATED {formatRelativeTime(project.updatedAt)}</span>
-              </button>
+              <ProjectRow key={project.id} project={project} onClick={() => navigate(`/projects/${project.id}`)} />
             ))}
           </div>
         </div>
       )}
 
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          flexDirection: "column",
-          width: "100%",
-          maxWidth: 400,
-          justifyContent: "center",
-        }}
-      >
+      <div className="home-actions">
         <Button type="button" variant="primary" size="xl" onClick={() => navigate("/new-project")}>
           + NEW PROJECT
         </Button>
@@ -78,7 +61,6 @@ export function HomePage() {
             <GithubIcon size={14} /> Rijal Ghodi
           </a>
         </span>
-        <span className="home-footer-version">Version: v0.0.1</span>
       </footer>
     </div>
   );

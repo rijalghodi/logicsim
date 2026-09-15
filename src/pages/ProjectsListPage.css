@@ -24,60 +24,20 @@
   flex-direction: column;
   gap: 24px;
   width: 100%;
-  max-width: 560px;
+  max-width: var(--screen-xs);
 }
 
 .projects-page-actions {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
-}
-
-.projects-page-actions .btn {
-  flex: 1;
 }
 
 .projects-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.project-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  height: 56px;
-  padding: 0 16px;
-  background: var(--bg-1);
-  border: none;
-  border-radius: var(--radius-lg);
-  color: var(--fg);
-  font-family: inherit;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s ease;
-}
-
-.project-row:hover {
-  background: var(--bg-2);
-}
-
-.project-row-name {
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.project-row-meta {
-  flex-shrink: 0;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--fg-muted);
 }
 
 .projects-empty-text {

@@ -49,6 +49,16 @@
   border-color: hsl(from var(--danger) h s l / 50%);
 }
 
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg);
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .btn-sm {
   height: 28px;
   padding: 0 10px;

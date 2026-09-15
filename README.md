@@ -89,7 +89,7 @@ Instead of relying on heavy CSS utility frameworks (like Tailwind) or bloated co
 - [ ] Extend wire
 - [ ] Undo - Redo (History)
 - [ ] Fit position in every screen
-- [ ] Project Based
+- [x] Project Based
 - [ ] Infinite Pan
 - [ ] Save as
 
