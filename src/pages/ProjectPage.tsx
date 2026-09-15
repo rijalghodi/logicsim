@@ -42,25 +42,33 @@ export function ProjectPage() {
     return null;
   }
 
+  // Diving into a chip's internals (breadcrumb navigation) is inspection only — you can still
+  // simulate it (toggle its own boundary inputs) but not restructure it. To edit a chip, open it
+  // directly from the Dock instead, which clears the view stack and makes it the active editor.
+  const isReadOnly = store.viewStack.length > 0;
+
+  // Everything reached by diving in is read-only and can never be dirty — only the parent
+  // (viewStack[0], the leftmost breadcrumb, or the current level itself when not dived into
+  // anything) can hold real unsaved edits, so that's the only thing Quit needs to check.
   const handleQuitClick = () => {
-    const hasUnsavedChanges = store.isDirty || store.viewStack.some((view) => view.isDirty);
-    if (hasUnsavedChanges) {
+    const parentIsDirty = isReadOnly ? !!store.viewStack[0]?.isDirty : store.isDirty;
+    if (parentIsDirty) {
       modals.open("unsaved-alert", {
         onDiscard: () => {
           store.discardProjectChanges();
           navigate("/");
         },
-        onSave: () => actions.handleSaveClick(() => navigate("/")),
+        onSave: () => {
+          // Surface the parent as the live canvas first, so Save persists its data — not
+          // whatever read-only child currently happens to be on screen.
+          if (isReadOnly) store.executeBreadcrumbNavigation(0);
+          actions.handleSaveClick(() => navigate("/"));
+        },
       });
     } else {
       navigate("/");
     }
   };
-
-  // Diving into a chip's internals (breadcrumb navigation) is inspection only — you can still
-  // simulate it (toggle its own boundary inputs) but not restructure it. To edit a chip, open it
-  // directly from the Dock instead, which clears the view stack and makes it the active editor.
-  const isReadOnly = store.viewStack.length > 0;
 
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
@@ -71,6 +79,7 @@ export function ProjectPage() {
         onSaveAs={actions.handleSaveAsClick}
         onCustomize={actions.handleCustomizeClick}
         onDelete={actions.handleDeleteCurrentClick}
+        onEditReadOnlyChip={actions.handleEditReadOnlyChipClick}
         onPreferences={() => modals.open("preferences")}
         onQuit={handleQuitClick}
         isSaved={!!store.currentChipId}

@@ -69,6 +69,35 @@ export function useAppActions(windowSize: { width: number; height: number }) {
     [store, handleSaveClick],
   );
 
+  // "Edit Chip" — only shown while viewing a dived-into (read-only) chip — makes the chip
+  // currently being viewed the live editable canvas. Everything reached by diving in is
+  // read-only and therefore never dirty; only the parent (viewStack[0], the leftmost
+  // breadcrumb) can hold real unsaved edits, so that's the only thing worth checking or
+  // saving here — children can't be saved and never need an unsaved-changes prompt.
+  const handleEditReadOnlyChipClick = useCallback(() => {
+    const state = useCircuitStore.getState();
+    const childChipId = state.currentChipId;
+    if (!childChipId) return;
+
+    const openChild = () => useCircuitStore.getState().loadChipToCanvas(childChipId);
+    const parentIsDirty = state.viewStack[0]?.isDirty ?? false;
+
+    if (!parentIsDirty) {
+      openChild();
+      return;
+    }
+
+    modals.open("unsaved-alert", {
+      onDiscard: openChild,
+      onSave: () => {
+        // Surface the parent as the live canvas first, so Save persists its data — not the
+        // read-only child currently on screen.
+        useCircuitStore.getState().executeBreadcrumbNavigation(0);
+        handleSaveClick(openChild);
+      },
+    });
+  }, [handleSaveClick]);
+
   // Jumping to a breadcrumb `index` can skip several dived-into levels at once. Rather than one
   // combined check, close them one at a time — from the current (deepest) level up toward the
   // target — prompting for each dirty level individually, the same way closing several unsaved
@@ -211,6 +240,7 @@ export function useAppActions(windowSize: { width: number; height: number }) {
     handleCustomizeClick,
     handleDeleteCurrentClick,
     handleOpenChipClick,
+    handleEditReadOnlyChipClick,
     handleBreadcrumbClick,
     handleAddChipFreespace,
   };

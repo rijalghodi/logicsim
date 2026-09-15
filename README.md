@@ -84,14 +84,15 @@ Instead of relying on heavy CSS utility frameworks (like Tailwind) or bloated co
 - [x] Fix: place chips and port in non-occupied space
 - [x] add slider in dock
 - [x] Clean CircuitCanvas.tsx
+- [x] Project Based
+- [x] Save as
 - [ ] Quick Customize Chip
 - [ ] Wire coloring
 - [ ] Extend wire
 - [ ] Undo - Redo (History)
 - [ ] Fit position in every screen
-- [x] Project Based
 - [ ] Infinite Pan
-- [ ] Save as
+- [ ] Snap to grid
 
 ---
 

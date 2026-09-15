@@ -8,9 +8,13 @@ export const UnsavedAlert = ({
   payload,
   closeModal,
 }: ModalContextProps<{ onDiscard: () => void; onSave: () => void }>) => {
-  const { currentChipId, savedChips } = useCircuitStore();
+  const { currentChipId, viewStack, savedChips } = useCircuitStore();
 
-  const chip = useMemo(() => savedChips.find((c) => c.id === currentChipId), [savedChips, currentChipId]);
+  // Everything reached by diving in is read-only and can never be dirty — only the parent
+  // (viewStack[0], the leftmost breadcrumb) can ever be what this alert is actually about, so
+  // name that chip rather than whatever read-only child happens to be on screen right now.
+  const parentChipId = viewStack.length > 0 ? viewStack[0].currentChipId : currentChipId;
+  const chip = useMemo(() => savedChips.find((c) => c.id === parentChipId), [savedChips, parentChipId]);
 
   const handleDiscard = () => {
     closeModal();

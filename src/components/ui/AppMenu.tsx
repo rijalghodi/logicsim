@@ -16,9 +16,13 @@ interface AppMenuProps {
   readonly onSaveAs: () => void;
   readonly onCustomize: () => void;
   readonly onDelete: () => void;
+  readonly onEditReadOnlyChip: () => void;
   readonly onPreferences: () => void;
   readonly onQuit: () => void;
   readonly isSaved: boolean;
+  /** True while viewing a dived-into (read-only) chip — see Header's isReadOnly. Narrows the
+   * menu to only what's meaningful for a read-only view: editing it for real, preferences, quit. */
+  readonly isReadOnly: boolean;
   readonly align?: "left" | "right";
 }
 
@@ -28,22 +32,54 @@ export function AppMenu({
   onSaveAs,
   onCustomize,
   onDelete,
+  onEditReadOnlyChip,
   onPreferences,
   onQuit,
   isSaved,
+  isReadOnly,
   align = "left",
 }: AppMenuProps) {
   const menuItems = useMemo(
-    () => [
-      { label: "NEW CHIP", key: "k", displayKey: "⌘ K", action: onNew, show: true },
-      { label: "SAVE CHIP", key: "s", displayKey: "⌘ S", action: onSave, show: true },
-      { label: "SAVE AS", key: "s", shiftKey: true, displayKey: "⌘ ⇧ S", action: onSaveAs, show: isSaved },
-      { label: "CUSTOMIZE", key: "e", displayKey: "⌘ E", action: onCustomize, show: isSaved },
-      { label: "DELETE CHIP", key: "backspace", displayKey: "⌘ ⌫", action: onDelete, show: isSaved, isDanger: true },
-      { label: "PREFERENCES", key: ",", displayKey: "⌘ ,", action: onPreferences, show: true },
-      { label: "QUIT PROJECT", key: "q", displayKey: "⌘ Q", action: onQuit, show: true, isLast: true },
-    ],
-    [onNew, onSave, onSaveAs, onCustomize, onDelete, onPreferences, onQuit, isSaved],
+    () =>
+      isReadOnly
+        ? [
+            { label: "NEW CHIP", key: "k", displayKey: "⌘ K", action: onNew, show: true },
+            { label: "EDIT CHIP", key: "e", displayKey: "⌘ E", action: onEditReadOnlyChip, show: true },
+            {
+              label: "PREFERENCES",
+              key: ",",
+              displayKey: "⌘ ,",
+              action: onPreferences,
+              show: true,
+              separatorOnTop: true,
+            },
+            { label: "QUIT PROJECT", key: "q", displayKey: "⌘ Q", action: onQuit, show: true },
+          ]
+        : [
+            { label: "NEW CHIP", key: "k", displayKey: "⌘ K", action: onNew, show: true },
+            { label: "SAVE CHIP", key: "s", displayKey: "⌘ S", action: onSave, show: true },
+            { label: "SAVE AS", key: "s", shiftKey: true, displayKey: "⌘ ⇧ S", action: onSaveAs, show: isSaved },
+            { label: "CUSTOMIZE", key: "e", displayKey: "⌘ E", action: onCustomize, show: isSaved },
+            {
+              label: "DELETE CHIP",
+              key: "backspace",
+              shiftKey: true,
+              displayKey: "⌘ ⇧ ⌫",
+              action: onDelete,
+              show: isSaved,
+              isDanger: true,
+            },
+            {
+              label: "PREFERENCES",
+              key: ",",
+              displayKey: "⌘ ,",
+              action: onPreferences,
+              show: true,
+              separatorOnTop: true,
+            },
+            { label: "QUIT PROJECT", key: "q", displayKey: "⌘ Q", action: onQuit, show: true },
+          ],
+    [isReadOnly, onNew, onSave, onSaveAs, onCustomize, onDelete, onEditReadOnlyChip, onPreferences, onQuit, isSaved],
   );
 
   useEffect(() => {
@@ -75,7 +111,7 @@ export function AppMenu({
           .filter((item) => item.show)
           .map((item) => (
             <div key={item.label}>
-              {item.isLast && <DropdownMenuSeparator />}
+              {item.separatorOnTop && <DropdownMenuSeparator />}
               <DropdownMenuItem onClick={item.action} isDanger={item.isDanger}>
                 <span>{item.label}</span>
                 <DropdownMenuShortcut>{item.displayKey}</DropdownMenuShortcut>

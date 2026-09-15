@@ -11,6 +11,7 @@ export interface HeaderProps {
   readonly onSaveAs: () => void;
   readonly onCustomize: () => void;
   readonly onDelete: () => void;
+  readonly onEditReadOnlyChip: () => void;
   readonly onPreferences: () => void;
   readonly onQuit: () => void;
   readonly isSaved: boolean;
@@ -23,12 +24,14 @@ export function Header({
   onSaveAs,
   onCustomize,
   onDelete,
+  onEditReadOnlyChip,
   onPreferences,
   onQuit,
   isSaved,
 }: HeaderProps) {
   const store = useCircuitStore();
   const currentChip = useCurrentChip();
+  const isReadOnly = store.viewStack.length > 0;
 
   const breadcrumbItems = useMemo(() => {
     const items = store.viewStack.map((state, i) => {
@@ -56,12 +59,14 @@ export function Header({
         onSaveAs={onSaveAs}
         onCustomize={onCustomize}
         onDelete={onDelete}
+        onEditReadOnlyChip={onEditReadOnlyChip}
         onPreferences={onPreferences}
         onQuit={onQuit}
         isSaved={isSaved}
+        isReadOnly={isReadOnly}
       />
       <Breadcrumbs items={breadcrumbItems} onNavigate={onNavigateBreadcrumb} />
-      {store.viewStack.length > 0 && (
+      {isReadOnly && (
         <span className="header-readonly-badge" title="Viewing this chip's internals — open it from the dock to edit">
           READ-ONLY
         </span>
