@@ -4,6 +4,7 @@ import { GithubIcon } from "@/components/ui/icons/GithubIcon";
 import { ProjectRow } from "@/components/ui/ProjectRow";
 import { listProjects } from "@/storage/projectStorage";
 import "./HomePage.css";
+import { ArrowRight } from "@/components/ui/icons/ArrowRight";
 
 const LOGO_ASCII = String.raw`
 ██╗      ██████╗  ██████╗ ██╗ ██████╗███████╗██╗███╗   ███╗
@@ -17,7 +18,8 @@ const RECENT_COUNT = 3;
 
 export function HomePage() {
   const navigate = useNavigate();
-  const recentProjects = listProjects().slice(0, RECENT_COUNT);
+  const projects = listProjects();
+  const recentProjects = projects.slice(0, RECENT_COUNT);
 
   return (
     <div className="home">
@@ -32,9 +34,6 @@ export function HomePage() {
         <div className="home-recent">
           <div className="home-recent-header">
             <span className="home-recent-label">Recent Projects</span>
-            <button type="button" className="home-recent-see-all" onClick={() => navigate("/projects")}>
-              SEE MORE →
-            </button>
           </div>
 
           <div className="home-recent-list">
@@ -42,14 +41,22 @@ export function HomePage() {
               <ProjectRow key={project.id} project={project} onClick={() => navigate(`/projects/${project.id}`)} />
             ))}
           </div>
+
+          {projects.length > RECENT_COUNT && (
+            <div className="centered">
+              <Button type="button" variant="plain" size="md" onClick={() => navigate("/projects")}>
+                SHOW ALL <ArrowRight size={13} />
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
       <div className="home-actions">
-        <Button type="button" variant="primary" size="xl" onClick={() => navigate("/new-project")}>
+        <Button type="button" variant="primary" size="lg" onClick={() => navigate("/new-project")}>
           + NEW PROJECT
         </Button>
-        <Button type="button" variant="secondary" size="xl" onClick={() => navigate("/about")}>
+        <Button type="button" variant="secondary" size="lg" onClick={() => navigate("/about")}>
           ABOUT
         </Button>
       </div>

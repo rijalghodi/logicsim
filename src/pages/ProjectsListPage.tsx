@@ -28,7 +28,7 @@ export function ProjectsListPage() {
           )}
 
           <div className="projects-page-actions">
-            <Button type="button" variant="primary" size="xl" onClick={() => navigate("/new-project")}>
+            <Button type="button" variant="primary" size="lg" onClick={() => navigate("/new-project")}>
               + NEW PROJECT
             </Button>
           </div>

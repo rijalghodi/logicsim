@@ -41,7 +41,7 @@
 
 .new-project-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
   flex-wrap: wrap-reverse;
 }

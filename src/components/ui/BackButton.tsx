@@ -1,4 +1,6 @@
+import { ArrowRight } from "./icons/ArrowRight";
 import "./BackButton.css";
+import Button from "./Button";
 
 interface BackButtonProps {
   readonly onClick: () => void;
@@ -6,8 +8,8 @@ interface BackButtonProps {
 
 export function BackButton({ onClick }: BackButtonProps) {
   return (
-    <button type="button" className="back-button" onClick={onClick}>
-      ← BACK
-    </button>
+    <Button type="button" variant="plain" onClick={onClick}>
+      <ArrowRight size={16} style={{ transform: "rotate(180deg)" }} /> BACK
+    </Button>
   );
 }

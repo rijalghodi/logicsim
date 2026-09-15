@@ -1,21 +1,12 @@
 .btn {
-  height: 32px;
-  padding: 0 12px;
   display: flex;
   gap: 6px;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
   transition: all 0.15s ease;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius);
-}
-
-.btn:hover {
-  background: rgba(255, 255, 255, 0.12);
 }
 
 .btn-primary {
@@ -57,6 +48,21 @@
 
 .btn-outline:hover {
   background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-plain {
+  background: transparent;
+  color: var(--fg-muted);
+  height: auto !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  border: none;
+  outline: none;
+  width: fit-content;
+}
+
+.btn-plain:hover {
+  color: var(--fg);
 }
 
 .btn-sm {

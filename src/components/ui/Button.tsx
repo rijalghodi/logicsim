@@ -5,7 +5,7 @@ import "./Button.css";
 type Props = {
   children: React.ReactNode;
   className?: string;
-  variant?: "primary" | "secondary" | "danger" | "outline";
+  variant?: "primary" | "secondary" | "danger" | "outline" | "plain";
   size?: "sm" | "md" | "lg" | "xl";
 } & ComponentPropsWithRef<"button">;
 

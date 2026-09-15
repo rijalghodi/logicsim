@@ -47,10 +47,10 @@ export function NewProjectPage() {
         </div>
 
         <div className="new-project-actions">
-          <Button type="button" variant="secondary" size="xl" onClick={() => navigate("/")}>
+          <Button type="button" variant="secondary" size="lg" onClick={() => navigate("/")}>
             BACK
           </Button>
-          <Button type="submit" variant="primary" size="xl">
+          <Button type="submit" variant="primary" size="lg">
             CREATE
           </Button>
         </div>
