@@ -6,22 +6,23 @@ import { CHIP_FILL } from "@/components/circuit/constants";
 export function useAppActions(windowSize: { width: number; height: number }) {
   const store = useCircuitStore();
 
-  const handleSaveClick = useCallback(
-    (onSaved?: () => void) => {
-      if (store.currentChipId) {
-        const chipDef = store.savedChips.find((c) => c.id === store.currentChipId);
-        store.saveCurrentChip({
-          id: store.currentChipId,
-          name: chipDef?.name || "",
-          color: chipDef?.color || CHIP_FILL,
-        });
-        onSaved?.();
-      } else {
-        modals.open("save-chip", { chipId: null, onSaved });
-      }
-    },
-    [store],
-  );
+  // Reads fresh state via getState() rather than the closured `store` — this gets called
+  // repeatedly mid-sequence by handleBreadcrumbClick's level-by-level close, where the
+  // active chip changes between calls faster than this hook re-renders.
+  const handleSaveClick = useCallback((onSaved?: () => void) => {
+    const state = useCircuitStore.getState();
+    if (state.currentChipId) {
+      const chipDef = state.savedChips.find((c) => c.id === state.currentChipId);
+      state.saveCurrentChip({
+        id: state.currentChipId,
+        name: chipDef?.name || "",
+        color: chipDef?.color || CHIP_FILL,
+      });
+      onSaved?.();
+    } else {
+      modals.open("save-chip", { chipId: null, onSaved });
+    }
+  }, []);
 
   const handleNewClick = useCallback(() => {
     if (store.isDirty && (store.circuit.components.length > 0 || store.circuit.connections.length > 0)) {
@@ -29,7 +30,7 @@ export function useAppActions(windowSize: { width: number; height: number }) {
     } else {
       store.resetToBlank();
     }
-  }, [store]);
+  }, [store, handleSaveClick]);
 
   const handleCustomizeClick = useCallback(() => {
     if (store.currentChipId) {
@@ -54,23 +55,37 @@ export function useAppActions(windowSize: { width: number; height: number }) {
         store.loadChipToCanvas(chipId);
       }
     },
-    [store],
+    [store, handleSaveClick],
   );
 
+  // Jumping to a breadcrumb `index` can skip several dived-into levels at once. Rather than one
+  // combined check, close them one at a time — from the current (deepest) level up toward the
+  // target — prompting for each dirty level individually, the same way closing several unsaved
+  // documents one by one would. Each step reads getState() fresh since the active level changes
+  // between steps faster than this hook re-renders.
   const handleBreadcrumbClick = useCallback(
     (index: number) => {
-      if (store.isDirty && store.currentChipId) {
-        modals.open("unsaved-alert", {
-          onDiscard: () => store.executeBreadcrumbNavigation(index),
-          onSave: () => {
-            handleSaveClick(() => store.executeBreadcrumbNavigation(index));
-          },
-        });
-      } else {
-        store.executeBreadcrumbNavigation(index);
-      }
+      const closeNextLevel = () => {
+        const state = useCircuitStore.getState();
+        const currentDepth = state.viewStack.length;
+        if (currentDepth <= index) return; // reached (or already at) the target level
+
+        const parentIndex = currentDepth - 1; // one level up: the immediate parent
+        const proceed = () => {
+          useCircuitStore.getState().executeBreadcrumbNavigation(parentIndex);
+          closeNextLevel();
+        };
+
+        if (state.isDirty) {
+          modals.open("unsaved-alert", { onDiscard: proceed, onSave: () => handleSaveClick(proceed) });
+        } else {
+          proceed();
+        }
+      };
+
+      closeNextLevel();
     },
-    [store],
+    [handleSaveClick],
   );
 
   const handleAddChipFreespace = useCallback(
