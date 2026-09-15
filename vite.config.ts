@@ -11,4 +11,7 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
+  server: {
+    allowedHosts: [".ngrok-free.app", ".trycloudflare.com"],
+  },
 });

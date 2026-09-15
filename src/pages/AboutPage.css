@@ -11,28 +11,18 @@
   color: var(--fg);
 }
 
+.about-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 640px;
+}
+
 .about-page-title {
   font-size: var(--text-xl);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
-}
-
-.about-page-content {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
-  max-width: 640px;
-}
-
-.about-page-actions {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
-
-.about-page-actions .btn {
-  flex: 1;
 }
