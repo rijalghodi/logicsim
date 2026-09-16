@@ -10,77 +10,95 @@ import {
 import { MenuIcon } from "./icons/MenuIcon";
 import Button from "./Button";
 
-interface AppMenuProps {
+interface EditModeProps {
+  readonly mode: "edit";
   readonly onNew: () => void;
   readonly onSave: () => void;
   readonly onSaveAs: () => void;
   readonly onCustomize: () => void;
   readonly onDelete: () => void;
-  readonly onEditReadOnlyChip: () => void;
   readonly onPreferences: () => void;
   readonly onQuit: () => void;
   readonly isSaved: boolean;
-  /** True while viewing a dived-into (read-only) chip — see Header's isReadOnly. Narrows the
-   * menu to only what's meaningful for a read-only view: editing it for real, preferences, quit. */
-  readonly isReadOnly: boolean;
-  readonly align?: "left" | "right";
 }
 
-export function AppMenu({
-  onNew,
-  onSave,
-  onSaveAs,
-  onCustomize,
-  onDelete,
-  onEditReadOnlyChip,
-  onPreferences,
-  onQuit,
-  isSaved,
-  isReadOnly,
-  align = "left",
-}: AppMenuProps) {
-  const menuItems = useMemo(
-    () =>
-      isReadOnly
-        ? [
-            { label: "NEW CHIP", key: "k", displayKey: "⌘ K", action: onNew, show: true },
-            { label: "EDIT CHIP", key: "e", displayKey: "⌘ E", action: onEditReadOnlyChip, show: true },
-            {
-              label: "PREFERENCES",
-              key: ",",
-              displayKey: "⌘ ,",
-              action: onPreferences,
-              show: true,
-              separatorOnTop: true,
-            },
-            { label: "QUIT PROJECT", key: "q", displayKey: "⌘ Q", action: onQuit, show: true },
-          ]
-        : [
-            { label: "NEW CHIP", key: "k", displayKey: "⌘ K", action: onNew, show: true },
-            { label: "SAVE CHIP", key: "s", displayKey: "⌘ S", action: onSave, show: true },
-            { label: "SAVE AS", key: "s", shiftKey: true, displayKey: "⌘ ⇧ S", action: onSaveAs, show: isSaved },
-            { label: "CUSTOMIZE", key: "e", displayKey: "⌘ E", action: onCustomize, show: isSaved },
-            {
-              label: "DELETE CHIP",
-              key: "backspace",
-              shiftKey: true,
-              displayKey: "⌘ ⇧ ⌫",
-              action: onDelete,
-              show: isSaved,
-              isDanger: true,
-            },
-            {
-              label: "PREFERENCES",
-              key: ",",
-              displayKey: "⌘ ,",
-              action: onPreferences,
-              show: true,
-              separatorOnTop: true,
-            },
-            { label: "QUIT PROJECT", key: "q", displayKey: "⌘ Q", action: onQuit, show: true },
-          ],
-    [isReadOnly, onNew, onSave, onSaveAs, onCustomize, onDelete, onEditReadOnlyChip, onPreferences, onQuit, isSaved],
-  );
+interface ReadOnlyModeProps {
+  readonly mode: "readOnly";
+  readonly onNew: () => void;
+  /** Makes the currently-viewed (read-only) chip the live editable canvas. */
+  readonly onEditChip: () => void;
+  /** Jumps to the leftmost breadcrumb — the chip you were actually editing before diving in. */
+  readonly onBackToParent: () => void;
+  readonly onPreferences: () => void;
+  readonly onQuit: () => void;
+}
+
+interface ExampleModeProps {
+  readonly mode: "example";
+  readonly onCopyToProject: () => void;
+  readonly onPreferences: () => void;
+  readonly onQuit: () => void;
+}
+
+type AppMenuProps = (EditModeProps | ReadOnlyModeProps | ExampleModeProps) & { readonly align?: "left" | "right" };
+
+export function AppMenu(props: AppMenuProps) {
+  const { align = "left" } = props;
+
+  const menuItems = useMemo(() => {
+    if (props.mode === "readOnly") {
+      const { onNew, onEditChip, onBackToParent, onPreferences, onQuit } = props;
+      return [
+        { label: "NEW CHIP", key: "k", displayKey: "⌘ K", action: onNew, show: true },
+        { label: "OPEN CHIP TO EDIT", key: "e", displayKey: "⌘ E", action: onEditChip, show: true },
+        { label: "BACK TO PARENT", key: "backspace", displayKey: "⌘ ⌫", action: onBackToParent, show: true },
+        {
+          label: "PREFERENCES",
+          key: ",",
+          displayKey: "⌘ ,",
+          action: onPreferences,
+          show: true,
+          separatorOnTop: true,
+        },
+        { label: "QUIT PROJECT", key: "q", displayKey: "⌘ Q", action: onQuit, show: true },
+      ];
+    }
+
+    if (props.mode === "example") {
+      const { onCopyToProject, onPreferences, onQuit } = props;
+      return [
+        { label: "COPY TO PROJECT", key: "s", displayKey: "⌘ S", action: onCopyToProject, show: true },
+        {
+          label: "PREFERENCES",
+          key: ",",
+          displayKey: "⌘ ,",
+          action: onPreferences,
+          show: true,
+          separatorOnTop: true,
+        },
+        { label: "QUIT EXAMPLE", key: "q", displayKey: "⌘ Q", action: onQuit, show: true },
+      ];
+    }
+
+    const { onNew, onSave, onSaveAs, onCustomize, onDelete, onPreferences, onQuit, isSaved } = props;
+    return [
+      { label: "NEW CHIP", key: "k", displayKey: "⌘ K", action: onNew, show: true },
+      { label: "SAVE CHIP", key: "s", displayKey: "⌘ S", action: onSave, show: true },
+      { label: "SAVE AS", key: "s", shiftKey: true, displayKey: "⌘ ⇧ S", action: onSaveAs, show: isSaved },
+      { label: "CUSTOMIZE", key: "e", displayKey: "⌘ E", action: onCustomize, show: isSaved },
+      {
+        label: "DELETE CHIP",
+        key: "backspace",
+        shiftKey: true,
+        displayKey: "⌘ ⇧ ⌫",
+        action: onDelete,
+        show: isSaved,
+        isDanger: true,
+      },
+      { label: "PREFERENCES", key: ",", displayKey: "⌘ ,", action: onPreferences, show: true, separatorOnTop: true },
+      { label: "QUIT PROJECT", key: "q", displayKey: "⌘ Q", action: onQuit, show: true },
+    ];
+  }, [props]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

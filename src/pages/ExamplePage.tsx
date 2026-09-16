@@ -2,9 +2,13 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CircuitCanvas } from "@/components/circuit/CircuitCanvas";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { AppMenu } from "@/components/ui/AppMenu";
 import { BackButton } from "@/components/ui/BackButton";
-import Button from "@/components/ui/Button";
+import { ModalView } from "@/components/ui/ModalView";
+import { Toast } from "@/components/ui/Toast";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import { useUserPreferencesStore } from "@/stores/userPreferencesStore";
+import { modals } from "@/stores/modalStore";
 import { getExampleById } from "@/examples";
 import type { ExampleDefinition } from "@/examples";
 import type { Bit, BoundaryPorts, CircuitDefinition } from "@/core";
@@ -23,12 +27,7 @@ interface ExampleView {
 }
 
 function toRootView(example: ExampleDefinition): ExampleView {
-  return {
-    name: example.name,
-    circuit: example.rootCircuit,
-    boundary: example.rootBoundary,
-    layout: example.rootLayout,
-  };
+  return { name: example.name, circuit: example.rootCircuit, boundary: example.rootBoundary, layout: example.rootLayout };
 }
 
 export function ExamplePage() {
@@ -65,6 +64,7 @@ interface ExampleViewerProps {
 
 function ExampleViewer({ example, onBack, onCopied }: ExampleViewerProps) {
   const windowSize = useWindowSize();
+  const preferences = useUserPreferencesStore();
 
   // A tiny, self-contained view stack for dive-in — deliberately not the shared circuitStore,
   // since this page never edits or persists anything and shouldn't touch project autosave.
@@ -134,14 +134,14 @@ function ExampleViewer({ example, onBack, onCopied }: ExampleViewerProps) {
 
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
-      <header className="example-header flex justify-between gap-6">
-        <div className="flex gap-6 items-center">
-          <BackButton onClick={onBack} />
-          <Breadcrumbs items={breadcrumbItems} onNavigate={handleNavigateBreadcrumb} />
-        </div>
-        <Button type="button" variant="primary" onClick={handleCopy}>
-          COPY TO MY PROJECTS
-        </Button>
+      <header className="example-header">
+        <AppMenu
+          mode="example"
+          onCopyToProject={handleCopy}
+          onPreferences={() => modals.open("preferences")}
+          onQuit={onBack}
+        />
+        <Breadcrumbs items={breadcrumbItems} onNavigate={handleNavigateBreadcrumb} />
       </header>
 
       <CircuitCanvas
@@ -153,9 +153,15 @@ function ExampleViewer({ example, onBack, onCopied }: ExampleViewerProps) {
         boundaryInputs={boundaryInputs}
         onToggleBoundaryInput={handleToggleBoundaryInput}
         onViewComponent={handleViewComponent}
+        showGrid={preferences.showGrid}
+        showPortLabel={preferences.showPortLabel}
         width={windowSize.width}
         height={windowSize.height}
       />
+
+      <Toast />
+
+      <ModalView />
     </div>
   );
 }

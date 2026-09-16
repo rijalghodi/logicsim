@@ -3,7 +3,6 @@ import { AppMenu } from "./AppMenu";
 import { useCircuitStore, useCurrentChip } from "@/stores/circuitStore";
 import { useMemo } from "react";
 import "./Header.css";
-import Button from "./Button";
 
 export interface HeaderProps {
   readonly onNavigateBreadcrumb: (index: number) => void;
@@ -55,18 +54,26 @@ export function Header({
   return (
     <header className="header-container flex flex-row justify-between items-center">
       <div className="flex flex-row gap-4 items-center">
-        {!isReadOnly && (
+        {isReadOnly ? (
           <AppMenu
+            mode="readOnly"
+            onNew={onNew}
+            onEditChip={onEditReadOnlyChip}
+            onBackToParent={() => onNavigateBreadcrumb(0)}
+            onPreferences={onPreferences}
+            onQuit={onQuit}
+          />
+        ) : (
+          <AppMenu
+            mode="edit"
             onNew={onNew}
             onSave={onSave}
             onSaveAs={onSaveAs}
             onCustomize={onCustomize}
             onDelete={onDelete}
-            onEditReadOnlyChip={onEditReadOnlyChip}
             onPreferences={onPreferences}
             onQuit={onQuit}
             isSaved={isSaved}
-            isReadOnly={isReadOnly}
           />
         )}
         <div className="flex items-center gap-1">
@@ -74,23 +81,13 @@ export function Header({
           {isReadOnly && (
             <span
               className="header-readonly-badge"
-              title="Viewing this chip's internals — open it from the dock to edit"
+              title="Viewing this chip's internals — open it from the menu to edit"
             >
               READ-ONLY
             </span>
           )}
         </div>
       </div>
-      {isReadOnly && (
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={onEditReadOnlyChip}>
-            EDIT CHIP
-          </Button>
-          <Button variant="primary" onClick={() => onNavigateBreadcrumb(breadcrumbItems.length - 2)}>
-            BACK TO PARENT
-          </Button>
-        </div>
-      )}
     </header>
   );
 }
