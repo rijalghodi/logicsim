@@ -54,7 +54,7 @@ export function Header({
 
   return (
     <header className="header-container flex flex-row justify-between items-center">
-      <div className="flex flex-row gap-2 items-center">
+      <div className="flex flex-row gap-4 items-center">
         {!isReadOnly && (
           <AppMenu
             onNew={onNew}
@@ -69,14 +69,17 @@ export function Header({
             isReadOnly={isReadOnly}
           />
         )}
-
-        <Breadcrumbs items={breadcrumbItems} onNavigate={onNavigateBreadcrumb} />
-
-        {isReadOnly && (
-          <span className="header-readonly-badge" title="Viewing this chip's internals — open it from the dock to edit">
-            READ-ONLY
-          </span>
-        )}
+        <div className="flex items-center gap-1">
+          <Breadcrumbs items={breadcrumbItems} onNavigate={onNavigateBreadcrumb} />
+          {isReadOnly && (
+            <span
+              className="header-readonly-badge"
+              title="Viewing this chip's internals — open it from the dock to edit"
+            >
+              READ-ONLY
+            </span>
+          )}
+        </div>
       </div>
       {isReadOnly && (
         <div className="flex gap-2">
