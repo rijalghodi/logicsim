@@ -1,0 +1,21 @@
+.example-header {
+  position: fixed;
+  top: 8px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 1000;
+}
+
+.example-missing {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--fg-muted);
+}

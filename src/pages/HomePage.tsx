@@ -2,7 +2,9 @@ import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import { GithubIcon } from "@/components/ui/icons/GithubIcon";
 import { ProjectRow } from "@/components/ui/ProjectRow";
+import { ExampleRow } from "@/components/ui/ExampleRow";
 import { listProjects } from "@/storage/projectStorage";
+import { EXAMPLES } from "@/examples";
 import "./HomePage.css";
 import { ArrowRight } from "@/components/ui/icons/ArrowRight";
 
@@ -51,6 +53,23 @@ export function HomePage() {
           )}
         </div>
       )}
+
+      <div className="home-recent">
+        <div className="home-recent-header">
+          <span className="home-recent-label">Examples</span>
+        </div>
+
+        <div className="home-recent-list">
+          {EXAMPLES.map((example) => (
+            <ExampleRow
+              key={example.id}
+              name={example.name}
+              description={example.description}
+              onClick={() => navigate(`/examples/${example.id}`)}
+            />
+          ))}
+        </div>
+      </div>
 
       <div className="home-actions">
         <Button type="button" variant="primary" size="lg" onClick={() => navigate("/new-project")}>
