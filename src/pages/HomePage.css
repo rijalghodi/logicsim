@@ -8,8 +8,6 @@
   justify-content: center;
   gap: 80px;
   padding: 40px 16px 88px;
-  background: var(--bg-0);
-  color: var(--fg);
 }
 
 .home-hero {
@@ -30,6 +28,8 @@
   white-space: pre;
   max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
   text-align: center;
 }
 
