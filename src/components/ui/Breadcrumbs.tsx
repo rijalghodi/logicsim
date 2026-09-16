@@ -37,7 +37,7 @@ export function Breadcrumbs({ items, onNavigate }: BreadcrumbsProps) {
 
   const renderSeparator = (key: string) => (
     <span key={key} className="breadcrumb-separator">
-      <ChevronRightIcon size={14} />
+      <ChevronRightIcon size={16} />
     </span>
   );
 

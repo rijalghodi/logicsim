@@ -27,7 +27,12 @@ interface ExampleView {
 }
 
 function toRootView(example: ExampleDefinition): ExampleView {
-  return { name: example.name, circuit: example.rootCircuit, boundary: example.rootBoundary, layout: example.rootLayout };
+  return {
+    name: example.name,
+    circuit: example.rootCircuit,
+    boundary: example.rootBoundary,
+    layout: example.rootLayout,
+  };
 }
 
 export function ExamplePage() {
@@ -142,10 +147,7 @@ function ExampleViewer({ example, onBack, onCopied }: ExampleViewerProps) {
           onQuit={onBack}
         />
         <Breadcrumbs items={breadcrumbItems} onNavigate={handleNavigateBreadcrumb} />
-        <span
-          className="example-readonly-badge"
-          title="Examples are read-only — copy this to your projects to edit it"
-        >
+        <span className="example-readonly-badge" title="Examples are read-only — copy this to your projects to edit it">
           READ-ONLY
         </span>
       </header>

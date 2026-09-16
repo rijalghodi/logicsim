@@ -1,27 +1,17 @@
-.header-container {
-  position: fixed;
-  top: 8px;
-  left: 16px;
-  right: 16px;
+.project-header {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 20px;
-  z-index: 1000;
-  pointer-events: none;
 }
 
-.header-container > * {
-  pointer-events: auto;
-}
-
-.header-readonly-badge {
+.project-readonly-badge {
   flex-shrink: 0;
   height: 24px;
   padding: 0 10px;
   display: inline-flex;
   align-items: center;
   background: hsl(from var(--warning) h s l / 10%);
-  /* border: 1px solid hsl(from var(--warning) h s l / 30%); */
   border-radius: var(--radius);
   color: var(--warning);
   font-size: var(--text-sm);

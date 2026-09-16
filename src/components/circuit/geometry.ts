@@ -52,7 +52,7 @@ export function sortPortsByLayout<T extends { readonly id: string }>(
 
 /** Taller boxes for chips with more ports, so pins on a busy side don't crowd together. */
 export function getNodeHeight(maxPortCount: number): number {
-  return Math.max(MIN_NODE_HEIGHT, (maxPortCount + 1) * PORT_ROW_HEIGHT);
+  return Math.max(MIN_NODE_HEIGHT, maxPortCount * PORT_ROW_HEIGHT);
 }
 
 export function getComponentBox(
@@ -62,9 +62,9 @@ export function getComponentBox(
   return { x: position.x, y: position.y, width: NODE_WIDTH, height: getNodeHeight(maxPortCount) };
 }
 
-/** The i-th of `count` evenly-spaced offsets along a span of length `span` (never flush with either end). */
+/** Divide `span` into 0.5, 1, 1, ..., 0.5 gap and put the port in the gap */
 function spacedOffset(index: number, count: number, span: number): number {
-  return (span * (index + 1)) / (count + 1);
+  return span * ((index + 0.5) / count);
 }
 
 export function getComponentPortPosition(

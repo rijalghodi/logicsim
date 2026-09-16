@@ -25,13 +25,13 @@
 
 .breadcrumb-item-active {
   color: var(--fg);
-  font-weight: 600;
+  font-weight: 700;
   cursor: default;
 }
 
 .breadcrumb-item-link {
   color: var(--fg-muted);
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -48,7 +48,7 @@
   border: none;
   color: var(--fg-muted);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;

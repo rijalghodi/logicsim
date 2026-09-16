@@ -1,10 +1,12 @@
 import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { modals } from "@/stores/modalStore";
 import { useCircuitStore } from "@/stores/circuitStore";
 import { CHIP_FILL } from "@/components/circuit/constants";
 
 export function useAppActions(windowSize: { width: number; height: number }) {
   const store = useCircuitStore();
+  const navigate = useNavigate();
 
   // Reads fresh state via getState() rather than the closured `store` — this gets called
   // repeatedly mid-sequence by handleBreadcrumbClick's level-by-level close, where the
@@ -97,6 +99,33 @@ export function useAppActions(windowSize: { width: number; height: number }) {
       },
     });
   }, [handleSaveClick]);
+
+  // Everything reached by diving in is read-only and can never be dirty — only the parent
+  // (viewStack[0], the leftmost breadcrumb, or the current level itself when not dived into
+  // anything) can hold real unsaved edits, so that's the only thing Quit needs to check.
+  const handleQuitClick = useCallback(() => {
+    const state = useCircuitStore.getState();
+    const isReadOnly = state.viewStack.length > 0;
+    const parentIsDirty = isReadOnly ? !!state.viewStack[0]?.isDirty : state.isDirty;
+
+    if (!parentIsDirty) {
+      navigate("/");
+      return;
+    }
+
+    modals.open("unsaved-alert", {
+      onDiscard: () => {
+        state.discardProjectChanges();
+        navigate("/");
+      },
+      onSave: () => {
+        // Surface the parent as the live canvas first, so Save persists its data — not
+        // whatever read-only child currently happens to be on screen.
+        if (isReadOnly) state.executeBreadcrumbNavigation(0);
+        handleSaveClick(() => navigate("/"));
+      },
+    });
+  }, [navigate, handleSaveClick]);
 
   // Jumping to a breadcrumb `index` can skip several dived-into levels at once. Rather than one
   // combined check, close them one at a time — from the current (deepest) level up toward the
@@ -241,6 +270,7 @@ export function useAppActions(windowSize: { width: number; height: number }) {
     handleDeleteCurrentClick,
     handleOpenChipClick,
     handleEditReadOnlyChipClick,
+    handleQuitClick,
     handleBreadcrumbClick,
     handleAddChipFreespace,
   };

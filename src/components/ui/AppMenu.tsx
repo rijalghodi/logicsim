@@ -50,8 +50,8 @@ export function AppMenu(props: AppMenuProps) {
       const { onNew, onEditChip, onBackToParent, onPreferences, onQuit } = props;
       return [
         { label: "NEW CHIP", key: "k", displayKey: "⌘ K", action: onNew, show: true },
-        { label: "OPEN CHIP TO EDIT", key: "e", displayKey: "⌘ E", action: onEditChip, show: true },
-        { label: "BACK TO PARENT", key: "backspace", displayKey: "⌘ ⌫", action: onBackToParent, show: true },
+        { label: "EDIT CHIP", key: "e", displayKey: "⌘ E", action: onEditChip, show: true },
+        { label: "GO TO PARENT", key: "backspace", displayKey: "⌘ ⌫", action: onBackToParent, show: true },
         {
           label: "PREFERENCES",
           key: ",",

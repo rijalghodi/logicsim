@@ -152,7 +152,6 @@ function buildHalfAdderExample(): ExampleDefinition {
   return {
     id: "half-adder",
     name: "Half Adder",
-    description: "Adds two bits",
     registry,
     rootCircuit: root.circuit,
     rootBoundary: root.boundary,

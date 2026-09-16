@@ -10,7 +10,6 @@ import type { SavedChip } from "@/storage/chipStorage";
 export interface ExampleDefinition {
   readonly id: string;
   readonly name: string;
-  readonly description: string;
   /** Pre-populated with every chip this example (transitively) depends on, so ExamplePage can
    * resolve/evaluate/dive into it without a project's own registry. */
   readonly registry: ChipRegistry;
