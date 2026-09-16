@@ -5,8 +5,8 @@ import { ProjectRow } from "@/components/ui/ProjectRow";
 import { ExampleRow } from "@/components/ui/ExampleRow";
 import { listProjects } from "@/storage/projectStorage";
 import { EXAMPLES } from "@/examples";
-import "./HomePage.css";
 import { ArrowRight } from "@/components/ui/icons/ArrowRight";
+import "./HomePage.css";
 
 const LOGO_ASCII = String.raw`
 ██╗      ██████╗  ██████╗ ██╗ ██████╗███████╗██╗███╗   ███╗
@@ -16,12 +16,14 @@ const LOGO_ASCII = String.raw`
 ███████╗╚██████╔╝╚██████╔╝██║╚██████╗███████║██║██║ ╚═╝ ██║
 ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝ ╚═════╝╚══════╝╚═╝╚═╝     ╚═╝`;
 
-const RECENT_COUNT = 3;
+const RECENT_PROJECTS_COUNT = 3;
+const RECENT_EXAMPLES_COUNT = 3;
 
 export function HomePage() {
   const navigate = useNavigate();
   const projects = listProjects();
-  const recentProjects = projects.slice(0, RECENT_COUNT);
+  const recentProjects = projects.slice(0, RECENT_PROJECTS_COUNT);
+  const recentExamples = EXAMPLES.slice(0, RECENT_EXAMPLES_COUNT);
 
   return (
     <div className="home">
@@ -33,40 +35,37 @@ export function HomePage() {
       </div>
 
       {recentProjects.length > 0 && (
-        <div className="home-recent">
-          <div className="home-recent-header">
-            <span className="home-recent-label">Recent Projects</span>
+        <div className="home-section">
+          <div className="home-section-header">
+            <span className="home-section-title">Recent Projects</span>
+            {projects.length > RECENT_PROJECTS_COUNT && (
+              <Button type="button" variant="plain" size="sm" onClick={() => navigate("/projects")}>
+                SHOW ALL <ArrowRight size={13} />
+              </Button>
+            )}
           </div>
 
-          <div className="home-recent-list">
-            {recentProjects.slice(0, 3).map((project) => (
+          <div className="home-section-list">
+            {recentProjects.map((project) => (
               <ProjectRow key={project.id} project={project} onClick={() => navigate(`/projects/${project.id}`)} />
             ))}
           </div>
-
-          {projects.length > RECENT_COUNT && (
-            <div className="centered">
-              <Button type="button" variant="plain" size="md" onClick={() => navigate("/projects")}>
-                SHOW ALL <ArrowRight size={13} />
-              </Button>
-            </div>
-          )}
         </div>
       )}
 
-      <div className="home-recent">
-        <div className="home-recent-header">
-          <span className="home-recent-label">Examples</span>
+      <div className="home-section">
+        <div className="home-section-header">
+          <span className="home-section-title">Examples</span>
+          {EXAMPLES.length > RECENT_EXAMPLES_COUNT && (
+            <Button type="button" variant="plain" size="sm" onClick={() => navigate("/examples")}>
+              SHOW ALL <ArrowRight size={13} />
+            </Button>
+          )}
         </div>
 
-        <div className="home-recent-list">
-          {EXAMPLES.map((example) => (
-            <ExampleRow
-              key={example.id}
-              name={example.name}
-              description={example.description}
-              onClick={() => navigate(`/examples/${example.id}`)}
-            />
+        <div className="home-section-list">
+          {recentExamples.map((example) => (
+            <ExampleRow key={example.id} name={example.name} onClick={() => navigate(`/examples/${example.id}`)} />
           ))}
         </div>
       </div>

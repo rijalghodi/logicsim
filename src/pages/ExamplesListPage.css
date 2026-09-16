@@ -1,4 +1,4 @@
-.projects-page {
+.examples-page {
   position: fixed;
   inset: 0;
   overflow-y: auto;
@@ -9,7 +9,7 @@
   padding: 40px 24px;
 }
 
-.projects-page-container {
+.examples-page-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -17,7 +17,7 @@
   max-width: var(--screen-xs);
 }
 
-.projects-page-title {
+.examples-page-title {
   font-size: var(--text-xl);
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -25,30 +25,14 @@
   text-align: center;
 }
 
-.projects-page-content {
+.examples-page-content {
   display: flex;
   flex-direction: column;
   gap: 24px;
   width: 100%;
 }
 
-.projects-page-actions {
+.examples-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  position: sticky;
-  bottom: 0px;
-}
-
-.projects-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.projects-empty-text {
-  padding: 40px 16px;
-  font-size: 15px;
-  color: var(--fg-muted);
-  text-align: center;
 }

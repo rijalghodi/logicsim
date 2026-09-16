@@ -41,7 +41,7 @@
   text-align: center;
 }
 
-.home-recent {
+.home-section {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -49,25 +49,24 @@
   max-width: var(--screen-xs);
 }
 
-.home-recent-header {
+.home-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-.home-recent-label {
+.home-section-title {
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--fg);
 }
 
-.home-recent-list {
+.home-section-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 .home-actions {
