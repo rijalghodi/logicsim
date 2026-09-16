@@ -14,7 +14,7 @@
   --success-fg: hsl(128, 95%, 8%);
   --warning: hsl(40, 100%, 50%);
   --warning-fg: hsl(48, 96%, 9%);
-  --border: hsla(0, 0%, 100%, 0.1);
+  --border: hsla(0, 0%, 100%, 0.12);
   --fg: hsl(0, 0%, 96%);
   --fg-secondary: hsl(0, 0%, 80%);
   --fg-muted: hsl(0, 0%, 65%);

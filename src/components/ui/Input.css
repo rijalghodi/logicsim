@@ -2,7 +2,7 @@
   width: 100%;
   height: 36px;
   padding: 0 10px;
-  background: var(--bg-1);
+  background: hsla(0, 0%, 100%, 0.08);
   border: none;
   border-radius: var(--radius);
   color: var(--fg);
@@ -21,7 +21,7 @@
 .input:focus-visible {
   border: none;
   outline: none;
-  box-shadow: 0 0 0 1px hsl(from var(--primary) h s l / 20%);
+  box-shadow: 0 0 0 1px hsl(from var(--primary) h s l / 30%);
 }
 
 .input[type="number"]::-webkit-inner-spin-button,
