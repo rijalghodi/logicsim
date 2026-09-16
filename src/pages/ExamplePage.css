@@ -9,6 +9,21 @@
   z-index: 1000;
 }
 
+.example-readonly-badge {
+  flex-shrink: 0;
+  height: 24px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  background: hsl(from var(--warning) h s l / 10%);
+  border-radius: var(--radius);
+  color: var(--warning);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: default;
+}
+
 .example-missing {
   position: fixed;
   inset: 0;

@@ -142,6 +142,12 @@ function ExampleViewer({ example, onBack, onCopied }: ExampleViewerProps) {
           onQuit={onBack}
         />
         <Breadcrumbs items={breadcrumbItems} onNavigate={handleNavigateBreadcrumb} />
+        <span
+          className="example-readonly-badge"
+          title="Examples are read-only — copy this to your projects to edit it"
+        >
+          READ-ONLY
+        </span>
       </header>
 
       <CircuitCanvas

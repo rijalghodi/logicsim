@@ -67,7 +67,7 @@ export function AppMenu(props: AppMenuProps) {
     if (props.mode === "example") {
       const { onCopyToProject, onPreferences, onQuit } = props;
       return [
-        { label: "COPY TO PROJECT", key: "s", displayKey: "⌘ S", action: onCopyToProject, show: true },
+        { label: "COPY EXAMPLE", key: "s", displayKey: "⌘ S", action: onCopyToProject, show: true },
         {
           label: "PREFERENCES",
           key: ",",
